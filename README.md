@@ -10,6 +10,8 @@
 | feat | 기능 단위 구현                        |
 | hotfix  | 서비스 중 긴급 수정 건에 대한 처리  |
 
+ex) feat/#1-login
+
 ## ✨ Commit Convention
 **유다시티 스타일 적용**
 | 머릿말           | 설명                                                                      |
