@@ -27,5 +27,15 @@ public class UserController {
     return true;
   }
 
+  @PostMapping("/signIn")
+  public SignInResponse signIn(@RequestBody SignInRequest req) {
 
+    User user = userRepository.findByEmailAndPassword(req.getEmail(), req.getPassword());
+    SignInResponse signInResponse = new SignInResponse();
+    signInResponse.setEmail(user.getEmail());
+    signInResponse.setProfileUrl(user.getProfileUrl());
+    signInResponse.setNickname(user.getNickname());
+
+    return signInResponse;
+  }
 }
