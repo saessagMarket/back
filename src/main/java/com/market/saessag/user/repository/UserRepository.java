@@ -5,7 +5,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface UserRepository extends JpaRepository<User, Long> {
 
-//  User findByEmailAndPassword(String email, String password);
+    //  User findByEmailAndPassword(String email, String password);
     boolean existsByEmail(String email);
     /*
         existsByEmail(): 이메일 중복 검증 방법
