@@ -3,10 +3,10 @@ spring:
   config:
     import: workflow.yml
   datasource:
-    driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost:3306/saessagdb
+    url: jdbc:mysql://localhost:3306/saessagdb?allowPublicKeyRetrieval=true&useSSL=false
     username: root
     password: '0000'
   jpa:
     hibernate:
       ddl-auto: update
+
