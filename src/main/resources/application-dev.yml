@@ -1,0 +1,11 @@
+# 개발 환경
+spring:
+  config:
+    import: workflow.yml
+  datasource:
+    url: ${DB_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+  jpa:
+    hibernate:
+      ddl-auto: validate

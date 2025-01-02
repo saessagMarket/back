@@ -1,0 +1,41 @@
+name: Deploy Application
+
+# develop 브랜치에 push될 때 배포 진행
+on:
+  push:
+    branches:
+      - develop
+
+# 기본 체크아웃 - 레포지토리의 최신 코드를 가져와 현재 워크플로우에서 사용할 수 있도록 로컬에 복제
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up JDK 21
+        uses: actions/setup-java@v3
+
+        # JDK 21 세팅 - github actions에서 사용할 JDK 설정
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+
+      # github secrets 이용하여 RDS 설정
+      - name: Build with Gradle
+        env:
+          SPRING_PROFILES_ACTIVE: prod
+          DB_URL: ${{ secrets.DB_URL }}
+          DB_USERNAME: ${{ secrets.DB_USERNAME }}
+          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+        run: ./gradlew build
+
+      # github secrets 이용하여 EC2 설정 (SSH 원격 실행)
+      - name: Deploy to EC2
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USERNAME }}
+          key: ${{ secrets.EC2_PRIVATE_KEY }}
+          script: |
+            sudo chmod +x /app/deploy.sh
+            /app/deploy.sh
