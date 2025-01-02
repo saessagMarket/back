@@ -1,10 +1,9 @@
 name: Deploy Application
 
-# main 브랜치, develop 브랜치에 push될 때 배포 진행
+# develop 브랜치에 push될 때 배포 진행
 on:
   push:
     branches:
-      - main
       - develop
 
 # 기본 체크아웃 - 레포지토리의 최신 코드를 가져와 현재 워크플로우에서 사용할 수 있도록 로컬에 복제
@@ -38,5 +37,5 @@ jobs:
           username: ${{ secrets.EC2_USERNAME }}
           key: ${{ secrets.EC2_PRIVATE_KEY }}
           script: |
-            cd ~/app
-            ./deploy.sh
+            sudo chmod +x /app/deploy.sh
+            /app/deploy.sh
