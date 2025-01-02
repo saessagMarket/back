@@ -41,6 +41,6 @@ public class Product {
 
 
     public enum ProductStatus {
-        판매중, 숨기기, 판매완료
+        FOR_SALE, HIDDEN, SOLD_OUT
     }
 }
