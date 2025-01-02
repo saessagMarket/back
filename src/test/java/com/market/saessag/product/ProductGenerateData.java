@@ -6,29 +6,35 @@ import com.market.saessag.user.entity.User;
 import com.market.saessag.user.repository.UserRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
+import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.test.annotation.Rollback;
 
 import java.time.LocalDate;
 import java.util.Random;
 
-@SpringBootTest
+@DataJpaTest
+@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
+@Rollback(false)
 public class ProductGenerateData {
     @Autowired
     private ProductRepository productRepository;
 
 
     @Autowired
-    private UserRepository userRepository; // UserRepository 추가
+    private UserRepository userRepository;
     @Test
     public void 상품_데이터_생성() {
         Random random = new Random();
 
         // 임의의 User 생성 및 저장
-        User user = new User();
-        user.setEmail("test@gmail.com");
-        user.setPassword("0000");
-        user.setNickname("테스트닉네임");
-        userRepository.save(user); // User 먼저 저장
+        User user = User.builder()
+                .email("test@gmail.com")
+                .password("0000")
+                .profilePhoto("photo1.jpg")
+                .nickname("테스트 닉네임")
+                .build();
+        userRepository.save(user);
 
         for (int i = 1; i <= 100; i++) {
             Product product = new Product();
