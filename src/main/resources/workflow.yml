@@ -1,0 +1,15 @@
+# workflow_call 활용
+spring:
+  application:
+    name: saessag
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  jpa:
+    show-sql: true # SQL 쿼리 출력
+    properties:
+      hibernate:
+        format_sql: true # 쿼리 포맷팅
+        highlight_sql: true # 쿼리 컬러 하이라이트
+logging:
+  level:
+    org.hibernate.orm.jdbc.bind: trace # 바인딩되는 파라미터 값 출력

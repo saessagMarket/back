@@ -1,13 +1,12 @@
-# ?? ??
+# 로컬 환경
 spring:
-  application:
-    name: saessag
+  config:
+    import: workflow.yml
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
     url: jdbc:mysql://localhost:3306/saessagdb
     username: root
-    password: 0000
+    password: '0000'
   jpa:
     hibernate:
       ddl-auto: update
-    show-sql: true
