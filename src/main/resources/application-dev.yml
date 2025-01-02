@@ -1,13 +1,11 @@
-# 운영 환경
+# 개발 환경
 spring:
-  application:
-    name: saessag
+  config:
+    import: workflow.yml
   datasource:
-    driver-class-name: com.mysql.cj.jdbc.Driver
     url: ${DB_URL}
     username: ${DB_USERNAME}
     password: ${DB_PASSWORD}
   jpa:
     hibernate:
       ddl-auto: validate
-    show-sql: true
