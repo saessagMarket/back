@@ -1,4 +1,4 @@
-package com.market.saessag.user;
+package com.market.saessag.user.dto;
 
 import lombok.Data;
 

@@ -1,4 +1,4 @@
-package com.market.saessag.user;
+package com.market.saessag.user.domain;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
