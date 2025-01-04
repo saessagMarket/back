@@ -3,7 +3,7 @@ spring:
   config:
     import: workflow.yml
   datasource:
-    url: jdbc:mysql://localhost:3306/saessagdb?allowPublicKeyRetrieval=true&useSSL=false
+    url: jdbc:mysql://localhost:3306/saessagdb?allowPublicKeyRetrieval=true&useSSL=false&useUnicode=true&serverTimezone=Asia/Seoul
     username: root
     password: '0000'
   jpa:
