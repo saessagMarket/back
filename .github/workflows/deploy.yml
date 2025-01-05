@@ -23,7 +23,7 @@ jobs:
       # github secrets 이용하여 RDS 설정
       - name: Build with Gradle
         env:
-          SPRING_PROFILES_ACTIVE: prod
+          SPRING_PROFILES_ACTIVE: dev
           DB_URL: ${{ secrets.DB_URL }}
           DB_USERNAME: ${{ secrets.DB_USERNAME }}
           DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
@@ -39,7 +39,7 @@ jobs:
           username: ${{ secrets.EC2_USERNAME }}
           key: ${{ secrets.EC2_PRIVATE_KEY }}
           source: "build/libs/*.jar"
-          target: "/app"
+          target: "/home/ubuntu/app"
 
       # github secrets 이용하여 EC2 설정 (SSH 원격 실행)
       - name: Deploy to EC2
@@ -49,5 +49,6 @@ jobs:
           username: ${{ secrets.EC2_USERNAME }}
           key: ${{ secrets.EC2_PRIVATE_KEY }}
           script: |
-            sudo chmod +x /app/deploy.sh
-            sudo /app/deploy.sh
+            cd /home/ubuntu/app
+            chmod +x scripts/deploy.sh
+            ./scripts/deploy.sh
