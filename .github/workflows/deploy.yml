@@ -31,6 +31,16 @@ jobs:
           chmod +x gradlew
           ./gradlew build
 
+      # jar 파일 전송 단계 추가
+      - name: Copy Jar to EC2
+        uses: appleboy/scp-action@master
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USERNAME }}
+          key: ${{ secrets.EC2_PRIVATE_KEY }}
+          source: "build/libs/*.jar"
+          target: "/app"
+
       # github secrets 이용하여 EC2 설정 (SSH 원격 실행)
       - name: Deploy to EC2
         uses: appleboy/ssh-action@master
