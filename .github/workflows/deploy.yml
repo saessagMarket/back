@@ -50,4 +50,4 @@ jobs:
           key: ${{ secrets.EC2_PRIVATE_KEY }}
           script: |
             sudo chmod +x /app/deploy.sh
-            /app/deploy.sh
+            sudo /app/deploy.sh
