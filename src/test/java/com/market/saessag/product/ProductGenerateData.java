@@ -31,7 +31,7 @@ public class ProductGenerateData {
         User user = User.builder()
                 .email("test@gmail.com")
                 .password("0000")
-                .profilePhoto("photo1.jpg")
+                .profileUrl("photo1.jpg")
                 .nickname("테스트 닉네임")
                 .build();
         userRepository.save(user);
