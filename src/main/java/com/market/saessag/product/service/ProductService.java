@@ -2,6 +2,7 @@ package com.market.saessag.product.service;
 
 import com.market.saessag.product.entity.Product;
 import com.market.saessag.product.repository.ProductRepository;
+import com.market.saessag.user.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -17,6 +18,9 @@ public class ProductService {
     @Autowired
     private ProductRepository productRepository;
 
+    @Autowired
+    private UserRepository userRepository;
+
     //전체 상품 조회
     public List<Product> getAllProducts() {
         return productRepository.findAll();
@@ -29,7 +33,8 @@ public class ProductService {
     }
 
     //특정 사용자 상품 조회
-    public List<Product> getProductsByUserId(Long userId) {
+    public List<Product> getProductsByNickname(String nickname) {
+        Long userId = userRepository.findByNickname(nickname).getId();
         return productRepository.findByUserId(userId);
     }
 

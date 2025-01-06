@@ -13,4 +13,5 @@ public interface UserRepository extends JpaRepository<User, Long> {
         -> SignUp 서비스 단에서 검증
      */
 
+    User findByNickname(String nickname);
 }

@@ -2,7 +2,6 @@ package com.market.saessag.product.controller;
 
 
 import com.market.saessag.product.entity.Product;
-import com.market.saessag.product.repository.ProductRepository;
 import com.market.saessag.product.service.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -18,8 +17,6 @@ import java.util.Optional;
 public class ProductController {
     @Autowired
     private ProductService productService;
-    @Autowired
-    private ProductRepository productRepository;
 
     //전체 상품 조회
     @GetMapping("/all")
@@ -35,9 +32,9 @@ public class ProductController {
     }
 
     //특정 사용자 상품 조회
-    @GetMapping("/user/{userId}")
-    public List<Product> getProductsByUserId(@PathVariable Long userId) {
-        return productService.getProductsByUserId(userId);
+    @GetMapping("/user/{nickname}")
+    public List<Product> getProductsByUserId(@PathVariable String nickname) {
+        return productService.getProductsByNickname(nickname);
     }
 
     //상품 이름 조회
