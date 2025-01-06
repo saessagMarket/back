@@ -1,7 +1,9 @@
 package com.market.saessag.product.service;
 
+import com.market.saessag.product.dto.ProductResponse;
 import com.market.saessag.product.entity.Product;
 import com.market.saessag.product.repository.ProductRepository;
+import com.market.saessag.user.dto.UserResponse;
 import com.market.saessag.user.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -11,7 +13,6 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class ProductService {
@@ -59,8 +60,29 @@ public class ProductService {
     }
 
     //상품 수정 폼
-    public Optional<Product> updateProductForm(Long productId) {
-        return productRepository.findById(productId);
+    public ProductResponse updateProductForm(Long productId) {
+        Product product = productRepository.findById(productId)
+                .orElseThrow(() -> new IllegalArgumentException("해당 상품이 존재하지 않습니다."));
+
+        //User 정보 DTO로 변환
+        UserResponse userDTO = new UserResponse();
+        userDTO.setId(product.getUser().getId());
+        userDTO.setNickname(product.getUser().getNickname());
+        userDTO.setProfileUrl(product.getUser().getProfileUrl());
+
+        //Product 정보 DTO로 변환
+        ProductResponse productDTO = new ProductResponse();
+        productDTO.setProductId(product.getProductId());
+        productDTO.setPhoto(product.getPhoto());
+        productDTO.setTitle(product.getTitle());
+        productDTO.setPrice(product.getPrice());
+        productDTO.setDescription(product.getDescription());
+        productDTO.setMeetingPlace(product.getMeetingPlace());
+        productDTO.setAddedDate(product.getAddedDate().toString());
+        productDTO.setStatus(product.getStatus().toString());
+        productDTO.setUser(userDTO);
+
+        return productDTO;
     }
 
     //상품 수정

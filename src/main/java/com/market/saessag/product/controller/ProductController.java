@@ -1,6 +1,7 @@
 package com.market.saessag.product.controller;
 
 
+import com.market.saessag.product.dto.ProductResponse;
 import com.market.saessag.product.entity.Product;
 import com.market.saessag.product.service.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,7 +11,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/products")
@@ -60,8 +60,9 @@ public class ProductController {
 
     //상품 수정 조회폼
     @GetMapping("/update/{productId}")
-    public Optional<Product> getUpdateForm(@PathVariable Long productId) {
-        return productService.updateProductForm(productId);
+    public ResponseEntity<ProductResponse> getUpdateForm(@PathVariable Long productId) {
+        ProductResponse productDTO = productService.updateProductForm(productId);
+        return ResponseEntity.ok(productDTO);
     }
 
     //상품 수정
