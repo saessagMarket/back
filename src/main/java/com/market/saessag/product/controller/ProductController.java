@@ -5,6 +5,8 @@ import com.market.saessag.product.entity.Product;
 import com.market.saessag.product.service.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -46,6 +48,13 @@ public class ProductController {
                                                 @RequestParam(defaultValue = "10") int size,
                                                 @RequestParam(defaultValue = "asc") String direction) {
         return productService.getProductsSortByPrice(page, size,direction);
+    }
+
+    //상품 생성
+    @PostMapping
+    public ResponseEntity<Product> createProduct(@RequestBody Product product) {
+        Product createdProduct = productService.createProduct(product);
+        return new ResponseEntity<>(createdProduct, HttpStatus.CREATED);
     }
 
 }

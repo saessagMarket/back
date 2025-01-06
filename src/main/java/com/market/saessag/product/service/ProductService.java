@@ -46,4 +46,9 @@ public class ProductService {
         Pageable pageable = PageRequest.of(page, size, sort);
         return productRepository.findAll(pageable);
     }
+
+    //상품 생성
+    public Product createProduct(Product product) {
+        return productRepository.save(product);
+    }
 }
