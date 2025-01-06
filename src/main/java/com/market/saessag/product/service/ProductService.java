@@ -72,4 +72,8 @@ public class ProductService {
                     return productRepository.save(afterProduct);
                 }).orElseThrow(() -> new IllegalArgumentException("없는 상품 번호 입니다."));
     }
+
+    public void deleteProduct(Long productId) {
+        productRepository.deleteById(productId);
+    }
 }

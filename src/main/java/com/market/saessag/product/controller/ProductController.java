@@ -74,5 +74,9 @@ public class ProductController {
         return productService.updateProduct(productId, product);
     }
 
-
+    //상품 삭제
+    @DeleteMapping("{productId}")
+    public void deleteProduct(@PathVariable Long productId) {
+        productService.deleteProduct(productId);
+    }
 }
