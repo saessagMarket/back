@@ -10,6 +10,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class ProductService {
@@ -50,5 +51,25 @@ public class ProductService {
     //상품 생성
     public Product createProduct(Product product) {
         return productRepository.save(product);
+    }
+
+    //상품 수정 폼
+    public Optional<Product> updateProductForm(Long productId) {
+        return productRepository.findById(productId);
+    }
+
+    //상품 수정
+    public Product updateProduct(Long productId, Product product) {
+        //수정 시 추가된 날짜 업데이트 X ?
+        return productRepository.findById(productId)
+                .map(afterProduct -> {
+                    afterProduct.setDescription(product.getDescription());
+                    afterProduct.setMeetingPlace(product.getMeetingPlace());
+                    afterProduct.setPhoto(product.getPhoto());
+                    afterProduct.setPrice(product.getPrice());
+                    afterProduct.setStatus(product.getStatus());
+                    afterProduct.setTitle(product.getTitle());
+                    return productRepository.save(afterProduct);
+                }).orElseThrow(() -> new IllegalArgumentException("없는 상품 번호 입니다."));
     }
 }
