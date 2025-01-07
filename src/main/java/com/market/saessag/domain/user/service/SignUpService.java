@@ -30,7 +30,7 @@ public class SignUpService {
         user.setEmail(signUpRequest.getEmail());
         user.setPassword(bCryptPasswordEncoder.encode(signUpRequest.getPassword())); // 비밀번호 암호화
         user.setNickname(signUpRequest.getNickname());
-        user.setRole("ROLE_USER");
+        user.setRole("ROLE_ADMIN");
         
         userRepository.save(user);
     }
