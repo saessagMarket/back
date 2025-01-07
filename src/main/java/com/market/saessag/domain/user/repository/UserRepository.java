@@ -1,6 +1,6 @@
-package com.market.saessag.user.repository;
+package com.market.saessag.domain.user.repository;
 
-import com.market.saessag.user.entity.User;
+import com.market.saessag.domain.user.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface UserRepository extends JpaRepository<User, Long> {

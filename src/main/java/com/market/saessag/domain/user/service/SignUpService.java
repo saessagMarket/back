@@ -1,8 +1,8 @@
-package com.market.saessag.user.service;
+package com.market.saessag.domain.user.service;
 
-import com.market.saessag.user.dto.SignUpRequest;
-import com.market.saessag.user.entity.User;
-import com.market.saessag.user.repository.UserRepository;
+import com.market.saessag.domain.user.dto.SignUpRequest;
+import com.market.saessag.domain.user.entity.User;
+import com.market.saessag.domain.user.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -30,7 +30,7 @@ public class SignUpService {
         user.setEmail(signUpRequest.getEmail());
         user.setPassword(bCryptPasswordEncoder.encode(signUpRequest.getPassword())); // 비밀번호 암호화
         user.setNickname(signUpRequest.getNickname());
-        user.setRole("ROLE_ADMIN");
+        user.setRole("ROLE_USER");
         
         userRepository.save(user);
     }

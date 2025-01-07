@@ -1,4 +1,4 @@
-package com.market.saessag.user.entity;
+package com.market.saessag.domain.user.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
