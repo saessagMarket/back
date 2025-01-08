@@ -1,11 +1,10 @@
-package com.market.saessag.user.repository;
+package com.market.saessag.domain.user.repository;
 
-import com.market.saessag.user.entity.User;
+import com.market.saessag.domain.user.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface UserRepository extends JpaRepository<User, Long> {
-
-    //  User findByEmailAndPassword(String email, String password);
+    User findByEmail(String email);
     boolean existsByEmail(String email);
     /*
         existsByEmail(): 이메일 중복 검증 방법

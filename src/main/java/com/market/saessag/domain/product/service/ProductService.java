@@ -1,7 +1,7 @@
-package com.market.saessag.product.service;
+package com.market.saessag.domain.product.service;
 
-import com.market.saessag.product.entity.Product;
-import com.market.saessag.product.repository.ProductRepository;
+import com.market.saessag.domain.product.entity.Product;
+import com.market.saessag.domain.product.repository.ProductRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;

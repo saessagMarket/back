@@ -1,6 +1,6 @@
-package com.market.saessag.product.entity;
+package com.market.saessag.domain.product.entity;
 
-import com.market.saessag.user.entity.User;
+import com.market.saessag.domain.user.entity.User;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;

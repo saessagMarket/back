@@ -1,8 +1,8 @@
-package com.market.saessag.product.controller;
+package com.market.saessag.domain.product.controller;
 
 
-import com.market.saessag.product.entity.Product;
-import com.market.saessag.product.service.ProductService;
+import com.market.saessag.domain.product.entity.Product;
+import com.market.saessag.domain.product.service.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;

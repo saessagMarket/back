@@ -13,3 +13,12 @@ spring:
 logging:
   level:
     org.hibernate.orm.jdbc.bind: trace # 바인딩되는 파라미터 값 출력
+
+server:
+  servlet:
+    session:
+      timeout: 600  # 세션 만료 시간을 600초(10분)으로 설정
+      cookie:
+        http-only: true # XSS 공격 방지를 위해 JavaScript에서 쿠키 접근 불가
+        secure: false # 추후 HTTPS로 변경 시 true로 변경, HTTPS 통해서만 쿠키 전송 가능
+        name: SESSION # 세션 쿠키의 이름을 'SESSION'으로 설정
