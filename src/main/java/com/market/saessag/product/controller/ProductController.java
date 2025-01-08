@@ -33,7 +33,7 @@ public class ProductController {
 
     //특정 사용자 상품 조회
     @GetMapping("/user/{nickname}")
-    public List<Product> getProductsByUserId(@PathVariable String nickname) {
+    public List<ProductResponse> getProductsByUserId(@PathVariable String nickname) {
         return productService.getProductsByNickname(nickname);
     }
 

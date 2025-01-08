@@ -4,6 +4,7 @@ import com.market.saessag.product.dto.ProductResponse;
 import com.market.saessag.product.entity.Product;
 import com.market.saessag.product.repository.ProductRepository;
 import com.market.saessag.user.dto.UserResponse;
+import com.market.saessag.user.entity.User;
 import com.market.saessag.user.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -12,6 +13,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -34,9 +36,35 @@ public class ProductService {
     }
 
     //특정 사용자 상품 조회
-    public List<Product> getProductsByNickname(String nickname) {
-        Long userId = userRepository.findByNickname(nickname).getId();
-        return productRepository.findByUserId(userId);
+    public List<ProductResponse> getProductsByNickname(String nickname) {
+
+        User user = userRepository.findByNickname(nickname);
+        List<Product> products = productRepository.findByUserId(user.getId());
+
+        //User 정보 DTO로 변환
+        UserResponse userDTO = new UserResponse();
+        userDTO.setId(user.getId());
+        userDTO.setNickname(user.getNickname());
+        userDTO.setProfileUrl(user.getProfileUrl());
+
+        //Product 정보 DTO로 변환
+        List<ProductResponse> productsDTO = new ArrayList<>();
+
+        for (int i = 0; i < products.size(); i++) {
+            ProductResponse productDTO = new ProductResponse();
+            productDTO.setProductId(products.get(i).getProductId());
+            productDTO.setPhoto(products.get(i).getPhoto());
+            productDTO.setTitle(products.get(i).getTitle());
+            productDTO.setPrice(products.get(i).getPrice());
+            productDTO.setDescription(products.get(i).getDescription());
+            productDTO.setMeetingPlace(products.get(i).getMeetingPlace());
+            productDTO.setAddedDate(products.get(i).getAddedDate().toString());
+            productDTO.setStatus(products.get(i).getStatus().toString());
+            productDTO.setUser(userDTO);
+            productsDTO.add(productDTO);
+        }
+        return productsDTO;
+
     }
 
     //상품 이름 조회
