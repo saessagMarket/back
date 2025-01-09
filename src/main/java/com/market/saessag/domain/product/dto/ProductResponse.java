@@ -1,6 +1,6 @@
-package com.market.saessag.product.dto;
+package com.market.saessag.domain.product.dto;
 
-import com.market.saessag.user.dto.UserResponse;
+import com.market.saessag.domain.user.dto.UserResponse;
 import lombok.Getter;
 import lombok.Setter;
 
