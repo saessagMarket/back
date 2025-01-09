@@ -1,11 +1,11 @@
-package com.market.saessag.product.service;
+package com.market.saessag.domain.product.service;
 
-import com.market.saessag.product.dto.ProductResponse;
-import com.market.saessag.product.entity.Product;
-import com.market.saessag.product.repository.ProductRepository;
+import com.market.saessag.domain.product.dto.ProductResponse;
+import com.market.saessag.domain.product.entity.Product;
+import com.market.saessag.domain.product.repository.ProductRepository;
+import com.market.saessag.domain.user.entity.User;
+import com.market.saessag.domain.user.repository.UserRepository;
 import com.market.saessag.user.dto.UserResponse;
-import com.market.saessag.user.entity.User;
-import com.market.saessag.user.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;

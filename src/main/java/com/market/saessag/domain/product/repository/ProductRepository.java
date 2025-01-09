@@ -1,7 +1,7 @@
-package com.market.saessag.product.repository;
+package com.market.saessag.domain.product.repository;
 
-import com.market.saessag.product.entity.Product;
-import com.market.saessag.user.entity.User;
+import com.market.saessag.domain.product.entity.Product;
+import com.market.saessag.domain.user.entity.User;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;

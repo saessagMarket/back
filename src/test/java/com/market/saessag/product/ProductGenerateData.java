@@ -1,14 +1,15 @@
 package com.market.saessag.product;
 
-import com.market.saessag.product.entity.Product;
-import com.market.saessag.product.repository.ProductRepository;
-import com.market.saessag.user.entity.User;
-import com.market.saessag.user.repository.UserRepository;
+import com.market.saessag.domain.product.entity.Product;
+import com.market.saessag.domain.product.repository.ProductRepository;
+import com.market.saessag.domain.user.entity.User;
+import com.market.saessag.domain.user.repository.UserRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.test.annotation.Rollback;
+import org.springframework.test.context.ActiveProfiles;
 
 import java.time.LocalDate;
 import java.util.Random;
@@ -16,6 +17,7 @@ import java.util.Random;
 @DataJpaTest
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @Rollback(false)
+@ActiveProfiles("test")
 public class ProductGenerateData {
     @Autowired
     private ProductRepository productRepository;

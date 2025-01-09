@@ -1,7 +1,7 @@
-package com.market.saessag.user.controller;
+package com.market.saessag.domain.user.controller;
 
-import com.market.saessag.user.dto.SignUpRequest;
-import com.market.saessag.user.service.SignUpService;
+import com.market.saessag.domain.user.service.SignUpService;
+import com.market.saessag.domain.user.dto.SignUpRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
