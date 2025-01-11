@@ -23,7 +23,7 @@ public class ProductController {
             @RequestParam(required = false) String title,
             @RequestParam(required = false) String nickname,
             @RequestParam(required = false) String sort, //정렬 기준 (price, addedDate 등)
-            @RequestParam(defaultValue = "asc") String direction) {
+            @RequestParam(defaultValue = "desc") String direction) {
 
         return productService.searchProducts(page, size, title, nickname, sort, direction);
     }
