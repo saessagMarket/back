@@ -5,7 +5,7 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Entity
 @Getter
@@ -34,7 +34,7 @@ public class Product {
     private String meetingPlace;
 
     @Column(nullable = false)
-    private LocalDate addedDate;
+    private LocalDateTime addedDate;
 
     @Enumerated(EnumType.STRING)
     private ProductStatus status;
