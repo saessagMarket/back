@@ -6,6 +6,7 @@ import com.market.saessag.domain.product.repository.ProductRepository;
 import com.market.saessag.domain.user.entity.User;
 import com.market.saessag.domain.user.repository.UserRepository;
 import com.market.saessag.domain.user.dto.UserResponse;
+import com.market.saessag.util.TimeUtils;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -13,9 +14,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
-
-import java.time.LocalDateTime;
-import java.time.temporal.ChronoUnit;
 
 @Service
 public class ProductService {
@@ -72,7 +70,7 @@ public class ProductService {
                 .price(product.getPrice())
                 .description(product.getDescription())
                 .meetingPlace(product.getMeetingPlace())
-                .addedDate(getRelativeTime(product.getAddedDate()))
+                .addedDate(TimeUtils.getRelativeTime(product.getAddedDate()))
                 .status(product.getStatus().toString())
                 .user(UserResponse.builder()
                         .id(user.getId())
@@ -82,33 +80,6 @@ public class ProductService {
                 .build();
     }
 
-    private String getRelativeTime(LocalDateTime addedDate) {
-        LocalDateTime now = LocalDateTime.now();
-
-        long seconds = ChronoUnit.SECONDS.between(addedDate, now);
-        long minutes = ChronoUnit.MINUTES.between(addedDate, now);
-        long hours = ChronoUnit.HOURS.between(addedDate, now);
-        long days = ChronoUnit.DAYS.between(addedDate, now);
-        long weeks = ChronoUnit.WEEKS.between(addedDate, now);
-        long months = ChronoUnit.MONTHS.between(addedDate, now);
-        long years = ChronoUnit.YEARS.between(addedDate, now);
-
-        if (seconds < 60) {
-            return seconds + "초 전";
-        } else if (minutes < 60) {
-            return minutes + "분 전";
-        } else if (hours < 24) {
-            return hours + "시간 전";
-        } else if (days < 7) {
-            return days + "일 전";
-        } else if (weeks < 5) {
-            return weeks + "주 전";
-        } else if (months < 12) {
-            return months + "개월 전";
-        } else {
-            return years + "년 전";
-        }
-    }
 
     public ProductResponse getProductDetail(Long productId) {
         Product id = productRepository.findById(productId)
