@@ -28,6 +28,12 @@ public class ProductController {
         return productService.searchProducts(page, size, title, nickname, sort, direction);
     }
 
+    //상세 조회
+    @GetMapping("/{productId}")
+    public ProductResponse getProductDetail(@PathVariable Long productId) {
+        return productService.getProductDetail(productId);
+    }
+
     //상품 생성
     @PostMapping
     public ResponseEntity<Product> createProduct(@RequestBody Product product) {

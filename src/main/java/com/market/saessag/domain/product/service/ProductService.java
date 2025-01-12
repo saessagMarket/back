@@ -6,6 +6,7 @@ import com.market.saessag.domain.product.repository.ProductRepository;
 import com.market.saessag.domain.user.entity.User;
 import com.market.saessag.domain.user.repository.UserRepository;
 import com.market.saessag.domain.user.dto.UserResponse;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -112,5 +113,12 @@ public class ProductService {
         } else {
             return years + "년 전";
         }
+    }
+
+    public ProductResponse getProductDetail(Long productId) {
+        Product id = productRepository.findById(productId)
+                .orElseThrow(()-> new EntityNotFoundException("상품이 없습니다."));
+        ProductResponse productResponse = convertToDTO(id);
+        return productResponse;
     }
 }
