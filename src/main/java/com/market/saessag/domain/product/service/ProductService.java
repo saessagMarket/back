@@ -30,7 +30,6 @@ public class ProductService {
 
     //상품 수정
     public Product updateProduct(Long productId, Product product) {
-        //수정 시 추가된 날짜 업데이트 X ?
         return productRepository.findById(productId)
                 .map(afterProduct -> {
                     afterProduct.setDescription(product.getDescription());
@@ -80,11 +79,9 @@ public class ProductService {
                 .build();
     }
 
-
     public ProductResponse getProductDetail(Long productId) {
         Product id = productRepository.findById(productId)
-                .orElseThrow(()-> new EntityNotFoundException("상품이 없습니다."));
-        ProductResponse productResponse = convertToDTO(id);
-        return productResponse;
+                .orElseThrow(()-> new IllegalArgumentException("상품이 없습니다."));
+        return convertToDTO(id);
     }
 }
