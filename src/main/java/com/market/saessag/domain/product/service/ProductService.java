@@ -63,28 +63,23 @@ public class ProductService {
     }
 
     private ProductResponse convertToDTO(Product product) {
-        //UserResponse 변환
-        UserResponse userDTO = new UserResponse();
-        userDTO.setId(product.getUser().getId());
-        userDTO.setNickname(product.getUser().getNickname());
-        userDTO.setProfileUrl(product.getUser().getProfileUrl());
+        User user = product.getUser();
 
-        //상대 시간 (등록 시간에 사용)
-        String relativeTime = getRelativeTime(product.getAddedDate());
-
-        //Product 정보 DTO로 변환
-        ProductResponse productDTO = new ProductResponse();
-        productDTO.setProductId(product.getProductId());
-        productDTO.setPhoto(product.getPhoto());
-        productDTO.setTitle(product.getTitle());
-        productDTO.setPrice(product.getPrice());
-        productDTO.setDescription(product.getDescription());
-        productDTO.setMeetingPlace(product.getMeetingPlace());
-        productDTO.setAddedDate(relativeTime);
-        productDTO.setStatus(product.getStatus().toString());
-        productDTO.setUser(userDTO);
-
-        return productDTO;
+        return ProductResponse.builder()
+                .productId(product.getProductId())
+                .photo(product.getPhoto())
+                .title(product.getTitle())
+                .price(product.getPrice())
+                .description(product.getDescription())
+                .meetingPlace(product.getMeetingPlace())
+                .addedDate(getRelativeTime(product.getAddedDate()))
+                .status(product.getStatus().toString())
+                .user(UserResponse.builder()
+                        .id(user.getId())
+                        .nickname(user.getNickname())
+                        .profileUrl(user.getProfileUrl())
+                        .build())
+                .build();
     }
 
     private String getRelativeTime(LocalDateTime addedDate) {

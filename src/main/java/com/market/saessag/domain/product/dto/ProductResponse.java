@@ -1,11 +1,12 @@
 package com.market.saessag.domain.product.dto;
 
 import com.market.saessag.domain.user.dto.UserResponse;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
 @Getter
-@Setter
+@Builder
 public class ProductResponse {
     private Long productId;
     private String photo;
