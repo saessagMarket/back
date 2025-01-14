@@ -8,13 +8,13 @@ import lombok.Setter;
 @Getter
 @Builder
 public class ProductResponse {
-    private Long productId;
+    private final Long productId;
     private String photo;
     private String title;
     private Long price;
     private String description;
     private String meetingPlace;
-    private String addedDate;
+    private final String addedDate;
     private String status;
-    private UserResponse user;
+    private final UserResponse user;
 }
