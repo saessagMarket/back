@@ -7,13 +7,14 @@ import com.market.saessag.domain.user.entity.User;
 import com.market.saessag.domain.user.repository.UserRepository;
 import com.market.saessag.domain.user.dto.UserResponse;
 import com.market.saessag.util.TimeUtils;
-import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+
+import java.util.Optional;
 
 @Service
 public class ProductService {
@@ -24,13 +25,13 @@ public class ProductService {
     private UserRepository userRepository;
 
     //상품 생성
-    public Product createProduct(Product product) {
-        return productRepository.save(product);
+    public ProductResponse createProduct(Product product) {
+        return convertToDTO(productRepository.save(product));
     }
 
     //상품 수정
-    public Product updateProduct(Long productId, Product product) {
-        return productRepository.findById(productId)
+    public ProductResponse updateProduct(Long productId, Product product) {
+        Product productDTO = productRepository.findById(productId)
                 .map(afterProduct -> {
                     afterProduct.setDescription(product.getDescription());
                     afterProduct.setMeetingPlace(product.getMeetingPlace());
@@ -40,10 +41,17 @@ public class ProductService {
                     afterProduct.setTitle(product.getTitle());
                     return productRepository.save(afterProduct);
                 }).orElseThrow(() -> new IllegalArgumentException("없는 상품 번호 입니다."));
+
+        return convertToDTO(productDTO);
     }
 
-    public void deleteProduct(Long productId) {
-        productRepository.deleteById(productId);
+    public boolean deleteProduct(Long productId) {
+        Optional<Product> product = productRepository.findById(productId);
+        if (product.isPresent()) {
+            productRepository.deleteById(productId);
+            return true;
+        }
+        return false;
     }
 
     public Page<ProductResponse> searchProducts(int page, int size, String title, String nickname, String sort, String direction) {
