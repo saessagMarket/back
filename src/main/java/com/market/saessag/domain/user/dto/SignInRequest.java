@@ -1,5 +1,5 @@
 // 로그인
-package com.market.saessag.domain.user.dto.request;
+package com.market.saessag.domain.user.dto;
 
 import lombok.Builder;
 import lombok.Getter;

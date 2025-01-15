@@ -9,6 +9,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
+
 @Service
 @RequiredArgsConstructor
 public class SignInService {
@@ -18,8 +20,8 @@ public class SignInService {
 
     @Transactional
     public SignInResponse signIn(SignInRequest signInRequest) {
-        User user = userRepository.findByEmail(signInRequest.getEmail());
-
+        Optional<User> userOptional = userRepository.findByEmail(signInRequest.getEmail());
+        User user = userOptional.get();
         validateUserExists(signInRequest.getEmail()); // 이메일 검증
         validatePassword(signInRequest.getPassword(), user.getPassword()); // 비밀번호 검증
 
