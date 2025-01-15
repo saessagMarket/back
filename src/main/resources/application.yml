@@ -9,3 +9,11 @@ spring:
   jpa:
     hibernate:
       ddl-auto: update
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: ${MAIL_USERNAME} # 실제 Gmail 주소
+    password: ${MAIL_APP_PASSWORD} # Gmail 앱 비밀번호
+    properties:
+      mail.smtp.auth: true
+      mail.smtp.starttls.enable: true
