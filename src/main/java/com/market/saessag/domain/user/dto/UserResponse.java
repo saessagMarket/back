@@ -1,4 +1,4 @@
-package com.market.saessag.domain.user.dto.response;
+package com.market.saessag.domain.user.dto;
 
 import lombok.Getter;
 import lombok.Setter;
