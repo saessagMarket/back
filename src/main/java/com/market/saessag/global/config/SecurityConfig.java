@@ -42,6 +42,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests((auth) -> auth // 인가
                         .requestMatchers(
                             "/api/products/**",     // 상품 관련 엔드포인트
+                            "/api/photos/**",        // 사진 업로드
                             "/api/sign-up",         // 회원가입
                             "/api/sign-in"          // 로그인
                         ).permitAll()
