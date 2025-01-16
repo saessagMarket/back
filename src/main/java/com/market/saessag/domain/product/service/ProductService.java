@@ -1,5 +1,6 @@
 package com.market.saessag.domain.product.service;
 
+import com.market.saessag.domain.product.dto.ProductRequest;
 import com.market.saessag.domain.product.dto.ProductResponse;
 import com.market.saessag.domain.product.entity.Product;
 import com.market.saessag.domain.product.repository.ProductRepository;
@@ -23,7 +24,18 @@ public class ProductService {
     private final UserRepository userRepository;
 
     //상품 생성
-    public ProductResponse createProduct(Product product) {
+    public ProductResponse createProduct(ProductRequest productRequest) {
+        User user = userRepository.findById(productRequest.getUser().getId())
+                .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
+
+        Product product = new Product();
+        product.setUser(user);
+        product.setTitle(productRequest.getTitle());
+        product.setPrice(productRequest.getPrice());
+        product.setDescription(productRequest.getDescription());
+        product.setMeetingPlace(productRequest.getMeetingPlace());
+        product.setPhoto(productRequest.getPhoto());
+        product.setStatus(Product.ProductStatus.valueOf(productRequest.getStatus()));
         return convertToDTO(productRepository.save(product));
     }
 

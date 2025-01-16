@@ -1,5 +1,6 @@
 package com.market.saessag.domain.product.controller;
 
+import com.market.saessag.domain.product.dto.ProductRequest;
 import com.market.saessag.domain.product.dto.ProductResponse;
 import com.market.saessag.domain.product.entity.Product;
 import com.market.saessag.domain.product.service.ProductService;
@@ -48,8 +49,8 @@ public class ProductController {
 
     //상품 생성
     @PostMapping
-    public ResponseEntity<ApiResponse<ProductResponse>> createProduct(@RequestBody Product product) {
-        ProductResponse createdProduct = productService.createProduct(product);
+    public ResponseEntity<ApiResponse<ProductResponse>> createProduct(@RequestBody ProductRequest productRequest) {
+        ProductResponse createdProduct = productService.createProduct(productRequest);
         ApiResponse<ProductResponse> response = ApiResponse.<ProductResponse>builder()
                 .status("201")
                 .data(createdProduct)
