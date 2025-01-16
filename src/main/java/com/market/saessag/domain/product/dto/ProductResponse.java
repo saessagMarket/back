@@ -3,13 +3,14 @@ package com.market.saessag.domain.product.dto;
 import com.market.saessag.domain.user.dto.UserResponse;
 import lombok.Builder;
 import lombok.Getter;
-import lombok.Setter;
+
+import java.util.List;
 
 @Getter
 @Builder
 public class ProductResponse {
     private final Long productId;
-    private String photo;
+    private List<String> photo;
     private String title;
     private Long price;
     private String description;

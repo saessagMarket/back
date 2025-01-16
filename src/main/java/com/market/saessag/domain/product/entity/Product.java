@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @Getter
@@ -20,7 +21,8 @@ public class Product {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    private String photo;
+    @ElementCollection
+    private List<String> photo;
 
     @Column(nullable = false)
     private String title;
