@@ -33,14 +33,17 @@ public class Product {
 
     private String meetingPlace;
 
-    @Column(nullable = false)
     private LocalDateTime addedDate;
 
     @Enumerated(EnumType.STRING)
     private ProductStatus status;
 
-
     public enum ProductStatus {
         FOR_SALE, HIDDEN, SOLD_OUT
+    }
+
+    @PrePersist
+    public void prePersist() {
+        this.addedDate = LocalDateTime.now(); // 현재 시간 자동 설정
     }
 }
