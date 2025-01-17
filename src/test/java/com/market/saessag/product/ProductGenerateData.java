@@ -40,12 +40,10 @@ public class ProductGenerateData {
 
         for (int i = 1; i <= 100; i++) {
             Product product = new Product();
-            product.setPhoto("photo" + i + ".jpg");
             product.setTitle("상품명 " + i);
             product.setPrice((long) (1000 + random.nextInt(9000))); // 1000 ~ 10000 사이의 값
             product.setDescription("상품의 설명 " + i);
             product.setMeetingPlace("만날 장소 " + (random.nextInt(10) + 1)); // City 1 ~ City 10
-            product.setAddedDate(LocalDate.now().minusDays(random.nextInt(30))); // 최근 30일 내 날짜
             product.setStatus(Product.ProductStatus.values()[random.nextInt(Product.ProductStatus.values().length)]); // Enum 랜덤 선택
             product.setUser(user);
 
