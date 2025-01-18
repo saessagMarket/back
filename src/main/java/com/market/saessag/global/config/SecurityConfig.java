@@ -52,13 +52,10 @@ public class SecurityConfig {
     CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
 
-        // 개발 환경과 배포 환경 모두 설정
+        // 개발 환경과 배포 환경을 하나의 List로 설정
         config.setAllowedOrigins(List.of(
-                "http://localhost:3000"
-        ));
-
-        config.setAllowedOrigins(List.of(
-            "https://saessagmarket.netlify.app"
+                "http://localhost:3000",                  // 로컬 개발 서버
+                "https://saessagmarket.netlify.app"       // Netlify 배포 환경
         ));
         config.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         config.setAllowedHeaders(List.of("*"));
