@@ -73,7 +73,7 @@ public class S3Service {
 
             tempFile.delete();
 
-            return String.format("https://%s.s3.%s.amazonaws.com/%s", bucketName, region, fileName);
+            return fileName;
         } catch (S3Exception e) {
             throw new RuntimeException("S3에 파일 업로드 중 문제가 발생했습니다. : " + e.getMessage(), e);
         }
