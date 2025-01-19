@@ -1,19 +1,21 @@
 package com.market.saessag.domain.product.dto;
 
 import com.market.saessag.domain.user.dto.UserResponse;
+import lombok.Builder;
 import lombok.Getter;
-import lombok.Setter;
+
+import java.util.List;
 
 @Getter
-@Setter
+@Builder
 public class ProductResponse {
-    private Long productId;
-    private String photo;
+    private final Long productId;
+    private List<String> photo;
     private String title;
     private Long price;
     private String description;
     private String meetingPlace;
-    private String addedDate;
+    private final String addedDate;
     private String status;
-    private UserResponse user;
+    private final UserResponse user;
 }

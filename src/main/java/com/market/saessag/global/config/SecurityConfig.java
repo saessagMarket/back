@@ -40,9 +40,9 @@ public class SecurityConfig {
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .csrf(AbstractHttpConfigurer::disable) // 개발 환경에서만 disable
                 .authorizeHttpRequests((auth) -> auth // 인가
-                        .requestMatchers(
-                            "/api/**"
-                        ).permitAll()
+                        .requestMatchers("/api/**").permitAll()
+//                        .requestMatchers("/admin").hasRole("ADMIN") // 관리자
+//                        .requestMatchers("/my/**").hasAnyRole("ADMIN", "USER") // 마이페이지
                         .anyRequest().authenticated() // 이외의 경로
                 );
         return httpSecurity.build();
@@ -51,8 +51,11 @@ public class SecurityConfig {
     @Bean
     CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
+
+        // 개발 환경과 배포 환경을 하나의 List로 설정
         config.setAllowedOrigins(List.of(
-            "https://saessagmarket.netlify.app"
+                "http://localhost:3000",                  // 로컬 개발 서버
+                "https://saessagmarket.netlify.app"       // Netlify 배포 환경
         ));
         config.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         config.setAllowedHeaders(List.of("*"));

@@ -5,7 +5,8 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @Getter
@@ -20,7 +21,8 @@ public class Product {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    private String photo;
+    @ElementCollection
+    private List<String> photo;
 
     @Column(nullable = false)
     private String title;
@@ -33,14 +35,17 @@ public class Product {
 
     private String meetingPlace;
 
-    @Column(nullable = false)
-    private LocalDate addedDate;
+    private LocalDateTime addedDate;
 
     @Enumerated(EnumType.STRING)
     private ProductStatus status;
 
-
     public enum ProductStatus {
         FOR_SALE, HIDDEN, SOLD_OUT
+    }
+
+    @PrePersist
+    public void prePersist() {
+        this.addedDate = LocalDateTime.now(); // 현재 시간 자동 설정
     }
 }
