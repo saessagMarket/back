@@ -1,15 +1,15 @@
 // 회원가입
 package com.market.saessag.domain.user.dto;
 
+import lombok.AccessLevel;
 import lombok.Getter;
-import lombok.Setter;
+import lombok.NoArgsConstructor;
 
-@Setter
 @Getter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class SignUpRequest {
 
-  // 이메일 인증은 어떻게 할 것인가?
-  private String email;
+  private String email; // 가입할 이메일
   private String password;
   private String nickname;
 
