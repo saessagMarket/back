@@ -1,11 +1,13 @@
 # 로컬 환경
 spring:
+  profiles:
+    active: local  # 기본 프로파일 설정
   config:
     import: workflow.yml
   datasource:
-    url: jdbc:mysql://localhost:3306/saessagdb?allowPublicKeyRetrieval=true&useSSL=false&useUnicode=true&serverTimezone=Asia/Seoul
-    username: root
-    password: '0000'
+    url: ${local_db_url}
+    username: ${local_db_username}
+    password: ${local_db_password}
   jpa:
     hibernate:
       ddl-auto: update

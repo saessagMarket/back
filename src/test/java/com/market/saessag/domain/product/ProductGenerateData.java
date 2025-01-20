@@ -1,4 +1,4 @@
-package com.market.saessag.product;
+package com.market.saessag.domain.product;
 
 import com.market.saessag.domain.product.entity.Product;
 import com.market.saessag.domain.product.repository.ProductRepository;
@@ -35,6 +35,7 @@ public class ProductGenerateData {
                 .password("0000")
                 .profileUrl("photo1.jpg")
                 .nickname("테스트 닉네임")
+                .role("ROLE_USER")
                 .build();
         userRepository.save(user);
 
