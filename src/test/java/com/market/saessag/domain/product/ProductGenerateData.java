@@ -31,10 +31,11 @@ public class ProductGenerateData {
 
         // 임의의 User 생성 및 저장
         User user = User.builder()
-                .email("test@gmail.com")
+                .email("test11@gmail.com")
                 .password("0000")
-                .profileUrl("photo1.jpg")
-                .nickname("테스트 닉네임")
+                .profileUrl("photo11.jpg")
+                .nickname("테스트 닉네임11")
+                .emailVerified(true)     // 이메일 인증 상태를 true로 설정
                 .build();
         userRepository.save(user);
 

@@ -7,6 +7,8 @@ import java.time.LocalDateTime;
 
 @Entity
 @Getter
+@Builder
+@AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(name = "users")
 public class User {
@@ -29,13 +31,14 @@ public class User {
     @Column(nullable = false)
     private String role; // 사용자 권한
 
-    @Column(name = "email_verified")
-    private boolean emailVerified = false; // 이메일 인증 여부
+    @Column
+    @Builder.Default
+    private Boolean emailVerified = null; // 이메일 인증 여부
 
-    @Column(name = "created_at")
+    @Column
     private LocalDateTime createdAt; // 생성 시간
 
-    @Column(name = "updated_at")
+    @Column
     private LocalDateTime updatedAt; // 수정 시간
 
     @Builder
@@ -46,8 +49,8 @@ public class User {
         this.role = role;
         this.emailVerified = true; // 회원가입 시점에는 이미 인증이 완료된 상태
         this.nickname = nickname;
-        this.createdAt = LocalDateTime.now().withNano(0);
-        this.updatedAt = LocalDateTime.now().withNano(0);
+        this.createdAt = LocalDateTime.now();
+        this.updatedAt = LocalDateTime.now();
     }
 
 }
