@@ -21,6 +21,17 @@ spring:
       hibernate:
         format_sql: true
         show_sql: true
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: test@test.com    # 테스트용 더미 값
+    password: test-password    # 테스트용 더미 값
+    properties:
+      mail:
+        smtp:
+          auth: false          # 인증 비활성화
+          starttls:
+            enable: false      # TLS 비활성화
 
 logging:
   level:
@@ -31,7 +42,7 @@ server:
 
 aws:
   s3:
-    bucket-name: saessag
+    bucket-name: test-bucket
     region: ap-northeast-2
-    access-key: ${AWS_ACCESS_KEY}
-    secret-key: ${AWS_SECRET_KEY}
+    access-key: test-key
+    secret-key: test-secret
