@@ -11,7 +11,10 @@ public class ProductRequest {
     private String title;
     private Long price;
     private String description;
-    private String meetingPlace;
+    private Double latitude;
+    private Double longitude;
+    private String basicAddress;
+    private String detailedAddress;
     private List<String> photo;
     private String status;
 }
