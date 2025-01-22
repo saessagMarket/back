@@ -1,5 +1,6 @@
-package com.market.saessag.global.exception;
+package com.market.saessag.global.response;
 
+import com.market.saessag.global.exception.ErrorCode;
 import lombok.*;
 
 @Getter

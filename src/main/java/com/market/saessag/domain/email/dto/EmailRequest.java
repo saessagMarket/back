@@ -6,7 +6,7 @@ import lombok.NoArgsConstructor;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class EmailRequest { // 이메일 인증 요청 DTO
+public class EmailRequest {
     private String email; // 인증을 요청할 이메일 주소
 
 }
