@@ -33,7 +33,13 @@ public class Product {
     @Column(columnDefinition = "TEXT")
     private String description;
 
-    private String meetingPlace;
+    private Double latitude;
+
+    private Double longitude;
+
+    private String basicAddress;
+
+    private String detailedAddress;
 
     private LocalDateTime addedDate;
 

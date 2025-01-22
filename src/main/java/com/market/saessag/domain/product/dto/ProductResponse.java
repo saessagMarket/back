@@ -14,7 +14,8 @@ public class ProductResponse {
     private String title;
     private Long price;
     private String description;
-    private String meetingPlace;
+    private String basicAddress;
+    private String detailedAddress;
     private final String addedDate;
     private String status;
     private final UserResponse user;

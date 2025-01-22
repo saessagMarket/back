@@ -33,22 +33,28 @@ public class ProductService {
         product.setTitle(productRequest.getTitle());
         product.setPrice(productRequest.getPrice());
         product.setDescription(productRequest.getDescription());
-        product.setMeetingPlace(productRequest.getMeetingPlace());
+        product.setLatitude(productRequest.getLatitude());
+        product.setLongitude(productRequest.getLongitude());
+        product.setBasicAddress(productRequest.getBasicAddress());
+        product.setDetailedAddress(productRequest.getDetailedAddress());
         product.setPhoto(productRequest.getPhoto());
         product.setStatus(Product.ProductStatus.valueOf(productRequest.getStatus()));
         return convertToDTO(productRepository.save(product));
     }
 
     //상품 수정
-    public ProductResponse updateProduct(Long productId, Product product) {
+    public ProductResponse updateProduct(Long productId, ProductRequest productRequest) {
         Product productDTO = productRepository.findById(productId)
                 .map(afterProduct -> {
-                    afterProduct.setDescription(product.getDescription());
-                    afterProduct.setMeetingPlace(product.getMeetingPlace());
-                    afterProduct.setPhoto(product.getPhoto());
-                    afterProduct.setPrice(product.getPrice());
-                    afterProduct.setStatus(product.getStatus());
-                    afterProduct.setTitle(product.getTitle());
+                    afterProduct.setDescription(productRequest.getDescription());
+                    afterProduct.setLatitude(productRequest.getLatitude());
+                    afterProduct.setLongitude(productRequest.getLongitude());
+                    afterProduct.setBasicAddress(productRequest.getBasicAddress());
+                    afterProduct.setDetailedAddress(productRequest.getDetailedAddress());
+                    afterProduct.setPhoto(productRequest.getPhoto());
+                    afterProduct.setPrice(productRequest.getPrice());
+                    afterProduct.setStatus(Product.ProductStatus.valueOf(productRequest.getStatus()));
+                    afterProduct.setTitle(productRequest.getTitle());
                     return productRepository.save(afterProduct);
                 }).orElseThrow(() -> new IllegalArgumentException("없는 상품 번호 입니다."));
 
@@ -86,7 +92,8 @@ public class ProductService {
                 .title(product.getTitle())
                 .price(product.getPrice())
                 .description(product.getDescription())
-                .meetingPlace(product.getMeetingPlace())
+                .basicAddress(product.getBasicAddress())
+                .detailedAddress(product.getDetailedAddress())
                 .addedDate(TimeUtils.getRelativeTime(product.getAddedDate()))
                 .status(product.getStatus().toString())
                 .user(UserResponse.builder()

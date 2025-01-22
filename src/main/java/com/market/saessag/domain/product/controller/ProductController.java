@@ -2,7 +2,6 @@ package com.market.saessag.domain.product.controller;
 
 import com.market.saessag.domain.product.dto.ProductRequest;
 import com.market.saessag.domain.product.dto.ProductResponse;
-import com.market.saessag.domain.product.entity.Product;
 import com.market.saessag.domain.product.service.ProductService;
 import com.market.saessag.global.response.ApiResponse;
 import lombok.RequiredArgsConstructor;
@@ -62,8 +61,8 @@ public class ProductController {
     //상품 수정
     @PutMapping("/{productId}")
     public ResponseEntity<ApiResponse<ProductResponse>> updateProduct(@PathVariable Long productId,
-                                 @RequestBody Product product) {
-        ProductResponse updatedProduct = productService.updateProduct(productId, product);
+                                 @RequestBody ProductRequest productRequest) {
+        ProductResponse updatedProduct = productService.updateProduct(productId, productRequest);
         ApiResponse<ProductResponse> response = ApiResponse.<ProductResponse>builder()
                 .status("200")
                 .data(updatedProduct)
