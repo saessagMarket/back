@@ -2,8 +2,11 @@ package com.market.saessag.domain.product.controller;
 
 import com.market.saessag.domain.product.dto.ProductRequest;
 import com.market.saessag.domain.product.dto.ProductResponse;
+import com.market.saessag.domain.product.entity.Product;
 import com.market.saessag.domain.product.service.ProductService;
+import com.market.saessag.domain.user.dto.SignInResponse;
 import com.market.saessag.global.response.ApiResponse;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
@@ -91,4 +94,15 @@ public class ProductController {
 
         return ResponseEntity.status(HttpStatus.NO_CONTENT).body(response);
     }
+
+    @PostMapping("/bump")
+    public ApiResponse<?> bumpProduct(@RequestParam Long productId, HttpServletRequest session) {
+        SignInResponse signInResponse = (SignInResponse) session.getAttribute("user");
+        Product product = productService.bumpProduct(productId, signInResponse.getId());
+        return ApiResponse.builder()
+            .status("200")
+            .data(product.getProductId())
+            .build();
+    }
+
 }

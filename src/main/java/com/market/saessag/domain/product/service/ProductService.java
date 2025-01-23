@@ -8,6 +8,7 @@ import com.market.saessag.domain.user.entity.User;
 import com.market.saessag.domain.user.repository.UserRepository;
 import com.market.saessag.domain.user.dto.UserResponse;
 import com.market.saessag.util.TimeUtils;
+import java.time.LocalDateTime;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -108,5 +109,14 @@ public class ProductService {
         Product id = productRepository.findById(productId)
                 .orElseThrow(()-> new IllegalArgumentException("상품이 없습니다."));
         return convertToDTO(id);
+    }
+
+    public Product bumpProduct(Long productId, Long userId) {
+        Product product = productRepository.findByProductIdAndUserId(productId, userId)
+            .orElseThrow(IllegalAccessError::new);
+
+        product.setBumpAt(LocalDateTime.now());
+        productRepository.save(product);
+        return product;
     }
 }

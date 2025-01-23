@@ -46,6 +46,9 @@ public class Product {
     @Enumerated(EnumType.STRING)
     private ProductStatus status;
 
+    private LocalDateTime bumpAt;
+
+
     public enum ProductStatus {
         FOR_SALE, HIDDEN, SOLD_OUT
     }
