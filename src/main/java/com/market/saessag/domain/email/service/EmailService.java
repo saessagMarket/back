@@ -52,7 +52,7 @@ public class EmailService {
 
         } catch (MessagingException e) { // 이메일 발송 실패 시 저장된 인증 정보 제거
             verificationStore.remove(toEmail);
-            throw new CustomException(ErrorCode.INVALID_VERIFICATION_CODE); // 이메일 발송 실패
+            throw new CustomException(ErrorCode.EMAIL_SEND_FAILED); // 이메일 발송 실패
         }
     }
 
