@@ -28,37 +28,38 @@ public class ProductService {
         User user = userRepository.findById(productRequest.getUser().getId())
                 .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
 
-        Product product = new Product();
-        product.setUser(user);
-        product.setTitle(productRequest.getTitle());
-        product.setPrice(productRequest.getPrice());
-        product.setDescription(productRequest.getDescription());
-        product.setLatitude(productRequest.getLatitude());
-        product.setLongitude(productRequest.getLongitude());
-        product.setBasicAddress(productRequest.getBasicAddress());
-        product.setDetailedAddress(productRequest.getDetailedAddress());
-        product.setPhoto(productRequest.getPhoto());
-        product.setStatus(Product.ProductStatus.valueOf(productRequest.getStatus()));
+        Product product = Product.builder()
+                .user(user)
+                .title(productRequest.getTitle())
+                .price(productRequest.getPrice())
+                .description(productRequest.getDescription())
+                .latitude(productRequest.getLatitude())
+                .longitude(productRequest.getLongitude())
+                .basicAddress(productRequest.getBasicAddress())
+                .detailedAddress(productRequest.getDetailedAddress())
+                .photo(productRequest.getPhoto())
+                .status(Product.ProductStatus.valueOf(productRequest.getStatus()))
+                .build();
         return convertToDTO(productRepository.save(product));
     }
 
     //상품 수정
     public ProductResponse updateProduct(Long productId, ProductRequest productRequest) {
-        Product productDTO = productRepository.findById(productId)
-                .map(afterProduct -> {
-                    afterProduct.setDescription(productRequest.getDescription());
-                    afterProduct.setLatitude(productRequest.getLatitude());
-                    afterProduct.setLongitude(productRequest.getLongitude());
-                    afterProduct.setBasicAddress(productRequest.getBasicAddress());
-                    afterProduct.setDetailedAddress(productRequest.getDetailedAddress());
-                    afterProduct.setPhoto(productRequest.getPhoto());
-                    afterProduct.setPrice(productRequest.getPrice());
-                    afterProduct.setStatus(Product.ProductStatus.valueOf(productRequest.getStatus()));
-                    afterProduct.setTitle(productRequest.getTitle());
-                    return productRepository.save(afterProduct);
-                }).orElseThrow(() -> new IllegalArgumentException("없는 상품 번호 입니다."));
+        Product product = productRepository.findById(productId)
+                .orElseThrow(() -> new IllegalArgumentException("없는 상품 번호 입니다."));
 
-        return convertToDTO(productDTO);
+        product.updateProduct(
+                productRequest.getTitle(),
+                productRequest.getPrice(),
+                productRequest.getDescription(),
+                productRequest.getPhoto(),
+                productRequest.getLatitude(),
+                productRequest.getLongitude(),
+                productRequest.getBasicAddress(),
+                productRequest.getDetailedAddress(),
+                Product.ProductStatus.valueOf(productRequest.getStatus()));
+
+        return convertToDTO(productRepository.save(product));
     }
 
     public boolean deleteProduct(Long productId) {
