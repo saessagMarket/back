@@ -3,7 +3,9 @@ package com.market.saessag.domain.product.service;
 import com.market.saessag.domain.product.dto.ProductRequest;
 import com.market.saessag.domain.product.dto.ProductResponse;
 import com.market.saessag.domain.product.entity.Product;
+import com.market.saessag.domain.product.entity.ProductView;
 import com.market.saessag.domain.product.repository.ProductRepository;
+import com.market.saessag.domain.product.repository.ProductViewRepository;
 import com.market.saessag.domain.user.entity.User;
 import com.market.saessag.domain.user.repository.UserRepository;
 import com.market.saessag.domain.user.dto.UserResponse;
@@ -21,6 +23,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class ProductService {
     private final ProductRepository productRepository;
+    private final ProductViewRepository productViewRepository;
     private final UserRepository userRepository;
 
     //상품 생성
@@ -109,5 +112,27 @@ public class ProductService {
         Product id = productRepository.findById(productId)
                 .orElseThrow(()-> new IllegalArgumentException("상품이 없습니다."));
         return convertToDTO(id);
+    }
+
+    // 조회수 증가
+    public void incrementView(Long productId, Long userId) {
+        Product product = productRepository.findById(productId)
+                .orElseThrow(() -> new IllegalArgumentException("상품이 없습니다."));
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("해당 유저가 없습니다."));
+
+        boolean hasViewed = productViewRepository.existsByProductAndUser(product, user);
+        if (!hasViewed) {
+            ProductView productView = ProductView.builder()
+                    .product(product)
+                    .user(user)
+                    .build();
+            productViewRepository.save(productView);
+
+            product.incrementViews();
+            productRepository.save(product);
+        }
+
     }
 }
