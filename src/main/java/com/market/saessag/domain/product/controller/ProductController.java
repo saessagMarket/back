@@ -1,5 +1,7 @@
 package com.market.saessag.domain.product.controller;
 
+import com.market.saessag.domain.product.dto.ProductChangeStatusRequest;
+import com.market.saessag.domain.product.dto.ProductChangeStatusResponse;
 import com.market.saessag.domain.product.dto.ProductRequest;
 import com.market.saessag.domain.product.dto.ProductResponse;
 import com.market.saessag.domain.product.service.ProductService;
@@ -90,5 +92,12 @@ public class ProductController {
                 .build();
 
         return ResponseEntity.status(HttpStatus.NO_CONTENT).body(response);
+    }
+
+    // note. 본인 소유의 상품의 상태 값만 변경 할 수 있도록 조치 필요
+    @PostMapping("/changeStatus")
+    public ApiResponse<ProductChangeStatusResponse> changeStatus(@RequestBody ProductChangeStatusRequest req) {
+        ProductChangeStatusResponse response = productService.changeStatus(req);
+        return ApiResponse.success(response);
     }
 }
