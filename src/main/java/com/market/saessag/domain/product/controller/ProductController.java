@@ -38,10 +38,10 @@ public class ProductController {
 
     //상세 조회
     @GetMapping("/{productId}")
-    public ResponseEntity<ApiResponse<ProductResponse>> getProductDetail(@PathVariable Long productId, HttpSession session) {
-        SignInResponse signInResponse = (SignInResponse) session.getAttribute("user");
+    public ResponseEntity<ApiResponse<ProductResponse>> getProductDetail(@PathVariable Long productId,
+                                                                         @SessionAttribute(name = "user") SignInResponse user) {
         ProductResponse productDetail = productService.getProductDetail(productId);
-        productService.incrementView(productId, signInResponse.getId());
+        productService.incrementView(productId, user.getId());
 
         ApiResponse<ProductResponse> response = ApiResponse.<ProductResponse>builder()
                 .status("200")
@@ -99,9 +99,8 @@ public class ProductController {
 
     // 상품 좋아요
     @PostMapping("/{productId}/like")
-    public ApiResponse<Void> likeProduct(@PathVariable Long productId, HttpSession session) {
-        SignInResponse signInResponse = (SignInResponse) session.getAttribute("user");
-        productService.likeProduct(productId, signInResponse.getId());
+    public ApiResponse<Void> likeProduct(@PathVariable Long productId, @SessionAttribute(name = "user") SignInResponse user) {
+        productService.likeProduct(productId, user.getId());
 
         return ApiResponse.<Void>builder()
                 .status("200")
