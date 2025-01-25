@@ -3,13 +3,16 @@ package com.market.saessag.domain.product.service;
 import com.market.saessag.domain.product.dto.ProductRequest;
 import com.market.saessag.domain.product.dto.ProductResponse;
 import com.market.saessag.domain.product.entity.Product;
+import com.market.saessag.domain.product.entity.ProductLike;
 import com.market.saessag.domain.product.entity.ProductView;
+import com.market.saessag.domain.product.repository.ProductLikeRepository;
 import com.market.saessag.domain.product.repository.ProductRepository;
 import com.market.saessag.domain.product.repository.ProductViewRepository;
 import com.market.saessag.domain.user.entity.User;
 import com.market.saessag.domain.user.repository.UserRepository;
 import com.market.saessag.domain.user.dto.UserResponse;
 import com.market.saessag.util.TimeUtils;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -25,6 +28,7 @@ public class ProductService {
     private final ProductRepository productRepository;
     private final ProductViewRepository productViewRepository;
     private final UserRepository userRepository;
+    private final ProductLikeRepository productLikeRepository;
 
     //상품 생성
     public ProductResponse createProduct(ProductRequest productRequest) {
@@ -134,5 +138,28 @@ public class ProductService {
             productRepository.save(product);
         }
 
+    }
+
+    // 좋아요 클릭
+    @Transactional
+    public void likeProduct(Long productId, Long userId) {
+        Product product = productRepository.findById(productId)
+                .orElseThrow(() -> new IllegalArgumentException("상품이 없습니다."));
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("해당 유저가 없습니다."));
+
+        ProductLike productLike = productLikeRepository.findByProductAndUser(product, user);
+        if (productLike == null) { // 좋아요 추가
+            productLikeRepository.save(ProductLike.builder()
+                    .product(product)
+                    .user(user)
+                    .build());
+            product.incrementLikes();
+        } else { // 좋아요 삭제
+            productLikeRepository.delete(productLike);
+            product.decrementLikes();
+        }
+        productRepository.save(product);
     }
 }

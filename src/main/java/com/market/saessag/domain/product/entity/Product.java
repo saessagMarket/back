@@ -80,4 +80,12 @@ public class Product {
     public void incrementViews() {
         this.views++;
     }
+
+    public void incrementLikes(){
+        this.likes++;
+    }
+
+    public void decrementLikes(){
+        this.likes--;
+    }
 }

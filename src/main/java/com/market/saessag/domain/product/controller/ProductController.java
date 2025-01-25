@@ -5,7 +5,7 @@ import com.market.saessag.domain.product.dto.ProductResponse;
 import com.market.saessag.domain.product.service.ProductService;
 import com.market.saessag.domain.user.dto.SignInResponse;
 import com.market.saessag.global.response.ApiResponse;
-import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
@@ -38,7 +38,7 @@ public class ProductController {
 
     //상세 조회
     @GetMapping("/{productId}")
-    public ResponseEntity<ApiResponse<ProductResponse>> getProductDetail(@PathVariable Long productId, HttpServletRequest session) {
+    public ResponseEntity<ApiResponse<ProductResponse>> getProductDetail(@PathVariable Long productId, HttpSession session) {
         SignInResponse signInResponse = (SignInResponse) session.getAttribute("user");
         ProductResponse productDetail = productService.getProductDetail(productId);
         productService.incrementView(productId, signInResponse.getId());
@@ -95,5 +95,17 @@ public class ProductController {
                 .build();
 
         return ResponseEntity.status(HttpStatus.NO_CONTENT).body(response);
+    }
+
+    // 상품 좋아요
+    @PostMapping("/{productId}/like")
+    public ApiResponse<Void> likeProduct(@PathVariable Long productId, HttpSession session) {
+        SignInResponse signInResponse = (SignInResponse) session.getAttribute("user");
+        productService.likeProduct(productId, signInResponse.getId());
+
+        return ApiResponse.<Void>builder()
+                .status("200")
+                .data(null)
+                .build();
     }
 }
