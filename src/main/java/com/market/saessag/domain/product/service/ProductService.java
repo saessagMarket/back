@@ -104,6 +104,8 @@ public class ProductService {
                 .detailedAddress(product.getDetailedAddress())
                 .addedDate(TimeUtils.getRelativeTime(product.getAddedDate()))
                 .status(product.getStatus().toString())
+                .like(product.getLikes())
+                .view(product.getViews())
                 .user(UserResponse.builder()
                         .id(user.getId())
                         .nickname(user.getNickname())
