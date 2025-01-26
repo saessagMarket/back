@@ -2,11 +2,14 @@ package com.market.saessag.domain.user.controller;
 
 import com.market.saessag.domain.user.dto.SignInRequest;
 import com.market.saessag.domain.user.dto.SignInResponse;
+import com.market.saessag.domain.user.entity.User;
+import com.market.saessag.domain.user.repository.UserRepository;
 import com.market.saessag.domain.user.service.SignInService;
 import com.market.saessag.global.response.ApiResponse;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -16,6 +19,7 @@ import org.springframework.web.bind.annotation.*;
 public class SignInController {
 
     private final SignInService signInService;
+    private final UserRepository userRepository;
 
     @PostMapping("/sign-in")
     public ResponseEntity<ApiResponse<SignInResponse>> signIn(
@@ -23,6 +27,10 @@ public class SignInController {
 
         SignInResponse signInResponse = signInService.signIn(signInRequest);
         session.setAttribute("user", signInResponse); // 세션에 로그인 정보 저장
+
+        User user = userRepository.findByEmail(signInRequest.getEmail())
+                .orElseThrow(() -> new UsernameNotFoundException("사용자를 찾을 수 없습니다."));
+        session.setAttribute("email", user.getEmail());
 
         ApiResponse<SignInResponse> response = ApiResponse.<SignInResponse>builder()
                 .status("200")

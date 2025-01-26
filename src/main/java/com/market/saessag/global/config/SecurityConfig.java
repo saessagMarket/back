@@ -41,8 +41,6 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable) // 개발 환경에서만 disable
                 .authorizeHttpRequests((auth) -> auth // 인가
                         .requestMatchers("/api/**").permitAll()
-//                        .requestMatchers("/admin").hasRole("ADMIN") // 관리자
-//                        .requestMatchers("/my/**").hasAnyRole("ADMIN", "USER") // 마이페이지
                         .anyRequest().authenticated() // 이외의 경로
                 );
         return httpSecurity.build();
