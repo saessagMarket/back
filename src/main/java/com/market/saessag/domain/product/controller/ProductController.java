@@ -38,12 +38,15 @@ public class ProductController {
 
     //상세 조회
     @GetMapping("/{productId}")
-    public ResponseEntity<ApiResponse<ProductResponse>> getProductDetail(@PathVariable Long productId,
-                                                                         @SessionAttribute(name = "user") SignInResponse user) {
-        ProductResponse productDetail = productService.getProductDetail(productId);
-        productService.incrementView(productId, user.getId());
+    public ApiResponse<ProductResponse> getProductDetail(@PathVariable Long productId,
+                                                         @SessionAttribute(name = "user", required = false) SignInResponse user) {
 
-        ApiResponse<ProductResponse> response = ApiResponse.<ProductResponse>builder()
+        ProductResponse productDetail = productService.getProductDetail(productId);
+        if (user != null) {
+            productService.incrementView(productId, user.getId());
+        }
+
+        return ApiResponse.<ProductResponse>builder()
                 .status("200")
                 .data(productDetail)
                 .build();
