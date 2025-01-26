@@ -26,9 +26,9 @@ public class ProductController {
             @RequestParam(defaultValue = "10") int size,
             @RequestParam(required = false) String title,
             @RequestParam(required = false) String nickname,
-            @RequestParam(required = false) String sort, //정렬 기준 (price, addedDate 등)
-            @RequestParam(defaultValue = "desc") String direction) {
-        Page<ProductResponse> product = productService.searchProducts(page, size, title, nickname, sort, direction);
+            @RequestParam(required = false) String sort
+    ) {
+        Page<ProductResponse> product = productService.searchProducts(page, size, title, nickname, sort);
         ApiResponse<Page<ProductResponse>> response = ApiResponse.<Page<ProductResponse>>builder()
                 .status("200")
                 .data(product)

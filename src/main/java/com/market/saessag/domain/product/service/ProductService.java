@@ -71,8 +71,14 @@ public class ProductService {
         return false;
     }
 
-    public Page<ProductResponse> searchProducts(int page, int size, String title, String nickname, String sort, String direction) {
-        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.fromString(direction), sort != null ? sort : "addedDate"));
+    public Page<ProductResponse> searchProducts(int page, int size, String title, String nickname, String sort) {
+        Sort sorting = (sort == null || sort.isEmpty()) ?
+            Sort.by(
+                Sort.Order.desc("dump_at").nullsLast(),
+                Sort.Order.desc("added_date")
+            ) : Sort.by(Sort.Order.by(sort));
+
+        Pageable pageable = PageRequest.of(page, size, sorting);
 
         if (title != null) {
             return productRepository.findByTitleContaining(title, pageable).map(this::convertToDTO);
