@@ -2,6 +2,7 @@ package com.market.saessag.global.response;
 
 import com.market.saessag.global.exception.ErrorCode;
 import lombok.*;
+import org.springframework.http.HttpStatus;
 
 @Getter
 @Builder
@@ -9,7 +10,7 @@ import lombok.*;
 @AllArgsConstructor
 public class ErrorResponse {
     private String message;
-    private int status;
+    private HttpStatus status;
 
     public static ErrorResponse of(ErrorCode errorCode) {
         return ErrorResponse.builder()

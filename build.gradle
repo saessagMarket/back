@@ -39,6 +39,8 @@ dependencies {
 	implementation 'software.amazon.awssdk:core:2.20.0'
 	implementation 'software.amazon.awssdk:auth:2.20.0'
 	implementation 'me.paulschwarz:spring-dotenv:3.0.0'
+	implementation 'org.springframework:spring-web'
+
 }
 
 test {
