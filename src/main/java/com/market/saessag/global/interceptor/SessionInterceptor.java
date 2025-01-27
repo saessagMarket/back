@@ -1,5 +1,7 @@
 package com.market.saessag.global.interceptor;
 
+import com.market.saessag.global.exception.CustomException;
+import com.market.saessag.global.exception.ErrorCode;
 import com.market.saessag.global.util.SessionUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -26,10 +28,9 @@ public class SessionInterceptor implements HandlerInterceptor {
             }
         }
 
-        // 그 외의 URL은 세션 체크
+        // 그 외의 URL은 세션 체크 후 에러 처리
         if (SessionUtil.getData("user") == null) {
-            response.sendRedirect("/api/sign-in");
-            return false;
+            throw new CustomException(ErrorCode.UNAUTHORIZED);
         }
         return true;
     }
