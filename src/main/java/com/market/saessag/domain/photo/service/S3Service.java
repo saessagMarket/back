@@ -1,6 +1,12 @@
 package com.market.saessag.domain.photo.service;
 
+import com.market.saessag.domain.user.entity.User;
+import com.market.saessag.domain.user.repository.UserRepository;
+import com.market.saessag.global.exception.CustomException;
+import com.market.saessag.global.exception.ErrorCode;
 import jakarta.annotation.PostConstruct;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.multipart.MultipartFile;
@@ -17,6 +23,7 @@ import software.amazon.awssdk.services.s3.presigner.model.GetObjectPresignReques
 import java.io.File;
 import java.io.IOException;
 import java.time.Duration;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -33,6 +40,9 @@ public class S3Service {
 
     private S3Client s3Client;
     private S3Presigner s3Presigner;
+
+    @Autowired
+    private UserRepository userRepository;
 
     @PostConstruct
     public void init() {
@@ -98,4 +108,27 @@ public class S3Service {
                         }
                 ));
     }
+
+    public String uploadProfileImage(MultipartFile file, String email) throws IOException {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new UsernameNotFoundException("사용자를 찾을 수 없습니다."));
+
+        String fileUrl = uploadFile(file);
+        user.setProfileUrl(fileUrl);
+        userRepository.save(user);
+
+        return fileUrl;
+    }
+
+    public Map<String, String> getProfileImageUrl(String email) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new UsernameNotFoundException("사용자를 찾을 수 없습니다."));
+
+        if (user.getProfileUrl() == null) {
+            throw new CustomException(ErrorCode.PROFILE_IMAGE_NOT_FOUND);
+        }
+
+        return getPresignedUrl(Collections.singletonList(user.getProfileUrl()));
+    }
+
 }
