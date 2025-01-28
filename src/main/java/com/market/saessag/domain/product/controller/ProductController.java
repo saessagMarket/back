@@ -3,7 +3,11 @@ package com.market.saessag.domain.product.controller;
 import com.market.saessag.domain.product.dto.ProductRequest;
 import com.market.saessag.domain.product.dto.ProductResponse;
 import com.market.saessag.domain.product.service.ProductService;
+import com.market.saessag.domain.user.dto.SignInResponse;
+import com.market.saessag.global.exception.CustomException;
+import com.market.saessag.global.exception.ErrorCode;
 import com.market.saessag.global.response.ApiResponse;
+import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
@@ -48,8 +52,13 @@ public class ProductController {
 
     //상품 생성
     @PostMapping
-    public ResponseEntity<ApiResponse<ProductResponse>> createProduct(@RequestBody ProductRequest productRequest) {
-        ProductResponse createdProduct = productService.createProduct(productRequest);
+    public ResponseEntity<ApiResponse<ProductResponse>> createProduct(@RequestBody ProductRequest productRequest, HttpSession session) {
+        SignInResponse userSession = (SignInResponse) session.getAttribute("user");
+        if (userSession == null) {
+            throw new CustomException(ErrorCode.UNAUTHORIZED);
+        }
+
+        ProductResponse createdProduct = productService.createProduct(productRequest, userSession.getId());
         ApiResponse<ProductResponse> response = ApiResponse.<ProductResponse>builder()
                 .status("201")
                 .data(createdProduct)

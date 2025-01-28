@@ -4,9 +4,9 @@ import com.market.saessag.domain.product.dto.ProductRequest;
 import com.market.saessag.domain.product.dto.ProductResponse;
 import com.market.saessag.domain.product.entity.Product;
 import com.market.saessag.domain.product.repository.ProductRepository;
+import com.market.saessag.domain.user.dto.UserProfileResponse;
 import com.market.saessag.domain.user.entity.User;
 import com.market.saessag.domain.user.repository.UserRepository;
-import com.market.saessag.domain.user.dto.UserResponse;
 import com.market.saessag.util.TimeUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -24,8 +24,8 @@ public class ProductService {
     private final UserRepository userRepository;
 
     //상품 생성
-    public ProductResponse createProduct(ProductRequest productRequest) {
-        User user = userRepository.findById(productRequest.getUser().getId())
+    public ProductResponse createProduct(ProductRequest productRequest, Long userId) {
+        User user = userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
 
         Product product = new Product();
@@ -96,7 +96,7 @@ public class ProductService {
                 .detailedAddress(product.getDetailedAddress())
                 .addedDate(TimeUtils.getRelativeTime(product.getAddedDate()))
                 .status(product.getStatus().toString())
-                .user(UserResponse.builder()
+                .user(UserProfileResponse.builder()
                         .id(user.getId())
                         .nickname(user.getNickname())
                         .profileUrl(user.getProfileUrl())

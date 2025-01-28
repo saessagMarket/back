@@ -1,6 +1,6 @@
 package com.market.saessag.domain.product.dto;
 
-import com.market.saessag.domain.user.dto.UserResponse;
+import com.market.saessag.domain.user.dto.UserProfileResponse;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -18,5 +18,5 @@ public class ProductResponse {
     private String detailedAddress;
     private final String addedDate;
     private String status;
-    private final UserResponse user;
+    private final UserProfileResponse user;
 }

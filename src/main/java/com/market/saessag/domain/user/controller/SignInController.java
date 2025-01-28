@@ -24,6 +24,9 @@ public class SignInController {
         SignInResponse signInResponse = signInService.signIn(signInRequest);
         session.setAttribute("user", signInResponse); // 세션에 로그인 정보 저장
 
+        SignInResponse userProfileResponse = signInService.signIn(signInRequest);
+        session.setAttribute("userProfile", userProfileResponse); // 세션에 로그인 정보 저장
+
         ApiResponse<SignInResponse> response = ApiResponse.<SignInResponse>builder()
                 .status("200")
                 .data(signInResponse)
