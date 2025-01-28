@@ -95,7 +95,7 @@ public class ProductService {
         User user = product.getUser();
 
         return ProductResponse.builder()
-                .productId(product.getProductId())
+                .productId(product.getId())
                 .photo(product.getPhoto())
                 .title(product.getTitle())
                 .price(product.getPrice())
