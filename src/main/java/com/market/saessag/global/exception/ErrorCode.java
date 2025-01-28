@@ -13,7 +13,8 @@ public enum ErrorCode {
     USER_NOT_FOUND(404, "존재하지 않는 사용자입니다"),
     EMAIL_SEND_FAILED(500, "이메일 발송에 실패했습니다"),
     INVALID_EMAIL(400, "유효하지 않은 이메일입니다"),
-    INVALID_PASSWORD(400, "현재 비밀번호가 일치하지 않습니다");
+    INVALID_PASSWORD(400, "현재 비밀번호가 일치하지 않습니다"),
+    PROFILE_IMAGE_NOT_FOUND(400, "프로필 사진이 없습니다");
 
     private final int status;
     private final String message;
