@@ -2,14 +2,13 @@ package com.market.saessag.domain.product.controller;
 
 import com.market.saessag.domain.product.dto.ProductRequest;
 import com.market.saessag.domain.product.dto.ProductResponse;
+import com.market.saessag.domain.product.entity.Product;
 import com.market.saessag.domain.product.service.ProductService;
 import com.market.saessag.domain.user.dto.SignInResponse;
 import com.market.saessag.global.response.ApiResponse;
-import jakarta.servlet.http.HttpSession;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -25,13 +24,14 @@ public class ProductController {
             @RequestParam(defaultValue = "10") int size,
             @RequestParam(required = false) String title,
             @RequestParam(required = false) String nickname,
-            @RequestParam(required = false) String sort, //정렬 기준 (price, addedDate 등)
-            @RequestParam(defaultValue = "desc") String direction) {
-        Page<ProductResponse> product = productService.searchProducts(page, size, title, nickname, sort, direction);
-        return ApiResponse.<Page<ProductResponse>>builder()
-                .status("200")
-                .data(product)
-                .build();
+            @RequestParam(required = false) String sort
+    ) {
+        Page<ProductResponse> product = productService.searchProducts(page, size, title, nickname, sort);
+
+      return ApiResponse.<Page<ProductResponse>>builder()
+          .status("200")
+          .data(product)
+          .build();
     }
 
     //상세 조회
@@ -98,4 +98,15 @@ public class ProductController {
                 .data(null)
                 .build();
     }
+
+    @PostMapping("/bump")
+    public ApiResponse<?> bumpProduct(@RequestParam Long productId, HttpServletRequest session) {
+        SignInResponse signInResponse = (SignInResponse) session.getAttribute("user");
+        Product product = productService.bumpProduct(productId, signInResponse.getId());
+        return ApiResponse.builder()
+            .status("200")
+            .data(product.getId())
+            .build();
+    }
+
 }

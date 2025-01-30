@@ -13,6 +13,7 @@ import com.market.saessag.domain.user.repository.UserRepository;
 import com.market.saessag.domain.user.dto.UserResponse;
 import com.market.saessag.util.TimeUtils;
 import jakarta.transaction.Transactional;
+import java.time.LocalDateTime;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -78,8 +79,14 @@ public class ProductService {
         return false;
     }
 
-    public Page<ProductResponse> searchProducts(int page, int size, String title, String nickname, String sort, String direction) {
-        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.fromString(direction), sort != null ? sort : "addedDate"));
+    public Page<ProductResponse> searchProducts(int page, int size, String title, String nickname, String sort) {
+        Sort sorting = (sort == null || sort.isEmpty()) ?
+            Sort.by(
+                Sort.Order.desc("dump_at").nullsLast(),
+                Sort.Order.desc("added_date")
+            ) : Sort.by(Sort.Order.by(sort));
+
+        Pageable pageable = PageRequest.of(page, size, sorting);
 
         if (title != null) {
             return productRepository.findByTitleContaining(title, pageable).map(this::convertToDTO);
@@ -118,6 +125,15 @@ public class ProductService {
         Product id = productRepository.findById(productId)
                 .orElseThrow(()-> new IllegalArgumentException("상품이 없습니다."));
         return convertToDTO(id);
+    }
+
+    public Product bumpProduct(Long productId, Long userId) {
+        Product product = productRepository.findByIdAndUserId(productId, userId)
+            .orElseThrow(IllegalAccessError::new);
+
+        product.updateBumpAt(LocalDateTime.now());
+        productRepository.save(product);
+        return product;
     }
 
     // 조회수 증가

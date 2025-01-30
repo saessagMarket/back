@@ -47,6 +47,9 @@ public class Product {
     @Enumerated(EnumType.STRING)
     private ProductStatus status;
 
+    private LocalDateTime bumpAt;
+
+
     public enum ProductStatus {
         FOR_SALE, HIDDEN, SOLD_OUT
     }
@@ -75,6 +78,10 @@ public class Product {
         this.basicAddress = basicAddress;
         this.detailedAddress = detailedAddress;
         this.status = status;
+    }
+
+    public void updateBumpAt(LocalDateTime bumpAt) {
+        this.bumpAt = bumpAt;
     }
 
     public void incrementViews() {
