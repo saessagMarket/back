@@ -1,6 +1,7 @@
 package com.market.saessag.domain.photo.controller;
 
 import com.market.saessag.domain.photo.service.S3Service;
+import com.market.saessag.global.response.ApiResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -21,22 +22,31 @@ public class PhotoController {
     }
 
     @PostMapping("/upload")
-    public ResponseEntity<List<String>> uploadPhotos(@RequestParam MultipartFile[] files) {
+    public ApiResponse<List<String>> uploadPhotos(@RequestParam MultipartFile[] files) {
         List<String> fileUrls = new ArrayList<>();
         try {
             for (MultipartFile file : files) {
                 String fileUrl = s3Service.uploadFile(file);
                 fileUrls.add(fileUrl);
             }
-            return ResponseEntity.ok(fileUrls); //ApiResponse 사용하기
+            return ApiResponse.<List<String>>builder()
+                    .status("200")
+                    .data(fileUrls)
+                    .build();
         } catch (IOException e) {
-            return ResponseEntity.internalServerError().body(Collections.singletonList("파일 업로드에 실패했습니다." + e.getMessage()));
+            return ApiResponse.<List<String>>builder()
+                    .status("500")
+                    .data(Collections.singletonList("파일 업로드에 실패했습니다." + e.getMessage()))
+                    .build();
         }
     }
 
     @GetMapping()
-    public ResponseEntity<Map<String, String>> getPresignedUrl(@RequestParam List<String> keys) {
+    public ApiResponse<Map<String, String>> getPresignedUrl(@RequestParam List<String> keys) {
         Map<String, String> urls = s3Service.getPresignedUrl(keys);
-        return ResponseEntity.ok(urls);
+        return ApiResponse.<Map<String, String>>builder()
+                .status("200")
+                .data(urls)
+                .build();
     }
 }
