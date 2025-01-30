@@ -131,7 +131,7 @@ public class ProductService {
         Product product = productRepository.findByProductIdAndUserId(productId, userId)
             .orElseThrow(IllegalAccessError::new);
 
-        product.setBumpAt(LocalDateTime.now());
+        product.updateBumpAt(LocalDateTime.now());
         productRepository.save(product);
         return product;
     }

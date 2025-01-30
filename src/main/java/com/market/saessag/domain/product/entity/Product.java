@@ -80,6 +80,10 @@ public class Product {
         this.status = status;
     }
 
+    public void updateBumpAt(LocalDateTime bumpAt) {
+        this.bumpAt = bumpAt;
+    }
+
     public void incrementViews() {
         this.views++;
     }
