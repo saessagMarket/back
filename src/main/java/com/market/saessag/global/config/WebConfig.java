@@ -1,6 +1,7 @@
 package com.market.saessag.global.config;
 
 import com.market.saessag.global.interceptor.SessionInterceptor;
+import com.market.saessag.global.util.PathConst;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -21,10 +22,6 @@ public class WebConfig implements WebMvcConfigurer {
     public void addInterceptors(InterceptorRegistry registry) {
         registry.addInterceptor(sessionInterceptor)
                 .addPathPatterns("/**")        // 모든 경로에 인터셉터 적용
-                .excludePathPatterns(          // 제외할 경로 설정
-                        "/api/sign-up",
-                        "/api/sign-in",
-                        "/error"
-                );
+                .excludePathPatterns(PathConst.EXCLUDED_PATHS); // 제외할 경로 설정
     }
 }
