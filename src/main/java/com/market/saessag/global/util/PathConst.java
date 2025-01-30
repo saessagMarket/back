@@ -6,7 +6,7 @@ public class PathConst {
             "/api/sign-up",
             "/api/sign-in",
             "/api/products",
-            "/api/products/{productId}",
+            "/api/products/*",
             "/error"
     };
 
