@@ -5,6 +5,8 @@ public class PathConst {
     public static final String[] EXCLUDED_PATHS = {
             "/api/sign-up",
             "/api/sign-in",
+            "/api/products",
+            "/api/products/{productId}",
             "/error"
     };
 
