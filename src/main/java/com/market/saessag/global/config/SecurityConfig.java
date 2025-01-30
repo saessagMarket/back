@@ -55,7 +55,7 @@ public class SecurityConfig {
                 "http://localhost:3000",                  // 로컬 개발 서버
                 "https://saessagmarket.netlify.app"       // Netlify 배포 환경
         ));
-        config.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        config.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
         config.setAllowedHeaders(List.of("*"));
         config.setAllowCredentials(true);
         config.setMaxAge(3600L);
