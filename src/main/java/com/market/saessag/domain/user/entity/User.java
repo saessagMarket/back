@@ -53,4 +53,9 @@ public class User {
         this.updatedAt = LocalDateTime.now();
     }
 
+    public void updatePassword(String newPassword) {
+        this.password = newPassword;
+        this.updatedAt = LocalDateTime.now();
+    }
+
 }

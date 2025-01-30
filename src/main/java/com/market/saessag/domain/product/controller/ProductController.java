@@ -21,7 +21,7 @@ public class ProductController {
 
     //통합 조회 (제목, 닉네임, 정렬기준)
     @GetMapping()
-    public ResponseEntity<ApiResponse<Page<ProductResponse>>> searchProducts(
+    public ApiResponse<Page<ProductResponse>> searchProducts(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
             @RequestParam(required = false) String title,
@@ -29,70 +29,76 @@ public class ProductController {
             @RequestParam(required = false) String sort
     ) {
         Page<ProductResponse> product = productService.searchProducts(page, size, title, nickname, sort);
-        ApiResponse<Page<ProductResponse>> response = ApiResponse.<Page<ProductResponse>>builder()
-                .status("200")
-                .data(product)
-                .build();
 
-        return ResponseEntity.status(HttpStatus.OK).body(response);
+      return ApiResponse.<Page<ProductResponse>>builder()
+          .status("200")
+          .data(product)
+          .build();
     }
 
     //상세 조회
     @GetMapping("/{productId}")
-    public ResponseEntity<ApiResponse<ProductResponse>> getProductDetail(@PathVariable Long productId) {
+    public ApiResponse<ProductResponse> getProductDetail(@PathVariable Long productId,
+                                                         @SessionAttribute(name = "user", required = false) SignInResponse user) {
+
         ProductResponse productDetail = productService.getProductDetail(productId);
-        ApiResponse<ProductResponse> response = ApiResponse.<ProductResponse>builder()
+        if (user != null) {
+            productService.incrementView(productId, user.getId());
+        }
+
+        return ApiResponse.<ProductResponse>builder()
                 .status("200")
                 .data(productDetail)
                 .build();
-
-        return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
     //상품 생성
     @PostMapping
-    public ResponseEntity<ApiResponse<ProductResponse>> createProduct(@RequestBody ProductRequest productRequest) {
+    public ApiResponse<ProductResponse> createProduct(@RequestBody ProductRequest productRequest) {
         ProductResponse createdProduct = productService.createProduct(productRequest);
-        ApiResponse<ProductResponse> response = ApiResponse.<ProductResponse>builder()
+        return ApiResponse.<ProductResponse>builder()
                 .status("201")
                 .data(createdProduct)
                 .build();
-
-        return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     //상품 수정
     @PutMapping("/{productId}")
-    public ResponseEntity<ApiResponse<ProductResponse>> updateProduct(@PathVariable Long productId,
+    public ApiResponse<ProductResponse> updateProduct(@PathVariable Long productId,
                                  @RequestBody ProductRequest productRequest) {
         ProductResponse updatedProduct = productService.updateProduct(productId, productRequest);
-        ApiResponse<ProductResponse> response = ApiResponse.<ProductResponse>builder()
+        return ApiResponse.<ProductResponse>builder()
                 .status("200")
                 .data(updatedProduct)
                 .build();
-
-        return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
     //상품 삭제
     @DeleteMapping("/{productId}")
-    public ResponseEntity<ApiResponse> deleteProduct(@PathVariable Long productId) {
+    public ApiResponse<Void> deleteProduct(@PathVariable Long productId) {
         boolean isDeleted = productService.deleteProduct(productId);
         if (!isDeleted) {
-            ApiResponse<Void> response = ApiResponse.<Void>builder()
+            return ApiResponse.<Void>builder()
                     .status("404")
                     .data(null)
                     .build();
-
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
         }
 
-        ApiResponse<Void> response = ApiResponse.<Void>builder()
+        return ApiResponse.<Void>builder()
                 .status("204")
                 .data(null)
                 .build();
+    }
 
-        return ResponseEntity.status(HttpStatus.NO_CONTENT).body(response);
+    // 상품 좋아요
+    @PostMapping("/{productId}/like")
+    public ApiResponse<Void> likeProduct(@PathVariable Long productId, @SessionAttribute(name = "user") SignInResponse user) {
+        productService.likeProduct(productId, user.getId());
+
+        return ApiResponse.<Void>builder()
+                .status("200")
+                .data(null)
+                .build();
     }
 
     @PostMapping("/bump")

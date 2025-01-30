@@ -1,5 +1,6 @@
 package com.market.saessag.global.exception;
 
+import com.market.saessag.global.response.ErrorResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
