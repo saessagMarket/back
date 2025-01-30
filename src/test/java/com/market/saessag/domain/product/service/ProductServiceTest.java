@@ -34,18 +34,19 @@ class ProductServiceTest {
         .role("role")
         .build();
 
-    Product product = new Product();
-    product.setProductId(1L);
+    Product product = Product.builder()
+        .id(1L)
+        .build();
 
-    when(productRepository.findByProductIdAndUserId(anyLong(), anyLong()))
+    when(productRepository.findByIdAndUserId(anyLong(), anyLong()))
         .thenReturn(Optional.of(product));
 
     // when
-    Product newProduct = productService.bumpProduct(product.getProductId(), user.getId());
+    Product newProduct = productService.bumpProduct(product.getId(), user.getId());
 
     // then
     assertNotNull(newProduct);
-    assertEquals(product.getProductId(), newProduct.getProductId());
+    assertEquals(product.getId(), newProduct.getId());
     assertNotNull(newProduct.getBumpAt());
     verify(productRepository).save(newProduct);
   }

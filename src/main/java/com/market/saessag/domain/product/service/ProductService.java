@@ -128,7 +128,7 @@ public class ProductService {
     }
 
     public Product bumpProduct(Long productId, Long userId) {
-        Product product = productRepository.findByProductIdAndUserId(productId, userId)
+        Product product = productRepository.findByIdAndUserId(productId, userId)
             .orElseThrow(IllegalAccessError::new);
 
         product.updateBumpAt(LocalDateTime.now());

@@ -17,5 +17,5 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
 
     Page<Product> findByUser(User user, Pageable pageable);
 
-    Optional<Product> findByProductIdAndUserId(Long id, Long userId);
+    Optional<Product> findByIdAndUserId(Long id, Long userId);
 }
