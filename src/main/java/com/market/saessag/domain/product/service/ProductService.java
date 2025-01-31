@@ -5,11 +5,19 @@ import com.market.saessag.domain.product.dto.ProductChangeStatusResponse;
 import com.market.saessag.domain.product.dto.ProductRequest;
 import com.market.saessag.domain.product.dto.ProductResponse;
 import com.market.saessag.domain.product.entity.Product;
+import com.market.saessag.domain.product.entity.ProductLike;
+import com.market.saessag.domain.product.entity.ProductView;
+import com.market.saessag.domain.product.repository.ProductLikeRepository;
 import com.market.saessag.domain.product.repository.ProductRepository;
+import com.market.saessag.domain.product.repository.ProductViewRepository;
 import com.market.saessag.domain.user.entity.User;
 import com.market.saessag.domain.user.repository.UserRepository;
 import com.market.saessag.domain.user.dto.UserResponse;
+import com.market.saessag.global.exception.CustomException;
+import com.market.saessag.global.exception.ErrorCode;
 import com.market.saessag.util.TimeUtils;
+import jakarta.transaction.Transactional;
+import java.time.LocalDateTime;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -23,44 +31,47 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class ProductService {
     private final ProductRepository productRepository;
+    private final ProductViewRepository productViewRepository;
     private final UserRepository userRepository;
+    private final ProductLikeRepository productLikeRepository;
 
     //상품 생성
     public ProductResponse createProduct(ProductRequest productRequest) {
         User user = userRepository.findById(productRequest.getUser().getId())
                 .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
 
-        Product product = new Product();
-        product.setUser(user);
-        product.setTitle(productRequest.getTitle());
-        product.setPrice(productRequest.getPrice());
-        product.setDescription(productRequest.getDescription());
-        product.setLatitude(productRequest.getLatitude());
-        product.setLongitude(productRequest.getLongitude());
-        product.setBasicAddress(productRequest.getBasicAddress());
-        product.setDetailedAddress(productRequest.getDetailedAddress());
-        product.setPhoto(productRequest.getPhoto());
-        product.setStatus(Product.ProductStatus.valueOf(productRequest.getStatus()));
+        Product product = Product.builder()
+                .user(user)
+                .title(productRequest.getTitle())
+                .price(productRequest.getPrice())
+                .description(productRequest.getDescription())
+                .latitude(productRequest.getLatitude())
+                .longitude(productRequest.getLongitude())
+                .basicAddress(productRequest.getBasicAddress())
+                .detailedAddress(productRequest.getDetailedAddress())
+                .photo(productRequest.getPhoto())
+                .status(Product.ProductStatus.valueOf(productRequest.getStatus()))
+                .build();
         return convertToDTO(productRepository.save(product));
     }
 
     //상품 수정
     public ProductResponse updateProduct(Long productId, ProductRequest productRequest) {
-        Product productDTO = productRepository.findById(productId)
-                .map(afterProduct -> {
-                    afterProduct.setDescription(productRequest.getDescription());
-                    afterProduct.setLatitude(productRequest.getLatitude());
-                    afterProduct.setLongitude(productRequest.getLongitude());
-                    afterProduct.setBasicAddress(productRequest.getBasicAddress());
-                    afterProduct.setDetailedAddress(productRequest.getDetailedAddress());
-                    afterProduct.setPhoto(productRequest.getPhoto());
-                    afterProduct.setPrice(productRequest.getPrice());
-                    afterProduct.setStatus(Product.ProductStatus.valueOf(productRequest.getStatus()));
-                    afterProduct.setTitle(productRequest.getTitle());
-                    return productRepository.save(afterProduct);
-                }).orElseThrow(() -> new IllegalArgumentException("없는 상품 번호 입니다."));
+        Product product = productRepository.findById(productId)
+                .orElseThrow(() -> new IllegalArgumentException("없는 상품 번호 입니다."));
 
-        return convertToDTO(productDTO);
+        product.updateProduct(
+                productRequest.getTitle(),
+                productRequest.getPrice(),
+                productRequest.getDescription(),
+                productRequest.getPhoto(),
+                productRequest.getLatitude(),
+                productRequest.getLongitude(),
+                productRequest.getBasicAddress(),
+                productRequest.getDetailedAddress(),
+                Product.ProductStatus.valueOf(productRequest.getStatus()));
+
+        return convertToDTO(productRepository.save(product));
     }
 
     public boolean deleteProduct(Long productId) {
@@ -72,16 +83,33 @@ public class ProductService {
         return false;
     }
 
-    public Page<ProductResponse> searchProducts(int page, int size, String title, String nickname, String sort, String direction) {
-        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.fromString(direction), sort != null ? sort : "addedDate"));
+    public Page<ProductResponse> searchProducts(int page, int size, String title, String nickname, String sort) {
+        try {
+            Sort sorting = (sort == null || sort.isEmpty()) ?
+                Sort.by(
+                    Sort.Order.desc("bumpAt"),
+                    Sort.Order.desc("addedDate")
+                ) : Sort.by(Sort.Order.by(sort));
 
-        if (title != null) {
-            return productRepository.findByTitleContaining(title, pageable).map(this::convertToDTO);
-        } else if (nickname != null) {
-            User user = userRepository.findByNickname(nickname);
-            return productRepository.findByUser(user, pageable).map(this::convertToDTO);
-        } else {
-            return productRepository.findAll(pageable).map(this::convertToDTO);
+            Pageable pageable = PageRequest.of(page, size, sorting);
+
+            Page<ProductResponse> result;
+            if (title != null) {
+                result = productRepository.findByTitleContaining(title, pageable).map(this::convertToDTO);
+            } else if (nickname != null) {
+                User user = userRepository.findByNickname(nickname);
+                if (user == null) {
+                    throw new CustomException(ErrorCode.USER_NOT_FOUND);
+                }
+                result = productRepository.findByUser(user, pageable).map(this::convertToDTO);
+            } else {
+                result = productRepository.findAll(pageable).map(this::convertToDTO);
+            }
+            return result;
+        } catch (IllegalArgumentException e) {
+            throw new CustomException(ErrorCode.INVALID_ARGUMENT);
+        } catch (Exception e) {
+            throw new CustomException(ErrorCode.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -89,7 +117,7 @@ public class ProductService {
         User user = product.getUser();
 
         return ProductResponse.builder()
-                .productId(product.getProductId())
+                .productId(product.getId())
                 .photo(product.getPhoto())
                 .title(product.getTitle())
                 .price(product.getPrice())
@@ -98,6 +126,8 @@ public class ProductService {
                 .detailedAddress(product.getDetailedAddress())
                 .addedDate(TimeUtils.getRelativeTime(product.getAddedDate()))
                 .status(product.getStatus().toString())
+                .like(product.getLikes())
+                .view(product.getViews())
                 .user(UserResponse.builder()
                         .id(user.getId())
                         .nickname(user.getNickname())
@@ -112,6 +142,60 @@ public class ProductService {
         return convertToDTO(id);
     }
 
+    public Product bumpProduct(Long productId, Long userId) {
+        Product product = productRepository.findByIdAndUserId(productId, userId)
+            .orElseThrow(IllegalAccessError::new);
+
+        product.updateBumpAt(LocalDateTime.now());
+        productRepository.save(product);
+        return product;
+    }
+
+    // 조회수 증가
+    public void incrementView(Long productId, Long userId) {
+        Product product = productRepository.findById(productId)
+                .orElseThrow(() -> new IllegalArgumentException("상품이 없습니다."));
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("해당 유저가 없습니다."));
+
+        boolean hasViewed = productViewRepository.existsByProductAndUser(product, user);
+        if (!hasViewed) {
+            ProductView productView = ProductView.builder()
+                    .product(product)
+                    .user(user)
+                    .build();
+            productViewRepository.save(productView);
+
+            product.incrementViews();
+            productRepository.save(product);
+        }
+
+    }
+
+    // 좋아요 클릭
+    @Transactional
+    public void likeProduct(Long productId, Long userId) {
+        Product product = productRepository.findById(productId)
+                .orElseThrow(() -> new IllegalArgumentException("상품이 없습니다."));
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("해당 유저가 없습니다."));
+
+        ProductLike productLike = productLikeRepository.findByProductAndUser(product, user);
+        if (productLike == null) { // 좋아요 추가
+            productLikeRepository.save(ProductLike.builder()
+                    .product(product)
+                    .user(user)
+                    .build());
+            product.incrementLikes();
+        } else { // 좋아요 삭제
+            productLikeRepository.delete(productLike);
+            product.decrementLikes();
+        }
+        productRepository.save(product);
+    }
+
     public ProductChangeStatusResponse changeStatus(ProductChangeStatusRequest req) {
         Product product = productRepository.findById(req.getProductId())
             .orElseThrow(()-> new IllegalArgumentException("상품이 없습니다."));
@@ -120,7 +204,7 @@ public class ProductService {
         productRepository.save(product);
 
         return ProductChangeStatusResponse.builder()
-            .productId(product.getProductId())
+            .productId(product.getId())
             .status(product.getStatus())
             .build();
     }

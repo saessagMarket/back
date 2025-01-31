@@ -4,12 +4,14 @@ import com.market.saessag.domain.product.dto.ProductChangeStatusRequest;
 import com.market.saessag.domain.product.dto.ProductChangeStatusResponse;
 import com.market.saessag.domain.product.dto.ProductRequest;
 import com.market.saessag.domain.product.dto.ProductResponse;
+import com.market.saessag.domain.product.entity.Product;
 import com.market.saessag.domain.product.service.ProductService;
+import com.market.saessag.domain.user.dto.SignInResponse;
+import com.market.saessag.global.exception.ErrorCode;
 import com.market.saessag.global.response.ApiResponse;
+import com.market.saessag.global.response.SuccessCode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -20,84 +22,76 @@ public class ProductController {
 
     //통합 조회 (제목, 닉네임, 정렬기준)
     @GetMapping()
-    public ResponseEntity<ApiResponse<Page<ProductResponse>>> searchProducts(
+    public ApiResponse<Page<ProductResponse>> searchProducts(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
             @RequestParam(required = false) String title,
             @RequestParam(required = false) String nickname,
-            @RequestParam(required = false) String sort, //정렬 기준 (price, addedDate 등)
-            @RequestParam(defaultValue = "desc") String direction) {
-        Page<ProductResponse> product = productService.searchProducts(page, size, title, nickname, sort, direction);
-        ApiResponse<Page<ProductResponse>> response = ApiResponse.<Page<ProductResponse>>builder()
-                .status("200")
-                .data(product)
-                .build();
+            @RequestParam(required = false) String sort
+    ) {
+        // 세션 체크는 인터셉터에서 처리되므로, 여기서는 비즈니스 로직만 처리
+        Page<ProductResponse> product = productService.searchProducts(page, size, title, nickname, sort);
 
-        return ResponseEntity.status(HttpStatus.OK).body(response);
+        // success() 메서드를 사용하여 일관된 응답 형식 유지
+        return ApiResponse.success(SuccessCode.OK, product);
     }
 
     //상세 조회
-    @GetMapping("/{productId}")
-    public ResponseEntity<ApiResponse<ProductResponse>> getProductDetail(@PathVariable Long productId) {
-        ProductResponse productDetail = productService.getProductDetail(productId);
-        ApiResponse<ProductResponse> response = ApiResponse.<ProductResponse>builder()
-                .status("200")
-                .data(productDetail)
-                .build();
+    @GetMapping("/{id}")
+    public ApiResponse<ProductResponse> getProductDetail(@PathVariable Long id,
+                                                         @SessionAttribute(name = "user", required = false) SignInResponse user) {
 
-        return ResponseEntity.status(HttpStatus.OK).body(response);
+        ProductResponse productDetail = productService.getProductDetail(id);
+        if (user != null) {
+            productService.incrementView(id, user.getId());
+        }
+        return ApiResponse.success(SuccessCode.OK, productDetail);
     }
 
     //상품 생성
     @PostMapping
-    public ResponseEntity<ApiResponse<ProductResponse>> createProduct(@RequestBody ProductRequest productRequest) {
+    public ApiResponse<ProductResponse> createProduct(@RequestBody ProductRequest productRequest) {
         ProductResponse createdProduct = productService.createProduct(productRequest);
-        ApiResponse<ProductResponse> response = ApiResponse.<ProductResponse>builder()
-                .status("201")
-                .data(createdProduct)
-                .build();
-
-        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+        return ApiResponse.success(SuccessCode.PRODUCT_CREATED, createdProduct);
     }
 
     //상품 수정
-    @PutMapping("/{productId}")
-    public ResponseEntity<ApiResponse<ProductResponse>> updateProduct(@PathVariable Long productId,
+    @PutMapping("/{id}")
+    public ApiResponse<ProductResponse> updateProduct(@PathVariable Long productId,
                                  @RequestBody ProductRequest productRequest) {
         ProductResponse updatedProduct = productService.updateProduct(productId, productRequest);
-        ApiResponse<ProductResponse> response = ApiResponse.<ProductResponse>builder()
-                .status("200")
-                .data(updatedProduct)
-                .build();
-
-        return ResponseEntity.status(HttpStatus.OK).body(response);
+        return ApiResponse.success(SuccessCode.OK, updatedProduct);
     }
 
     //상품 삭제
-    @DeleteMapping("/{productId}")
-    public ResponseEntity<ApiResponse> deleteProduct(@PathVariable Long productId) {
+    @DeleteMapping("/{id}")
+    public ApiResponse<Void> deleteProduct(@PathVariable Long productId) {
         boolean isDeleted = productService.deleteProduct(productId);
         if (!isDeleted) {
-            ApiResponse<Void> response = ApiResponse.<Void>builder()
-                    .status("404")
-                    .data(null)
-                    .build();
-
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+            return ApiResponse.error(ErrorCode.PRODUCT_NOT_FOUND);
         }
-
-        ApiResponse<Void> response = ApiResponse.<Void>builder()
-                .status("204")
-                .data(null)
-                .build();
-
-        return ResponseEntity.status(HttpStatus.NO_CONTENT).body(response);
+        return ApiResponse.success(SuccessCode.NO_CONTENT, null);
     }
+
+    // 상품 좋아요
+    @PostMapping("/{id}/like")
+    public ApiResponse<Void> likeProduct(@PathVariable Long productId, @SessionAttribute(name = "user") SignInResponse user) {
+        productService.likeProduct(productId, user.getId());
+        return ApiResponse.success(SuccessCode.OK, null);
+    }
+
+    @PostMapping("/bump")
+
+    public ApiResponse<?> bumpProduct(@RequestParam Long productId, @SessionAttribute(name = "user") SignInResponse user) {
+        Product product = productService.bumpProduct(productId, user.getId());
+        return ApiResponse.success(SuccessCode.OK, product.getId());
+    }
+
 
     // note. 본인 소유의 상품의 상태 값만 변경 할 수 있도록 조치 필요
     @PostMapping("/changeStatus")
     public ApiResponse<ProductChangeStatusResponse> changeStatus(@RequestBody ProductChangeStatusRequest req) {
         ProductChangeStatusResponse response = productService.changeStatus(req);
-        return ApiResponse.success(response);
+        return ApiResponse.success(SuccessCode.OK, response);
     }
 }

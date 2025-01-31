@@ -22,6 +22,7 @@ public class User {
     @Column(nullable = false)
     private String password;
 
+    @Setter
     @Column
     private String profileUrl;
 
@@ -50,6 +51,11 @@ public class User {
         this.emailVerified = true; // 회원가입 시점에는 이미 인증이 완료된 상태
         this.nickname = nickname;
         this.createdAt = LocalDateTime.now();
+        this.updatedAt = LocalDateTime.now();
+    }
+
+    public void updatePassword(String newPassword) {
+        this.password = newPassword;
         this.updatedAt = LocalDateTime.now();
     }
 

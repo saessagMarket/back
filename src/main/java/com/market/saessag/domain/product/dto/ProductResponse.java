@@ -18,5 +18,7 @@ public class ProductResponse {
     private String detailedAddress;
     private final String addedDate;
     private String status;
+    private Long like;
+    private Long view;
     private final UserResponse user;
 }
