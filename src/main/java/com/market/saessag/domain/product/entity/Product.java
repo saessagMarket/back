@@ -95,4 +95,7 @@ public class Product {
     public void decrementLikes(){
         this.likes--;
     }
+    public void updateStatus(ProductStatus status) {
+        this.status = status;
+    }
 }

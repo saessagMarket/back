@@ -200,7 +200,7 @@ public class ProductService {
         Product product = productRepository.findById(req.getProductId())
             .orElseThrow(()-> new IllegalArgumentException("상품이 없습니다."));
 
-        product.setStatus(req.getStatus());
+        product.updateStatus(req.getStatus());
         productRepository.save(product);
 
         return ProductChangeStatusResponse.builder()
