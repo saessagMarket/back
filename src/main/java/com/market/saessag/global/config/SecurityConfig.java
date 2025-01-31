@@ -1,5 +1,6 @@
 package com.market.saessag.global.config;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -19,6 +20,8 @@ import java.util.List;
 @EnableWebSecurity
 
 public class SecurityConfig {
+    @Autowired
+    private CustomAuthenticationEntryPoint customAuthenticationEntryPoint;
 
     @Bean
     public BCryptPasswordEncoder bCryptPasswordEncoder(){
@@ -38,11 +41,17 @@ public class SecurityConfig {
         // 경로 지정 로직 작성
         httpSecurity
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-                .csrf(AbstractHttpConfigurer::disable) // 개발 환경에서만 disable
-                .authorizeHttpRequests((auth) -> auth // 인가
-                        .requestMatchers("/api/**").permitAll()
-                        .anyRequest().authenticated() // 이외의 경로
+                .csrf(AbstractHttpConfigurer::disable)
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/api/products", "/api/products/*").permitAll()  // 상품 조회 관련 엔드포인트
+                        .requestMatchers("/api/sign-up", "/api/sign-in").permitAll()     // 인증 관련 엔드포인트
+                        .requestMatchers("/error").permitAll()                             // 에러 관련 엔드포인트
+                        .anyRequest().authenticated()                                     // 나머지는 인증 필요
+                )
+                .exceptionHandling(handling -> handling
+                        .authenticationEntryPoint(customAuthenticationEntryPoint)    // 인증 실패 처리
                 );
+        
         return httpSecurity.build();
     }
 
