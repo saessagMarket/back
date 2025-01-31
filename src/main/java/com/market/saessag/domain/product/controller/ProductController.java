@@ -9,7 +9,6 @@ import com.market.saessag.global.exception.ErrorCode;
 import com.market.saessag.global.response.ApiResponse;
 import com.market.saessag.global.response.SuccessCode;
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
@@ -27,8 +26,7 @@ public class ProductController {
             @RequestParam(defaultValue = "10") int size,
             @RequestParam(required = false) String title,
             @RequestParam(required = false) String nickname,
-            @RequestParam(required = false) String sort,
-            HttpSession httpSession
+            @RequestParam(required = false) String sort
     ) {
         // 세션 체크는 인터셉터에서 처리되므로, 여기서는 비즈니스 로직만 처리
         Page<ProductResponse> product = productService.searchProducts(page, size, title, nickname, sort);
@@ -38,13 +36,13 @@ public class ProductController {
     }
 
     //상세 조회
-    @GetMapping("/{productId}")
-    public ApiResponse<ProductResponse> getProductDetail(@PathVariable Long productId,
+    @GetMapping("/{id}")
+    public ApiResponse<ProductResponse> getProductDetail(@PathVariable Long id,
                                                          @SessionAttribute(name = "user", required = false) SignInResponse user) {
 
-        ProductResponse productDetail = productService.getProductDetail(productId);
+        ProductResponse productDetail = productService.getProductDetail(id);
         if (user != null) {
-            productService.incrementView(productId, user.getId());
+            productService.incrementView(id, user.getId());
         }
         return ApiResponse.success(SuccessCode.OK, productDetail);
     }
@@ -57,7 +55,7 @@ public class ProductController {
     }
 
     //상품 수정
-    @PutMapping("/{productId}")
+    @PutMapping("/{id}")
     public ApiResponse<ProductResponse> updateProduct(@PathVariable Long productId,
                                  @RequestBody ProductRequest productRequest) {
         ProductResponse updatedProduct = productService.updateProduct(productId, productRequest);
@@ -65,7 +63,7 @@ public class ProductController {
     }
 
     //상품 삭제
-    @DeleteMapping("/{productId}")
+    @DeleteMapping("/{id}")
     public ApiResponse<Void> deleteProduct(@PathVariable Long productId) {
         boolean isDeleted = productService.deleteProduct(productId);
         if (!isDeleted) {
@@ -75,7 +73,7 @@ public class ProductController {
     }
 
     // 상품 좋아요
-    @PostMapping("/{productId}/like")
+    @PostMapping("/{id}/like")
     public ApiResponse<Void> likeProduct(@PathVariable Long productId, @SessionAttribute(name = "user") SignInResponse user) {
         productService.likeProduct(productId, user.getId());
         return ApiResponse.success(SuccessCode.OK, null);
