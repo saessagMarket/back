@@ -82,8 +82,8 @@ public class ProductService {
     public Page<ProductResponse> searchProducts(int page, int size, String title, String nickname, String sort) {
         Sort sorting = (sort == null || sort.isEmpty()) ?
             Sort.by(
-                Sort.Order.desc("dump_at").nullsLast(),
-                Sort.Order.desc("added_date")
+                Sort.Order.desc("bumpAt"),
+                Sort.Order.desc("addedDate")
             ) : Sort.by(Sort.Order.by(sort));
 
         Pageable pageable = PageRequest.of(page, size, sorting);
