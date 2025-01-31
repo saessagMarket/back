@@ -16,8 +16,8 @@ public class PathConst {
             "/api/products/create",            // 상품 등록
             "/api/products/{id}/update",       // 상품 수정
             "/api/products/{id}/delete",       // 상품 삭제
-            "/api/profile/update",             // 프로필 수정
-            "/api/profile/upload"              // 프로필 이미지 업로드
+            "/api/profile/upload-image",        // 프로필 사진 업로드
+            "/api/profile"                     // 프로필 사진 조회
     };
 
     private PathConst() {} // 인스턴스화 방지
