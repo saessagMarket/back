@@ -85,23 +85,28 @@ public class ProductService {
         try {
             Sort sorting = (sort == null || sort.isEmpty()) ?
                     Sort.by(
-                            Sort.Order.desc("dump_at").nullsLast(),
-                            Sort.Order.desc("added_date")
+                            Sort.Order.desc("bumpAt"),      // nullsLast() 제거
+                            Sort.Order.desc("addedDate")
                     ) : Sort.by(Sort.Order.by(sort));
 
             Pageable pageable = PageRequest.of(page, size, sorting);
 
+            Page<ProductResponse> result;
             if (title != null) {
-                return productRepository.findByTitleContaining(title, pageable).map(this::convertToDTO);
+                result = productRepository.findByTitleContaining(title, pageable).map(this::convertToDTO);
             } else if (nickname != null) {
                 User user = userRepository.findByNickname(nickname);
                 if (user == null) {
                     throw new CustomException(ErrorCode.USER_NOT_FOUND);
                 }
-                return productRepository.findByUser(user, pageable).map(this::convertToDTO);
+                result = productRepository.findByUser(user, pageable).map(this::convertToDTO);
             } else {
-                return productRepository.findAll(pageable).map(this::convertToDTO);
+                result = productRepository.findAll(pageable).map(this::convertToDTO);
             }
+
+            return result;
+        } catch (IllegalArgumentException e) {
+            throw new CustomException(ErrorCode.INVALID_ARGUMENT);
         } catch (Exception e) {
             throw new CustomException(ErrorCode.INTERNAL_SERVER_ERROR);
         }
