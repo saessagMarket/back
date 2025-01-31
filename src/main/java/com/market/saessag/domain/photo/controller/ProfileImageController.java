@@ -1,14 +1,11 @@
 package com.market.saessag.domain.photo.controller;
 
 import com.market.saessag.domain.photo.service.S3Service;
-import com.market.saessag.global.exception.CustomException;
 import com.market.saessag.global.exception.ErrorCode;
 import com.market.saessag.global.response.ApiResponse;
 import com.market.saessag.global.response.SuccessCode;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -46,17 +43,11 @@ public class ProfileImageController {
     public ApiResponse<Map<String, String>> getProfileImageUrl(HttpSession session) {
         String email = (String) session.getAttribute("email");
         if (email == null) {
-            return ApiResponse.<Map<String, String>>builder()
-                    .status("401")
-                    .message("로그인이 필요합니다.")
-                    .build();
+            return ApiResponse.error(ErrorCode.UNAUTHORIZED);
         }
 
         Map<String, String> urls = s3Service.getProfileImageUrl(email);
-        return ApiResponse.<Map<String, String>>builder()
-                .status("200")
-                .data(urls)
-                .build();
+        return ApiResponse.success(SuccessCode.OK, urls);
     }
 
 }

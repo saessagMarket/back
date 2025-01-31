@@ -6,6 +6,7 @@ import com.market.saessag.domain.user.entity.User;
 import com.market.saessag.domain.user.repository.UserRepository;
 import com.market.saessag.domain.user.service.SignInService;
 import com.market.saessag.global.response.ApiResponse;
+import com.market.saessag.global.response.SuccessCode;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -32,12 +33,6 @@ public class SignInController {
                 .orElseThrow(() -> new UsernameNotFoundException("사용자를 찾을 수 없습니다."));
         session.setAttribute("email", user.getEmail());
 
-        ApiResponse<SignInResponse> response = ApiResponse.<SignInResponse>builder()
-                .status("200")
-                .data(signInResponse)
-                .build();
-
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(ApiResponse.success(SuccessCode.OK, signInResponse));
     }
-
 }

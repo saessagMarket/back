@@ -5,8 +5,11 @@ import com.market.saessag.domain.product.dto.ProductResponse;
 import com.market.saessag.domain.product.entity.Product;
 import com.market.saessag.domain.product.service.ProductService;
 import com.market.saessag.domain.user.dto.SignInResponse;
+import com.market.saessag.global.exception.ErrorCode;
 import com.market.saessag.global.response.ApiResponse;
+import com.market.saessag.global.response.SuccessCode;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
@@ -24,14 +27,14 @@ public class ProductController {
             @RequestParam(defaultValue = "10") int size,
             @RequestParam(required = false) String title,
             @RequestParam(required = false) String nickname,
-            @RequestParam(required = false) String sort
+            @RequestParam(required = false) String sort,
+            HttpSession httpSession
     ) {
+        // 세션 체크는 인터셉터에서 처리되므로, 여기서는 비즈니스 로직만 처리
         Page<ProductResponse> product = productService.searchProducts(page, size, title, nickname, sort);
 
-      return ApiResponse.<Page<ProductResponse>>builder()
-          .status("200")
-          .data(product)
-          .build();
+        // success() 메서드를 사용하여 일관된 응답 형식 유지
+        return ApiResponse.success(SuccessCode.OK, product);
     }
 
     //상세 조회
@@ -43,21 +46,14 @@ public class ProductController {
         if (user != null) {
             productService.incrementView(productId, user.getId());
         }
-
-        return ApiResponse.<ProductResponse>builder()
-                .status("200")
-                .data(productDetail)
-                .build();
+        return ApiResponse.success(SuccessCode.OK, productDetail);
     }
 
     //상품 생성
     @PostMapping
     public ApiResponse<ProductResponse> createProduct(@RequestBody ProductRequest productRequest) {
         ProductResponse createdProduct = productService.createProduct(productRequest);
-        return ApiResponse.<ProductResponse>builder()
-                .status("201")
-                .data(createdProduct)
-                .build();
+        return ApiResponse.success(SuccessCode.PRODUCT_CREATED, createdProduct);
     }
 
     //상품 수정
@@ -65,10 +61,7 @@ public class ProductController {
     public ApiResponse<ProductResponse> updateProduct(@PathVariable Long productId,
                                  @RequestBody ProductRequest productRequest) {
         ProductResponse updatedProduct = productService.updateProduct(productId, productRequest);
-        return ApiResponse.<ProductResponse>builder()
-                .status("200")
-                .data(updatedProduct)
-                .build();
+        return ApiResponse.success(SuccessCode.OK, updatedProduct);
     }
 
     //상품 삭제
@@ -76,37 +69,23 @@ public class ProductController {
     public ApiResponse<Void> deleteProduct(@PathVariable Long productId) {
         boolean isDeleted = productService.deleteProduct(productId);
         if (!isDeleted) {
-            return ApiResponse.<Void>builder()
-                    .status("404")
-                    .data(null)
-                    .build();
+            return ApiResponse.error(ErrorCode.PRODUCT_NOT_FOUND);
         }
-
-        return ApiResponse.<Void>builder()
-                .status("204")
-                .data(null)
-                .build();
+        return ApiResponse.success(SuccessCode.NO_CONTENT, null);
     }
 
     // 상품 좋아요
     @PostMapping("/{productId}/like")
     public ApiResponse<Void> likeProduct(@PathVariable Long productId, @SessionAttribute(name = "user") SignInResponse user) {
         productService.likeProduct(productId, user.getId());
-
-        return ApiResponse.<Void>builder()
-                .status("200")
-                .data(null)
-                .build();
+        return ApiResponse.success(SuccessCode.OK, null);
     }
 
     @PostMapping("/bump")
     public ApiResponse<?> bumpProduct(@RequestParam Long productId, HttpServletRequest session) {
         SignInResponse signInResponse = (SignInResponse) session.getAttribute("user");
         Product product = productService.bumpProduct(productId, signInResponse.getId());
-        return ApiResponse.builder()
-            .status("200")
-            .data(product.getId())
-            .build();
+        return ApiResponse.success(SuccessCode.OK, product.getId());
     }
 
 }

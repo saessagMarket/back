@@ -11,6 +11,8 @@ import com.market.saessag.domain.product.repository.ProductViewRepository;
 import com.market.saessag.domain.user.entity.User;
 import com.market.saessag.domain.user.repository.UserRepository;
 import com.market.saessag.domain.user.dto.UserResponse;
+import com.market.saessag.global.exception.CustomException;
+import com.market.saessag.global.exception.ErrorCode;
 import com.market.saessag.util.TimeUtils;
 import jakarta.transaction.Transactional;
 import java.time.LocalDateTime;
@@ -80,21 +82,28 @@ public class ProductService {
     }
 
     public Page<ProductResponse> searchProducts(int page, int size, String title, String nickname, String sort) {
-        Sort sorting = (sort == null || sort.isEmpty()) ?
-            Sort.by(
-                Sort.Order.desc("dump_at").nullsLast(),
-                Sort.Order.desc("added_date")
-            ) : Sort.by(Sort.Order.by(sort));
+        try {
+            Sort sorting = (sort == null || sort.isEmpty()) ?
+                    Sort.by(
+                            Sort.Order.desc("dump_at").nullsLast(),
+                            Sort.Order.desc("added_date")
+                    ) : Sort.by(Sort.Order.by(sort));
 
-        Pageable pageable = PageRequest.of(page, size, sorting);
+            Pageable pageable = PageRequest.of(page, size, sorting);
 
-        if (title != null) {
-            return productRepository.findByTitleContaining(title, pageable).map(this::convertToDTO);
-        } else if (nickname != null) {
-            User user = userRepository.findByNickname(nickname);
-            return productRepository.findByUser(user, pageable).map(this::convertToDTO);
-        } else {
-            return productRepository.findAll(pageable).map(this::convertToDTO);
+            if (title != null) {
+                return productRepository.findByTitleContaining(title, pageable).map(this::convertToDTO);
+            } else if (nickname != null) {
+                User user = userRepository.findByNickname(nickname);
+                if (user == null) {
+                    throw new CustomException(ErrorCode.USER_NOT_FOUND);
+                }
+                return productRepository.findByUser(user, pageable).map(this::convertToDTO);
+            } else {
+                return productRepository.findAll(pageable).map(this::convertToDTO);
+            }
+        } catch (Exception e) {
+            throw new CustomException(ErrorCode.INTERNAL_SERVER_ERROR);
         }
     }
 
