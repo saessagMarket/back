@@ -1,5 +1,7 @@
 package com.market.saessag.domain.product.service;
 
+import com.market.saessag.domain.product.dto.ProductChangeStatusRequest;
+import com.market.saessag.domain.product.dto.ProductChangeStatusResponse;
 import com.market.saessag.domain.product.dto.ProductRequest;
 import com.market.saessag.domain.product.dto.ProductResponse;
 import com.market.saessag.domain.product.entity.Product;
@@ -192,5 +194,18 @@ public class ProductService {
             product.decrementLikes();
         }
         productRepository.save(product);
+    }
+
+    public ProductChangeStatusResponse changeStatus(ProductChangeStatusRequest req) {
+        Product product = productRepository.findById(req.getProductId())
+            .orElseThrow(()-> new IllegalArgumentException("상품이 없습니다."));
+
+        product.updateStatus(req.getStatus());
+        productRepository.save(product);
+
+        return ProductChangeStatusResponse.builder()
+            .productId(product.getId())
+            .status(product.getStatus())
+            .build();
     }
 }

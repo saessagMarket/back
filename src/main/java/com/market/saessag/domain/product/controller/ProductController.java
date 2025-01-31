@@ -1,5 +1,7 @@
 package com.market.saessag.domain.product.controller;
 
+import com.market.saessag.domain.product.dto.ProductChangeStatusRequest;
+import com.market.saessag.domain.product.dto.ProductChangeStatusResponse;
 import com.market.saessag.domain.product.dto.ProductRequest;
 import com.market.saessag.domain.product.dto.ProductResponse;
 import com.market.saessag.domain.product.entity.Product;
@@ -8,7 +10,6 @@ import com.market.saessag.domain.user.dto.SignInResponse;
 import com.market.saessag.global.exception.ErrorCode;
 import com.market.saessag.global.response.ApiResponse;
 import com.market.saessag.global.response.SuccessCode;
-import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
@@ -86,4 +87,11 @@ public class ProductController {
         return ApiResponse.success(SuccessCode.OK, product.getId());
     }
 
+
+    // note. 본인 소유의 상품의 상태 값만 변경 할 수 있도록 조치 필요
+    @PostMapping("/changeStatus")
+    public ApiResponse<ProductChangeStatusResponse> changeStatus(@RequestBody ProductChangeStatusRequest req) {
+        ProductChangeStatusResponse response = productService.changeStatus(req);
+        return ApiResponse.success(SuccessCode.OK, response);
+    }
 }
