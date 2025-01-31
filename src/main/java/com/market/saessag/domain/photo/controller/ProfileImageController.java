@@ -1,6 +1,10 @@
 package com.market.saessag.domain.photo.controller;
 
 import com.market.saessag.domain.photo.service.S3Service;
+import com.market.saessag.global.exception.CustomException;
+import com.market.saessag.global.exception.ErrorCode;
+import com.market.saessag.global.response.ApiResponse;
+import com.market.saessag.global.response.SuccessCode;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -9,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/profile")
@@ -22,31 +27,36 @@ public class ProfileImageController {
          따라서 하나의 Patch 메서드에서 동작함.
      */
     @PatchMapping("/upload-image")
-    public ResponseEntity<String> uploadProfileImage(@RequestParam("file") MultipartFile file, HttpSession session) {
+    public ApiResponse<String> uploadProfileImage(@RequestParam("file") MultipartFile file, HttpSession session) {
         try {
             String email = (String) session.getAttribute("email");
             if (email == null) {
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                        .body("로그인이 필요합니다.");
+                return ApiResponse.error(ErrorCode.UNAUTHORIZED);
             }
 
             String fileUrl = s3Service.uploadProfileImage(file, email);
-            return ResponseEntity.ok(fileUrl);
+            return ApiResponse.success(SuccessCode.UPLOAD_SUCCESS, fileUrl);
         } catch (IOException e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("파일 업로드 실패: " + e.getMessage());
+            return ApiResponse.error(ErrorCode.FILE_UPLOAD_ERROR);
         }
     }
 
     // 프로필 사진 조회
     @GetMapping
-    public ResponseEntity<?> getProfileImageUrl(HttpSession session) {
+    public ApiResponse<Map<String, String>> getProfileImageUrl(HttpSession session) {
         String email = (String) session.getAttribute("email");
         if (email == null) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body("로그인이 필요합니다.");
+            return ApiResponse.<Map<String, String>>builder()
+                    .status("401")
+                    .message("로그인이 필요합니다.")
+                    .build();
         }
 
-        return ResponseEntity.ok(s3Service.getProfileImageUrl(email));
+        Map<String, String> urls = s3Service.getProfileImageUrl(email);
+        return ApiResponse.<Map<String, String>>builder()
+                .status("200")
+                .data(urls)
+                .build();
     }
+
 }
