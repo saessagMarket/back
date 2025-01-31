@@ -80,9 +80,9 @@ public class ProductController {
     }
 
     @PostMapping("/bump")
-    public ApiResponse<?> bumpProduct(@RequestParam Long productId, HttpServletRequest session) {
-        SignInResponse signInResponse = (SignInResponse) session.getAttribute("user");
-        Product product = productService.bumpProduct(productId, signInResponse.getId());
+
+    public ApiResponse<?> bumpProduct(@RequestParam Long productId, @SessionAttribute(name = "user") SignInResponse user) {
+        Product product = productService.bumpProduct(productId, user.getId());
         return ApiResponse.success(SuccessCode.OK, product.getId());
     }
 

@@ -84,10 +84,10 @@ public class ProductService {
     public Page<ProductResponse> searchProducts(int page, int size, String title, String nickname, String sort) {
         try {
             Sort sorting = (sort == null || sort.isEmpty()) ?
-                    Sort.by(
-                            Sort.Order.desc("bumpAt"),      // nullsLast() 제거
-                            Sort.Order.desc("addedDate")
-                    ) : Sort.by(Sort.Order.by(sort));
+                Sort.by(
+                    Sort.Order.desc("bumpAt"),
+                    Sort.Order.desc("addedDate")
+                ) : Sort.by(Sort.Order.by(sort));
 
             Pageable pageable = PageRequest.of(page, size, sorting);
 
@@ -103,7 +103,6 @@ public class ProductService {
             } else {
                 result = productRepository.findAll(pageable).map(this::convertToDTO);
             }
-
             return result;
         } catch (IllegalArgumentException e) {
             throw new CustomException(ErrorCode.INVALID_ARGUMENT);
