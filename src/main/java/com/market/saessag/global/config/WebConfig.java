@@ -1,7 +1,6 @@
 package com.market.saessag.global.config;
 
 import com.market.saessag.global.interceptor.SessionInterceptor;
-import com.market.saessag.global.util.PathConst;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

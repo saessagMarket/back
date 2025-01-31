@@ -2,7 +2,7 @@ package com.market.saessag.global.interceptor;
 
 import com.market.saessag.global.exception.CustomException;
 import com.market.saessag.global.exception.ErrorCode;
-import com.market.saessag.global.util.PathConst;
+import com.market.saessag.global.config.PathConst;
 import com.market.saessag.global.util.SessionUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
