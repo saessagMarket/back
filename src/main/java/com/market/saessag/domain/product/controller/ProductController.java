@@ -40,11 +40,10 @@ public class ProductController {
     @GetMapping("/{id}")
     public ApiResponse<ProductResponse> getProductDetail(@PathVariable Long id,
                                                          @SessionAttribute(name = "user", required = false) SignInResponse user) {
-
-        ProductResponse productDetail = productService.getProductDetail(id);
         if (user != null) {
             productService.incrementView(id, user.getId());
         }
+        ProductResponse productDetail = productService.getProductDetail(id);
         return ApiResponse.success(SuccessCode.OK, productDetail);
     }
 
