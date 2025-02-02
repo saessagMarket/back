@@ -54,17 +54,9 @@ public class Product {
         FOR_SALE, HIDDEN, SOLD_OUT
     }
 
-    @Column(nullable = false)
-    private Long views;
-
-    @Column(nullable = false)
-    private Long likes;
-
     @PrePersist
     public void prePersist() {
         this.addedDate = LocalDateTime.now(); // 현재 시간 자동 설정
-        this.views = 0L;
-        this.likes = 0L;
     }
 
     public void updateProduct(String title, Long price, String description, List<String> photo,
@@ -84,17 +76,6 @@ public class Product {
         this.bumpAt = bumpAt;
     }
 
-    public void incrementViews() {
-        this.views++;
-    }
-
-    public void incrementLikes(){
-        this.likes++;
-    }
-
-    public void decrementLikes(){
-        this.likes--;
-    }
     public void updateStatus(ProductStatus status) {
         this.status = status;
     }

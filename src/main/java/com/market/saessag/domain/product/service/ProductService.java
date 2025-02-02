@@ -126,8 +126,8 @@ public class ProductService {
                 .detailedAddress(product.getDetailedAddress())
                 .addedDate(TimeUtils.getRelativeTime(product.getAddedDate()))
                 .status(product.getStatus().toString())
-                .like(product.getLikes())
-                .view(product.getViews())
+                .like(productLikeRepository.countByProduct(product))
+                .view(productViewRepository.countByProduct(product))
                 .user(UserResponse.builder()
                         .id(user.getId())
                         .nickname(user.getNickname())
@@ -166,11 +166,7 @@ public class ProductService {
                     .user(user)
                     .build();
             productViewRepository.save(productView);
-
-            product.incrementViews();
-            productRepository.save(product);
         }
-
     }
 
     // 좋아요 클릭
@@ -188,12 +184,9 @@ public class ProductService {
                     .product(product)
                     .user(user)
                     .build());
-            product.incrementLikes();
         } else { // 좋아요 삭제
             productLikeRepository.delete(productLike);
-            product.decrementLikes();
         }
-        productRepository.save(product);
     }
 
     public ProductChangeStatusResponse changeStatus(ProductChangeStatusRequest req) {
