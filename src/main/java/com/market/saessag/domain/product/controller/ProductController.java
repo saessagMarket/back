@@ -57,16 +57,16 @@ public class ProductController {
 
     //상품 수정
     @PutMapping("/{id}")
-    public ApiResponse<ProductResponse> updateProduct(@PathVariable Long productId,
+    public ApiResponse<ProductResponse> updateProduct(@PathVariable Long id,
                                  @RequestBody ProductRequest productRequest) {
-        ProductResponse updatedProduct = productService.updateProduct(productId, productRequest);
+        ProductResponse updatedProduct = productService.updateProduct(id, productRequest);
         return ApiResponse.success(SuccessCode.OK, updatedProduct);
     }
 
     //상품 삭제
     @DeleteMapping("/{id}")
-    public ApiResponse<Void> deleteProduct(@PathVariable Long productId) {
-        boolean isDeleted = productService.deleteProduct(productId);
+    public ApiResponse<Void> deleteProduct(@PathVariable Long id) {
+        boolean isDeleted = productService.deleteProduct(id);
         if (!isDeleted) {
             return ApiResponse.error(ErrorCode.PRODUCT_NOT_FOUND);
         }
@@ -75,13 +75,12 @@ public class ProductController {
 
     // 상품 좋아요
     @PostMapping("/{id}/like")
-    public ApiResponse<Void> likeProduct(@PathVariable Long productId, @SessionAttribute(name = "user") SignInResponse user) {
-        productService.likeProduct(productId, user.getId());
+    public ApiResponse<Void> likeProduct(@PathVariable Long id, @SessionAttribute(name = "user") SignInResponse user) {
+        productService.likeProduct(id, user.getId());
         return ApiResponse.success(SuccessCode.OK, null);
     }
 
     @PostMapping("/bump")
-
     public ApiResponse<?> bumpProduct(@RequestParam Long productId, @SessionAttribute(name = "user") SignInResponse user) {
         Product product = productService.bumpProduct(productId, user.getId());
         return ApiResponse.success(SuccessCode.OK, product.getId());
