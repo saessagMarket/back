@@ -9,7 +9,7 @@ import java.util.List;
 @Getter
 @Builder
 public class ProductResponse {
-    private final Long productId;
+    private final String uuid;
     private List<String> photo;
     private String title;
     private Long price;

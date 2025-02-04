@@ -6,6 +6,7 @@ import lombok.*;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.UUID;
 
 @Entity
 @Getter
@@ -17,6 +18,9 @@ public class Product {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @Column(nullable = false, unique = true, updatable = false, columnDefinition = "CHAR(36)")
+    private String uuid;
 
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
@@ -62,6 +66,7 @@ public class Product {
 
     @PrePersist
     public void prePersist() {
+        this.uuid = UUID.randomUUID().toString();
         this.addedDate = LocalDateTime.now(); // 현재 시간 자동 설정
         this.views = 0L;
         this.likes = 0L;
