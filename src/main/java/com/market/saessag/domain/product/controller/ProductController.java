@@ -37,13 +37,13 @@ public class ProductController {
     }
 
     //상세 조회
-    @GetMapping("/{id}")
-    public ApiResponse<ProductResponse> getProductDetail(@PathVariable Long id,
+    @GetMapping("/{uuid}")
+    public ApiResponse<ProductResponse> getProductDetail(@PathVariable String uuid,
                                                          @SessionAttribute(name = "user", required = false) SignInResponse user) {
 
-        ProductResponse productDetail = productService.getProductDetail(id);
+        ProductResponse productDetail = productService.getProductDetail(uuid);
         if (user != null) {
-            productService.incrementView(id, user.getId());
+            productService.incrementView(uuid, user.getId());
         }
         return ApiResponse.success(SuccessCode.OK, productDetail);
     }
@@ -56,17 +56,17 @@ public class ProductController {
     }
 
     //상품 수정
-    @PutMapping("/{id}")
-    public ApiResponse<ProductResponse> updateProduct(@PathVariable Long productId,
+    @PutMapping("/{uuid}")
+    public ApiResponse<ProductResponse> updateProduct(@PathVariable String uuid,
                                  @RequestBody ProductRequest productRequest) {
-        ProductResponse updatedProduct = productService.updateProduct(productId, productRequest);
+        ProductResponse updatedProduct = productService.updateProduct(uuid, productRequest);
         return ApiResponse.success(SuccessCode.OK, updatedProduct);
     }
 
     //상품 삭제
-    @DeleteMapping("/{id}")
-    public ApiResponse<Void> deleteProduct(@PathVariable Long productId) {
-        boolean isDeleted = productService.deleteProduct(productId);
+    @DeleteMapping("/{uuid}")
+    public ApiResponse<Void> deleteProduct(@PathVariable String uuid) {
+        boolean isDeleted = productService.deleteProduct(uuid);
         if (!isDeleted) {
             return ApiResponse.error(ErrorCode.PRODUCT_NOT_FOUND);
         }
@@ -74,16 +74,15 @@ public class ProductController {
     }
 
     // 상품 좋아요
-    @PostMapping("/{id}/like")
-    public ApiResponse<Void> likeProduct(@PathVariable Long productId, @SessionAttribute(name = "user") SignInResponse user) {
-        productService.likeProduct(productId, user.getId());
+    @PostMapping("/{uuid}/like")
+    public ApiResponse<Void> likeProduct(@PathVariable String uuid, @SessionAttribute(name = "user") SignInResponse user) {
+        productService.likeProduct(uuid, user.getId());
         return ApiResponse.success(SuccessCode.OK, null);
     }
 
     @PostMapping("/bump")
-
-    public ApiResponse<?> bumpProduct(@RequestParam Long productId, @SessionAttribute(name = "user") SignInResponse user) {
-        Product product = productService.bumpProduct(productId, user.getId());
+    public ApiResponse<?> bumpProduct(@RequestParam String uuid, @SessionAttribute(name = "user") SignInResponse user) {
+        Product product = productService.bumpProduct(uuid, user.getId());
         return ApiResponse.success(SuccessCode.OK, product.getId());
     }
 

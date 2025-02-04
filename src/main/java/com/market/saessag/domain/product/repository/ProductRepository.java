@@ -18,4 +18,10 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     Page<Product> findByUser(User user, Pageable pageable);
 
     Optional<Product> findByIdAndUserId(Long id, Long userId);
+
+    Optional<Product> findByUuid(String uuid);
+
+    Optional<Product> findByUuidAndUserId(String uuid, Long userId);
+
+    void deleteByUuid(String uuid);
 }

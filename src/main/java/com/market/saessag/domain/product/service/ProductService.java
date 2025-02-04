@@ -56,8 +56,8 @@ public class ProductService {
     }
 
     //상품 수정
-    public ProductResponse updateProduct(Long productId, ProductRequest productRequest) {
-        Product product = productRepository.findById(productId)
+    public ProductResponse updateProduct(String uuid, ProductRequest productRequest) {
+        Product product = productRepository.findByUuid(uuid)
                 .orElseThrow(() -> new IllegalArgumentException("없는 상품 번호 입니다."));
 
         product.updateProduct(
@@ -74,10 +74,10 @@ public class ProductService {
         return convertToDTO(productRepository.save(product));
     }
 
-    public boolean deleteProduct(Long productId) {
-        Optional<Product> product = productRepository.findById(productId);
+    public boolean deleteProduct(String uuid) {
+        Optional<Product> product = productRepository.findByUuid(uuid);
         if (product.isPresent()) {
-            productRepository.deleteById(productId);
+            productRepository.deleteByUuid(uuid);
             return true;
         }
         return false;
@@ -117,7 +117,7 @@ public class ProductService {
         User user = product.getUser();
 
         return ProductResponse.builder()
-                .productId(product.getId())
+                .uuid(product.getUuid())
                 .photo(product.getPhoto())
                 .title(product.getTitle())
                 .price(product.getPrice())
@@ -136,14 +136,15 @@ public class ProductService {
                 .build();
     }
 
-    public ProductResponse getProductDetail(Long productId) {
-        Product id = productRepository.findById(productId)
-                .orElseThrow(()-> new IllegalArgumentException("상품이 없습니다."));
-        return convertToDTO(id);
+    public ProductResponse getProductDetail(String uuid) {
+        Product product = productRepository.findByUuid(uuid)
+                .orElseThrow(() -> new IllegalArgumentException("상품이 없습니다."));
+
+        return convertToDTO(product);
     }
 
-    public Product bumpProduct(Long productId, Long userId) {
-        Product product = productRepository.findByIdAndUserId(productId, userId)
+    public Product bumpProduct(String uuid, Long userId) {
+        Product product = productRepository.findByUuidAndUserId(uuid, userId)
             .orElseThrow(IllegalAccessError::new);
 
         product.updateBumpAt(LocalDateTime.now());
@@ -152,8 +153,8 @@ public class ProductService {
     }
 
     // 조회수 증가
-    public void incrementView(Long productId, Long userId) {
-        Product product = productRepository.findById(productId)
+    public void incrementView(String uuid, Long userId) {
+        Product product = productRepository.findByUuid(uuid)
                 .orElseThrow(() -> new IllegalArgumentException("상품이 없습니다."));
 
         User user = userRepository.findById(userId)
@@ -175,8 +176,8 @@ public class ProductService {
 
     // 좋아요 클릭
     @Transactional
-    public void likeProduct(Long productId, Long userId) {
-        Product product = productRepository.findById(productId)
+    public void likeProduct(String uuid, Long userId) {
+        Product product = productRepository.findByUuid(uuid)
                 .orElseThrow(() -> new IllegalArgumentException("상품이 없습니다."));
 
         User user = userRepository.findById(userId)
@@ -197,7 +198,7 @@ public class ProductService {
     }
 
     public ProductChangeStatusResponse changeStatus(ProductChangeStatusRequest req) {
-        Product product = productRepository.findById(req.getProductId())
+        Product product = productRepository.findById(req.getProductId()) // uuid
             .orElseThrow(()-> new IllegalArgumentException("상품이 없습니다."));
 
         product.updateStatus(req.getStatus());
