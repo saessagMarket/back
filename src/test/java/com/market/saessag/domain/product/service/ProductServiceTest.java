@@ -2,6 +2,7 @@ package com.market.saessag.domain.product.service;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -35,18 +36,19 @@ class ProductServiceTest {
         .build();
 
     Product product = Product.builder()
-        .id(1L)
-        .build();
+            .id(1L)
+            .uuid("test-uuid")
+            .build();
 
-    when(productRepository.findByIdAndUserId(anyLong(), anyLong()))
+    when(productRepository.findByUuidAndUserId(anyString(), anyLong()))
         .thenReturn(Optional.of(product));
 
     // when
-    Product newProduct = productService.bumpProduct(product.getId(), user.getId());
+    Product newProduct = productService.bumpProduct(product.getUuid(), user.getId());
 
     // then
     assertNotNull(newProduct);
-    assertEquals(product.getId(), newProduct.getId());
+    assertEquals(product.getUuid(), newProduct.getUuid());
     assertNotNull(newProduct.getBumpAt());
     verify(productRepository).save(newProduct);
   }
