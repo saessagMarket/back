@@ -12,7 +12,7 @@ import com.market.saessag.domain.product.repository.ProductRepository;
 import com.market.saessag.domain.product.repository.ProductViewRepository;
 import com.market.saessag.domain.user.entity.User;
 import com.market.saessag.domain.user.repository.UserRepository;
-import com.market.saessag.domain.user.dto.UserResponse;
+import com.market.saessag.domain.user.dto.UserProfileResponse;
 import com.market.saessag.global.exception.CustomException;
 import com.market.saessag.global.exception.ErrorCode;
 import com.market.saessag.util.TimeUtils;
@@ -36,8 +36,8 @@ public class ProductService {
     private final ProductLikeRepository productLikeRepository;
 
     //상품 생성
-    public ProductResponse createProduct(ProductRequest productRequest) {
-        User user = userRepository.findById(productRequest.getUser().getId())
+    public ProductResponse createProduct(ProductRequest productRequest, Long userId) {
+        User user = userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
 
         Product product = Product.builder()
@@ -128,7 +128,7 @@ public class ProductService {
                 .status(product.getStatus().toString())
                 .like(product.getLikes())
                 .view(product.getViews())
-                .user(UserResponse.builder()
+                .user(UserProfileResponse.builder()
                         .id(user.getId())
                         .nickname(user.getNickname())
                         .profileUrl(user.getProfileUrl())

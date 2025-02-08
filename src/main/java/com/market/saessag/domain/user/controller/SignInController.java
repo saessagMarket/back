@@ -26,13 +26,13 @@ public class SignInController {
     public ResponseEntity<ApiResponse<SignInResponse>> signIn(
             @Validated @RequestBody SignInRequest signInRequest, HttpSession session){
 
-        SignInResponse signInResponse = signInService.signIn(signInRequest);
-        session.setAttribute("user", signInResponse); // 세션에 로그인 정보 저장
+        SignInResponse userProfileResponse = signInService.signIn(signInRequest);
+        session.setAttribute("userProfile", userProfileResponse); // 세션에 로그인 정보 저장
 
         User user = userRepository.findByEmail(signInRequest.getEmail())
                 .orElseThrow(() -> new UsernameNotFoundException("사용자를 찾을 수 없습니다."));
         session.setAttribute("email", user.getEmail());
 
-        return ResponseEntity.ok(ApiResponse.success(SuccessCode.OK, signInResponse));
+        return ResponseEntity.ok(ApiResponse.success(SuccessCode.OK, userProfileResponse));
     }
 }

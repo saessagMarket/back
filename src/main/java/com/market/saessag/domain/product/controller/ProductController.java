@@ -7,9 +7,11 @@ import com.market.saessag.domain.product.dto.ProductResponse;
 import com.market.saessag.domain.product.entity.Product;
 import com.market.saessag.domain.product.service.ProductService;
 import com.market.saessag.domain.user.dto.SignInResponse;
+import com.market.saessag.global.exception.CustomException;
 import com.market.saessag.global.exception.ErrorCode;
 import com.market.saessag.global.response.ApiResponse;
 import com.market.saessag.global.response.SuccessCode;
+import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
@@ -50,8 +52,12 @@ public class ProductController {
 
     //상품 생성
     @PostMapping
-    public ApiResponse<ProductResponse> createProduct(@RequestBody ProductRequest productRequest) {
-        ProductResponse createdProduct = productService.createProduct(productRequest);
+    public ApiResponse<ProductResponse> createProduct(@RequestBody ProductRequest productRequest, HttpSession httpSession) {
+        SignInResponse userSession = (SignInResponse) httpSession.getAttribute("userProfile");
+        if (userSession == null) {
+            throw new CustomException(ErrorCode.UNAUTHORIZED);
+        }
+        ProductResponse createdProduct = productService.createProduct(productRequest, userSession.getId());
         return ApiResponse.success(SuccessCode.PRODUCT_CREATED, createdProduct);
     }
 
