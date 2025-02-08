@@ -38,18 +38,29 @@ public class RateLimitInterceptor implements HandlerInterceptor {
 
         requestCounts.compute(key, (k, data) -> {
             if (data == null || now - data.timeStamp > TIME_WINDOW) {
-                return new RequestData(1, now);
-            } else if (data.count < MAX_REQUESTS) {
-                data.count++;
-                return data;
-            } else {
-                return data;
+                return new RequestData(0, now);
             }
+            return data;
         });
+
 
         if (requestCounts.get(key).count >= MAX_REQUESTS) {
             throw new CustomException(ErrorCode.RATE_LIMIT);
         }
         return true;
+    }
+
+    @Override
+    public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex) throws Exception {
+        String ip = request.getRemoteAddr(); // 요청 IP 주소
+        String path = request.getRequestURI(); // 요청 URI
+        String key = ip + ":" + path;
+
+        if (response.getStatus() >= 400) {
+            requestCounts.computeIfPresent(key, (k, data) -> {
+                data.count++;
+                return data;
+            });
+        }
     }
 }
