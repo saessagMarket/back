@@ -2,7 +2,7 @@ package com.market.saessag.global.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.market.saessag.global.exception.ErrorCode;
-import com.market.saessag.global.response.ErrorResponse;
+import com.market.saessag.global.response.ApiResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.http.MediaType;
@@ -22,9 +22,9 @@ public class CustomAuthenticationEntryPoint implements AuthenticationEntryPoint 
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
 
-        ErrorResponse errorResponse = ErrorResponse.of(ErrorCode.UNAUTHORIZED);
+        ApiResponse<Object> apiResponse = ApiResponse.error(ErrorCode.UNAUTHORIZED);
 
         ObjectMapper mapper = new ObjectMapper();
-        mapper.writeValue(response.getOutputStream(), errorResponse);
+        mapper.writeValue(response.getOutputStream(), apiResponse);
     }
 }
