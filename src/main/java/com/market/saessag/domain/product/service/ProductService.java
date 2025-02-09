@@ -35,6 +35,12 @@ public class ProductService {
     private final UserRepository userRepository;
     private final ProductLikeRepository productLikeRepository;
 
+    // 상품 가져오기
+    public Product getProduct(Long productId) {
+        return productRepository.findById(productId)
+                .orElseThrow(() -> new CustomException(ErrorCode.PRODUCT_NOT_FOUND));
+    }
+
     //상품 생성
     public ProductResponse createProduct(ProductRequest productRequest, Long userId) {
         User user = userRepository.findById(userId)
