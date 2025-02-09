@@ -11,10 +11,18 @@ import com.market.saessag.global.exception.CustomException;
 import com.market.saessag.global.exception.ErrorCode;
 import com.market.saessag.global.response.ApiResponse;
 import com.market.saessag.global.response.SuccessCode;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
+
+/**
+ * 세션 동작 방식
+ * 1. 사용자가 요청을 보내면 Spring Security 필터체인이 동작
+ * 2. SecurityContextPersistenceFilter가 세션에서 인증 정보를 찾아 SecurityContextHolder에 설정
+ * 3. 컨트롤러에서 세션 정보 확인
+ */
 
 @RestController
 @RequiredArgsConstructor
@@ -23,7 +31,7 @@ public class ProductController {
     private final ProductService productService;
 
     //통합 조회 (제목, 닉네임, 정렬기준)
-    @GetMapping()
+    @GetMapping("/list")
     public ApiResponse<Page<ProductResponse>> searchProducts(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
@@ -52,27 +60,67 @@ public class ProductController {
 
     //상품 생성
     @PostMapping
-    public ApiResponse<ProductResponse> createProduct(@RequestBody ProductRequest productRequest, HttpSession httpSession) {
-        SignInResponse userSession = (SignInResponse) httpSession.getAttribute("userProfile");
+    public ApiResponse<ProductResponse> createProduct(@RequestBody ProductRequest productRequest,
+                                                      HttpServletRequest request) {
+        HttpSession session = request.getSession();
+        SignInResponse userSession = (SignInResponse) session.getAttribute("userProfile");
+
         if (userSession == null) {
             throw new CustomException(ErrorCode.UNAUTHORIZED);
         }
+
         ProductResponse createdProduct = productService.createProduct(productRequest, userSession.getId());
         return ApiResponse.success(SuccessCode.PRODUCT_CREATED, createdProduct);
     }
 
     //상품 수정
     @PutMapping("/{id}")
-    public ApiResponse<ProductResponse> updateProduct(@PathVariable Long productId,
-                                 @RequestBody ProductRequest productRequest) {
-        ProductResponse updatedProduct = productService.updateProduct(productId, productRequest);
+    public ApiResponse<ProductResponse> updateProduct(
+            @PathVariable Long id,
+            @RequestBody ProductRequest productRequest,
+            HttpServletRequest request) {
+
+        HttpSession session = request.getSession();
+        SignInResponse userSession = (SignInResponse) session.getAttribute("userProfile");
+
+        if (userSession == null) {
+            throw new CustomException(ErrorCode.UNAUTHORIZED);
+        }
+
+        // 상품 조회
+        Product product = productService.getProduct(id);
+
+        // 글쓴이와 현재 로그인한 사용자가 같은지 확인
+        if (!product.getUser().getId().equals(userSession.getId())) {
+            throw new CustomException(ErrorCode.FORBIDDEN);
+        }
+
+        ProductResponse updatedProduct = productService.updateProduct(id, productRequest);
         return ApiResponse.success(SuccessCode.OK, updatedProduct);
     }
 
     //상품 삭제
     @DeleteMapping("/{id}")
-    public ApiResponse<Void> deleteProduct(@PathVariable Long productId) {
-        boolean isDeleted = productService.deleteProduct(productId);
+    public ApiResponse<Void> deleteProduct(
+            @PathVariable Long id,
+            HttpServletRequest request) {
+
+        HttpSession session = request.getSession();
+        SignInResponse userSession = (SignInResponse) session.getAttribute("userProfile");
+
+        if (userSession == null) {
+            throw new CustomException(ErrorCode.UNAUTHORIZED);
+        }
+
+        // 상품 조회
+        Product product = productService.getProduct(id);
+
+        // 글쓴이와 현재 로그인한 사용자가 같은지 확인
+        if (!product.getUser().getId().equals(userSession.getId())) {
+            throw new CustomException(ErrorCode.FORBIDDEN);
+        }
+
+        boolean isDeleted = productService.deleteProduct(id);
         if (!isDeleted) {
             return ApiResponse.error(ErrorCode.PRODUCT_NOT_FOUND);
         }
