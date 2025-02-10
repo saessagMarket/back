@@ -186,25 +186,32 @@ public class ProductService {
 
     // 좋아요 클릭
     @Transactional
-    public void likeProduct(Long productId, Long userId) {
+    public boolean likeProduct(Long productId, Long userId) {
+        // 상품 조회
         Product product = productRepository.findById(productId)
-                .orElseThrow(() -> new IllegalArgumentException("상품이 없습니다."));
+                .orElseThrow(() -> new CustomException(ErrorCode.PRODUCT_NOT_FOUND));
 
+        // 사용자 조회
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException("해당 유저가 없습니다."));
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
+        // 좋아요 상태 확인
         ProductLike productLike = productLikeRepository.findByProductAndUser(product, user);
-        if (productLike == null) { // 좋아요 추가
+
+        if (productLike == null) {
             productLikeRepository.save(ProductLike.builder()
                     .product(product)
                     .user(user)
                     .build());
             product.incrementLikes();
-        } else { // 좋아요 삭제
+            productRepository.save(product);
+            return true;  // 좋아요 추가됨
+        } else {
             productLikeRepository.delete(productLike);
             product.decrementLikes();
+            productRepository.save(product);
+            return false;  // 좋아요 취소됨
         }
-        productRepository.save(product);
     }
 
     public ProductChangeStatusResponse changeStatus(ProductChangeStatusRequest req) {

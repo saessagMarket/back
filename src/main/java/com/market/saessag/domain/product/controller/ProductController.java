@@ -129,11 +129,25 @@ public class ProductController {
 
     // 상품 좋아요
     @PostMapping("/{id}/like")
-    public ApiResponse<Void> likeProduct(@PathVariable Long productId, @SessionAttribute(name = "user") SignInResponse user) {
-        productService.likeProduct(productId, user.getId());
-        return ApiResponse.success(SuccessCode.OK, null);
+    public ApiResponse<Void> likeProduct(@PathVariable Long id, HttpServletRequest request) {
+
+        HttpSession session = request.getSession();
+        SignInResponse userSession = (SignInResponse) session.getAttribute("userProfile");
+
+        if (userSession == null) {
+            throw new CustomException(ErrorCode.UNAUTHORIZED);
+        }
+
+        boolean isLiked = productService.likeProduct(id, userSession.getId());
+
+        return ApiResponse.success(
+                isLiked ? SuccessCode.LIKE_ADDED : SuccessCode.LIKE_REMOVED,
+                null
+        );
     }
 
+    // 상품 끌어올리기
+    // @PreAuthorize("isAuthenticated()")  인증된 사용자만 접근 가능한 시큐리티의 메서드 방식 --> 나중에 리팩토링
     @PostMapping("/bump/{id}")
     public ApiResponse<?> bumpProduct(@PathVariable Long id, HttpServletRequest request) {
         // 1. 세션 확인
