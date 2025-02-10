@@ -14,8 +14,9 @@ public class PathConst {
     public static final String[] AUTHENTICATED_PATHS = {
             "/api/products",                    // 상품 등록
             "/api/products/**",                 // 상품 수정, 삭제, 상세 조회
+            "/api/products/bump/**",            // 상품 끌어올리기
+
             "/api/products/{id}/like",          // 상품 좋아요
-            "/api/products/bump",               // 상품 끌어올리기
             "/api/products/changeStatus",       // 상품 상태 값 변경
             "/api/profile/upload-image",        // 프로필 사진 업로드
             "/api/profile"                      // 프로필 사진 조회
