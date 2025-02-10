@@ -134,13 +134,31 @@ public class ProductController {
         return ApiResponse.success(SuccessCode.OK, null);
     }
 
-    @PostMapping("/bump")
+    // 상품 끌어올리기
+    // @PreAuthorize("isAuthenticated()")  인증된 사용자만 접근 가능한 시큐리티의 메서드 방식 --> 나중에 리팩토링
+    @PostMapping("/bump/{id}")
+    public ApiResponse<?> bumpProduct(@PathVariable Long id, HttpServletRequest request) {
 
-    public ApiResponse<?> bumpProduct(@RequestParam Long productId, @SessionAttribute(name = "user") SignInResponse user) {
-        Product product = productService.bumpProduct(productId, user.getId());
-        return ApiResponse.success(SuccessCode.OK, product.getId());
+        // 1. 세션 확인
+        HttpSession session = request.getSession();
+        SignInResponse userSession = (SignInResponse) session.getAttribute("userProfile");
+
+        if (userSession == null) {
+            throw new CustomException(ErrorCode.UNAUTHORIZED);
+        }
+
+        // 2. 상품 조회
+        Product product = productService.getProduct(id);
+
+        // 3. 글쓴이와 현재 로그인한 사용자가 같은지 확인
+        if (!product.getUser().getId().equals(userSession.getId())) {
+            throw new CustomException(ErrorCode.FORBIDDEN);
+        }
+
+        // 4. 끌어올리기 실행
+        Product bumpedProduct = productService.bumpProduct(id, userSession.getId());
+        return ApiResponse.success(SuccessCode.OK, bumpedProduct.getId());
     }
-
 
     // note. 본인 소유의 상품의 상태 값만 변경 할 수 있도록 조치 필요
     @PostMapping("/changeStatus")

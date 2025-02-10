@@ -148,13 +148,18 @@ public class ProductService {
         return convertToDTO(id);
     }
 
+    // 상품 끌어올리기
     public Product bumpProduct(Long productId, Long userId) {
-        Product product = productRepository.findByIdAndUserId(productId, userId)
-            .orElseThrow(IllegalAccessError::new);
+        Product product = productRepository.findById(productId)
+            .orElseThrow(() -> new CustomException(ErrorCode.PRODUCT_NOT_FOUND));
+
+        // 상품 소유자 검증
+        if (!product.getUser().getId().equals(userId)) {
+            throw new CustomException(ErrorCode.FORBIDDEN);
+        }
 
         product.updateBumpAt(LocalDateTime.now());
-        productRepository.save(product);
-        return product;
+        return productRepository.save(product);
     }
 
     // 조회수 증가
