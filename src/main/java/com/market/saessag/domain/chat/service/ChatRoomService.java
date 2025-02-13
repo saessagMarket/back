@@ -1,0 +1,48 @@
+package com.market.saessag.domain.chat.service;
+
+import com.market.saessag.domain.chat.entity.ChatRoom;
+import com.market.saessag.domain.chat.repository.ChatRoomRepository;
+import com.market.saessag.domain.product.entity.Product;
+import com.market.saessag.domain.product.repository.ProductRepository;
+import com.market.saessag.domain.user.entity.User;
+import com.market.saessag.domain.user.repository.UserRepository;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
+
+@Service
+@RequiredArgsConstructor
+public class ChatRoomService {
+    private final ChatRoomRepository chatRoomRepository;
+    private final ProductRepository productRepository;
+    private final UserRepository userRepository;
+
+    public ChatRoom createOrGetChatRoom(Long productId, Long buyerId, Long sellerId) {
+        Product product = productRepository.findById(productId)
+                .orElseThrow(() -> new IllegalArgumentException("상품을 찾을 수 없습니다."));
+
+        User buyer = userRepository.findById(buyerId)
+                .orElseThrow(() -> new IllegalArgumentException("구매자를 찾을 수 없습니다."));
+
+        User seller = userRepository.findById(sellerId)
+                .orElseThrow(() -> new IllegalArgumentException("판매자를 찾을 수 없습니다."));
+
+        return chatRoomRepository.findByProductIdAndBuyerIdAndSellerId(product, buyer, seller)
+                .orElseGet(() -> {
+                    ChatRoom newRoom = ChatRoom.builder()
+                            .productId(product)
+                            .buyerId(buyer)
+                            .sellerId(seller)
+                            .build();
+                    return chatRoomRepository.save(newRoom);
+                });
+    }
+
+    public List<ChatRoom> getUserChatRooms(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("유저가 없습니다."));
+
+        return chatRoomRepository.findByBuyerIdOrSellerId(user, user);
+    }
+}
