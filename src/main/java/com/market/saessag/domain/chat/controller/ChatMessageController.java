@@ -1,23 +1,23 @@
 package com.market.saessag.domain.chat.controller;
 
-import com.market.saessag.domain.chat.dto.ChatMessageRequest;
 import com.market.saessag.domain.chat.dto.ChatMessageResponse;
 import com.market.saessag.domain.chat.service.ChatMessageService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.messaging.handler.annotation.DestinationVariable;
-import org.springframework.messaging.handler.annotation.MessageMapping;
-import org.springframework.messaging.handler.annotation.Payload;
-import org.springframework.messaging.handler.annotation.SendTo;
-import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.*;
 
-@Controller
+import java.util.List;
+
+@RestController
+@RequestMapping("/api/chat/messages")
 @RequiredArgsConstructor
 public class ChatMessageController {
     private final ChatMessageService chatMessageService;
 
-    @MessageMapping("/chat/{roomId}/sendMessage")
-    @SendTo("/topic/chat/{roomId}")
-    public ChatMessageResponse sendMessage(@DestinationVariable Long roomId, @Payload ChatMessageRequest message) {
-        return chatMessageService.saveMessage(roomId, message);
+    @GetMapping("/{roomId}")
+    public List<ChatMessageResponse> getMessages(
+            @PathVariable Long roomId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        return chatMessageService.getMessages(roomId, page, size);
     }
 }
