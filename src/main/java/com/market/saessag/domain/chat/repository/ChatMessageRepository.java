@@ -9,8 +9,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.Optional;
 
 public interface ChatMessageRepository extends JpaRepository<ChatMessage, Long> {
-
-    Optional<ChatMessage> findTopByChatRoomOrderByTimeStamp(ChatRoom chatRoom);
-
     Page<ChatMessage> findByChatRoomOrderByTimeStampDesc(ChatRoom chatRoom,PageRequest pageRequest);
+
+    Optional<ChatMessage> findTopByChatRoomOrderByTimeStampDesc(ChatRoom chatRoom);
 }

@@ -53,7 +53,7 @@ public class ChatRoomService {
         return chatRooms.stream()
                 .map(chatRoom -> {
                     ChatMessage lastMessage = chatMessageRepository
-                            .findTopByChatRoomOrderByTimeStamp(chatRoom)
+                            .findTopByChatRoomOrderByTimeStampDesc(chatRoom)
                             .orElse(null);
                     return ChatRoomResponse.fromEntity(
                             chatRoom,
