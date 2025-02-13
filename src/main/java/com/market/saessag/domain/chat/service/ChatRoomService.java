@@ -1,6 +1,9 @@
 package com.market.saessag.domain.chat.service;
 
+import com.market.saessag.domain.chat.dto.ChatRoomResponse;
+import com.market.saessag.domain.chat.entity.ChatMessage;
 import com.market.saessag.domain.chat.entity.ChatRoom;
+import com.market.saessag.domain.chat.repository.ChatMessageRepository;
 import com.market.saessag.domain.chat.repository.ChatRoomRepository;
 import com.market.saessag.domain.product.entity.Product;
 import com.market.saessag.domain.product.repository.ProductRepository;
@@ -10,6 +13,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -17,6 +21,7 @@ public class ChatRoomService {
     private final ChatRoomRepository chatRoomRepository;
     private final ProductRepository productRepository;
     private final UserRepository userRepository;
+    private final ChatMessageRepository chatMessageRepository;
 
     public ChatRoom createOrGetChatRoom(Long productId, Long buyerId, Long sellerId) {
         Product product = productRepository.findById(productId)
@@ -39,10 +44,23 @@ public class ChatRoomService {
                 });
     }
 
-    public List<ChatRoom> getUserChatRooms(Long userId) {
+    public List<ChatRoomResponse> getUserChatRooms(Long userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("유저가 없습니다."));
 
-        return chatRoomRepository.findByBuyerIdOrSellerId(user, user);
+        List<ChatRoom> chatRooms = chatRoomRepository.findByBuyerIdOrSellerId(user, user);
+
+        return chatRooms.stream()
+                .map(chatRoom -> {
+                    ChatMessage lastMessage = chatMessageRepository
+                            .findTopByChatRoomOrderByTimeStamp(chatRoom)
+                            .orElse(null);
+                    return ChatRoomResponse.fromEntity(
+                            chatRoom,
+                            lastMessage != null ? lastMessage.getContent() : "메시지가 없습니다.",
+                            lastMessage != null ? lastMessage.getTimeStamp() : null
+                    );
+                })
+                .collect(Collectors.toList());
     }
 }

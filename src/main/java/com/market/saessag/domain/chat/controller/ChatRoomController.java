@@ -1,6 +1,7 @@
 package com.market.saessag.domain.chat.controller;
 
 import com.market.saessag.domain.chat.dto.ChatRoomRequest;
+import com.market.saessag.domain.chat.dto.ChatRoomResponse;
 import com.market.saessag.domain.chat.entity.ChatRoom;
 import com.market.saessag.domain.chat.service.ChatRoomService;
 import lombok.RequiredArgsConstructor;
@@ -23,7 +24,7 @@ public class ChatRoomController {
     }
 
     @GetMapping("/room/{userId}")
-    public ResponseEntity<List<ChatRoom>> getChatRoom(@PathVariable Long userId) {
+    public ResponseEntity<List<ChatRoomResponse>> getChatRoom(@PathVariable Long userId) {
         return ResponseEntity.ok(chatRoomService.getUserChatRooms(userId));
     }
 
