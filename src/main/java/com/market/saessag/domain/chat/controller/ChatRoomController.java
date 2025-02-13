@@ -12,18 +12,18 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/chat")
+@RequestMapping("/api/chat/room")
 public class ChatRoomController {
     private final ChatRoomService chatRoomService;
 
-    @PostMapping("/room")
+    @PostMapping()
     public ResponseEntity<ChatRoom> createChatRoom(@RequestBody ChatRoomRequest request) {
         ChatRoom chatRoom = chatRoomService.createOrGetChatRoom(request.getProductId(), request.getBuyerId(), request.getSellerId());
 
         return ResponseEntity.ok(chatRoom);
     }
 
-    @GetMapping("/room/{userId}")
+    @GetMapping("/{userId}")
     public ResponseEntity<List<ChatRoomResponse>> getChatRoom(@PathVariable Long userId) {
         return ResponseEntity.ok(chatRoomService.getUserChatRooms(userId));
     }
