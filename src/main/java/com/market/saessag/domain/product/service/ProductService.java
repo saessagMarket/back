@@ -253,16 +253,33 @@ public class ProductService {
         }
     }
 
-    public ProductChangeStatusResponse changeStatus(ProductChangeStatusRequest req) {
-        Product product = productRepository.findById(req.getProductId())
-            .orElseThrow(()-> new IllegalArgumentException("상품이 없습니다."));
+    // 상품 상태 값 변경
+    public ProductChangeStatusResponse changeStatus(ProductChangeStatusRequest req, HttpServletRequest request) {
+        HttpSession session = request.getSession();
+        SignInResponse userSession = (SignInResponse) session.getAttribute("userProfile");
 
-        product.updateStatus(req.getStatus());
-        productRepository.save(product);
+        if (userSession == null) {
+            throw new CustomException(ErrorCode.UNAUTHORIZED);
+        }
 
-        return ProductChangeStatusResponse.builder()
-            .productId(product.getId())
-            .status(product.getStatus())
-            .build();
+        Product product = productRepository.findById(req.getId())
+                .orElseThrow(() -> new CustomException(ErrorCode.PRODUCT_NOT_FOUND));
+
+        if (!product.getUser().getId().equals(userSession.getId())) {
+            throw new CustomException(ErrorCode.FORBIDDEN);
+        }
+
+        try {
+            product.updateStatus(req.getStatus());
+            Product savedProduct = productRepository.save(product);
+
+            return ProductChangeStatusResponse.builder()
+                    .id(savedProduct.getId())
+                    .status(savedProduct.getStatus())
+                    .build();
+        } catch (Exception e) {
+            throw new CustomException(ErrorCode.INTERNAL_SERVER_ERROR);
+        }
     }
+
 }

@@ -124,10 +124,13 @@ public class ProductController {
         return ApiResponse.success(SuccessCode.OK, bumpedProduct.getId());
     }
 
-    // note. 본인 소유의 상품의 상태 값만 변경 할 수 있도록 조치 필요
+    // 상품 상태 값 변경(본인 소유의 상품의 상태 값만 변경 가능)
     @PostMapping("/changeStatus")
-    public ApiResponse<ProductChangeStatusResponse> changeStatus(@RequestBody ProductChangeStatusRequest req) {
-        ProductChangeStatusResponse response = productService.changeStatus(req);
+    public ApiResponse<ProductChangeStatusResponse> changeStatus(
+            @RequestBody ProductChangeStatusRequest req,
+            HttpServletRequest request) {
+        ProductChangeStatusResponse response = productService.changeStatus(req, request);
         return ApiResponse.success(SuccessCode.OK, response);
     }
+
 }
