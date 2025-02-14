@@ -2,7 +2,10 @@ package com.market.saessag.domain.chat.controller;
 
 import com.market.saessag.domain.chat.dto.ChatMessageResponse;
 import com.market.saessag.domain.chat.service.ChatMessageService;
+import com.market.saessag.global.response.ApiResponse;
+import com.market.saessag.global.response.SuccessCode;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -14,10 +17,12 @@ public class ChatMessageController {
     private final ChatMessageService chatMessageService;
 
     @GetMapping("/{roomId}")
-    public List<ChatMessageResponse> getMessages(
+    public ResponseEntity<ApiResponse<List<ChatMessageResponse>>> getMessages(
             @PathVariable Long roomId,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
-        return chatMessageService.getMessages(roomId, page, size);
+
+        List<ChatMessageResponse> messages = chatMessageService.getMessages(roomId, page, size);
+        return ResponseEntity.ok(ApiResponse.success(SuccessCode.OK, messages));
     }
 }
