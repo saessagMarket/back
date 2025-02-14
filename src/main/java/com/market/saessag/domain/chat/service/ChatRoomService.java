@@ -44,13 +44,8 @@ public class ChatRoomService {
                     return chatRoomRepository.save(newRoom);
                 });
 
-        ChatMessage lastMessage = chatMessageRepository
-                .findTopByChatRoomOrderByTimeStampDesc(chatRoom)
-                .orElse(null);
 
-        return ChatRoomResponse.fromEntity(chatRoom,
-                lastMessage != null ? lastMessage.getContent() : "메시지가 없습니다.",
-                lastMessage != null ? lastMessage.getTimeStamp() : null);
+        return chatRoomResponseEntity(chatRoom);
     }
 
     public List<ChatRoomResponse> getUserChatRooms(Long userId) {
@@ -60,16 +55,17 @@ public class ChatRoomService {
         List<ChatRoom> chatRooms = chatRoomRepository.findByBuyerOrSeller(user, user);
 
         return chatRooms.stream()
-                .map(chatRoom -> {
-                    ChatMessage lastMessage = chatMessageRepository
-                            .findTopByChatRoomOrderByTimeStampDesc(chatRoom)
-                            .orElse(null);
-                    return ChatRoomResponse.fromEntity(
-                            chatRoom,
-                            lastMessage != null ? lastMessage.getContent() : "메시지가 없습니다.",
-                            lastMessage != null ? lastMessage.getTimeStamp() : null
-                    );
-                })
+                .map(this::chatRoomResponseEntity)
                 .collect(Collectors.toList());
+    }
+
+    private ChatRoomResponse chatRoomResponseEntity(ChatRoom chatRoom) {
+        ChatMessage lastMessage = chatMessageRepository
+                .findTopByChatRoomOrderByTimeStampDesc(chatRoom)
+                .orElse(null);
+
+        return ChatRoomResponse.fromEntity(chatRoom,
+                lastMessage != null ? lastMessage.getContent() : "메시지가 없습니다.",
+                lastMessage != null ? lastMessage.getTimeStamp() : null);
     }
 }
