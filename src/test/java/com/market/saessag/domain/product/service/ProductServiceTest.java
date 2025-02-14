@@ -35,11 +35,12 @@ class ProductServiceTest {
         .build();
 
     Product product = Product.builder()
-        .id(1L)
-        .build();
+            .id(1L)
+            .user(user)
+            .build();
 
-    when(productRepository.findByIdAndUserId(anyLong(), anyLong()))
-        .thenReturn(Optional.of(product));
+    when(productRepository.findById(anyLong()))
+            .thenReturn(Optional.of(product));
 
     // when
     Product newProduct = productService.bumpProduct(product.getId(), user.getId());
