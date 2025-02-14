@@ -33,12 +33,12 @@ public class ChatRoomService {
         User seller = userRepository.findById(sellerId)
                 .orElseThrow(() -> new IllegalArgumentException("판매자를 찾을 수 없습니다."));
 
-        ChatRoom chatRoom = chatRoomRepository.findByProductIdAndBuyerIdAndSellerId(product, buyer, seller)
+        ChatRoom chatRoom = chatRoomRepository.findByProductAndBuyerAndSeller(product, buyer, seller)
                 .orElseGet(() -> {
                     ChatRoom newRoom = ChatRoom.builder()
-                            .productId(product)
-                            .buyerId(buyer)
-                            .sellerId(seller)
+                            .product(product)
+                            .buyer(buyer)
+                            .seller(seller)
                             .build();
 
                     return chatRoomRepository.save(newRoom);
@@ -57,7 +57,7 @@ public class ChatRoomService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("유저가 없습니다."));
 
-        List<ChatRoom> chatRooms = chatRoomRepository.findByBuyerIdOrSellerId(user, user);
+        List<ChatRoom> chatRooms = chatRoomRepository.findByBuyerOrSeller(user, user);
 
         return chatRooms.stream()
                 .map(chatRoom -> {

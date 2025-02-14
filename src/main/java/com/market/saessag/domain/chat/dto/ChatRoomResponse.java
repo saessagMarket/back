@@ -24,10 +24,10 @@ public class ChatRoomResponse {
     public static ChatRoomResponse fromEntity(ChatRoom chatRoom, String lastMessage, LocalDateTime lastMessageTime) {
         return ChatRoomResponse.builder()
                 .roomId(chatRoom.getId())
-                .productId(chatRoom.getProductId().getId())
-                .productTitle(chatRoom.getProductId().getTitle())
-                .buyerId(chatRoom.getBuyerId().getId())
-                .sellerId(chatRoom.getSellerId().getId())
+                .productId(chatRoom.getProduct().getId())
+                .productTitle(chatRoom.getProduct().getTitle())
+                .buyerId(chatRoom.getBuyer().getId())
+                .sellerId(chatRoom.getSeller().getId())
                 .lastMessage(lastMessage)
                 .lastMessageTime(lastMessageTime)
                 .build();

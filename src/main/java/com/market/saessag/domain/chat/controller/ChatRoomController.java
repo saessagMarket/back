@@ -18,6 +18,7 @@ public class ChatRoomController {
 
     @PostMapping()
     public ResponseEntity<ChatRoomResponse> createChatRoom(@RequestBody ChatRoomRequest request) {
+        System.out.println("request.getSellerId() = " + request.getSellerId());
         ChatRoomResponse chatRoom = chatRoomService.createOrGetChatRoom(request.getProductId(), request.getBuyerId(), request.getSellerId());
 
         return ResponseEntity.ok(chatRoom);

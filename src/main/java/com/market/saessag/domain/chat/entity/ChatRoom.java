@@ -23,15 +23,15 @@ public class ChatRoom {
 
     @ManyToOne
     @JoinColumn(name = "product_id")
-    private Product productId;
+    private Product product;
 
     @ManyToOne
     @JoinColumn(name = "buyer_id")
-    private User buyerId;
+    private User buyer;
 
     @ManyToOne
     @JoinColumn(name = "seller_id")
-    private User sellerId;
+    private User seller;
 
     @OneToMany(mappedBy = "chatRoom", cascade = CascadeType.ALL)
     private List<ChatMessage> message = new ArrayList<>();
