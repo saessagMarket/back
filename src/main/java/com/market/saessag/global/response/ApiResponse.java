@@ -15,7 +15,7 @@ public class ApiResponse<T> {
     // 성공 응답 생성
     public static <T> ApiResponse<T> success(SuccessCode successCode, T data) {
         return ApiResponse.<T>builder()
-                .status(successCode.getStatus())
+                .status(successCode.getHttpStatus())
                 .message(successCode.getMessage())
                 .data(data)
                 .build();
@@ -24,7 +24,7 @@ public class ApiResponse<T> {
     // 에러 응답 생성
     public static <T> ApiResponse<T> error(ErrorCode errorCode) {
         return ApiResponse.<T>builder()
-                .status(errorCode.getStatus())
+                .status(errorCode.getHttpStatus())
                 .message(errorCode.getMessage())
                 .data(null)
                 .build();
