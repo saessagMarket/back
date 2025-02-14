@@ -3,8 +3,10 @@ package com.market.saessag.domain.chat.service;
 import com.market.saessag.domain.chat.dto.ChatRoomResponse;
 import com.market.saessag.domain.chat.entity.ChatMessage;
 import com.market.saessag.domain.chat.entity.ChatRoom;
+import com.market.saessag.domain.chat.entity.ChatSubscription;
 import com.market.saessag.domain.chat.repository.ChatMessageRepository;
 import com.market.saessag.domain.chat.repository.ChatRoomRepository;
+import com.market.saessag.domain.chat.repository.ChatSubscriptionRepository;
 import com.market.saessag.domain.product.entity.Product;
 import com.market.saessag.domain.product.repository.ProductRepository;
 import com.market.saessag.domain.user.entity.User;
@@ -22,6 +24,7 @@ public class ChatRoomService {
     private final ProductRepository productRepository;
     private final UserRepository userRepository;
     private final ChatMessageRepository chatMessageRepository;
+    private final ChatSubscriptionRepository chatSubscriptionRepository;
 
     public ChatRoomResponse createOrGetChatRoom(Long productId, Long buyerId, Long sellerId) {
         Product product = productRepository.findById(productId)
@@ -44,9 +47,12 @@ public class ChatRoomService {
                     return chatRoomRepository.save(newRoom);
                 });
 
+        subscribeUserToChatRoom(buyer, chatRoom);
+        subscribeUserToChatRoom(seller, chatRoom);
 
         return chatRoomResponseEntity(chatRoom);
     }
+
 
     public List<ChatRoomResponse> getUserChatRooms(Long userId) {
         User user = userRepository.findById(userId)
@@ -57,6 +63,17 @@ public class ChatRoomService {
         return chatRooms.stream()
                 .map(this::chatRoomResponseEntity)
                 .collect(Collectors.toList());
+    }
+
+    private void subscribeUserToChatRoom(User user, ChatRoom chatRoom) {
+        if (chatSubscriptionRepository.findByUserAndChatRoom(user, chatRoom).isEmpty()) {
+            ChatSubscription subscription = ChatSubscription.builder()
+                    .user(user)
+                    .chatRoom(chatRoom)
+                    .build();
+
+            chatSubscriptionRepository.save(subscription);
+        }
     }
 
     private ChatRoomResponse chatRoomResponseEntity(ChatRoom chatRoom) {
