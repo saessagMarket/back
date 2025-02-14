@@ -103,13 +103,29 @@ public class ProductService {
         return convertToDTO(productRepository.save(product));
     }
 
-    public boolean deleteProduct(Long productId) {
-        Optional<Product> product = productRepository.findById(productId);
-        if (product.isPresent()) {
+    // 상품 삭제
+    public boolean deleteProduct(Long productId, HttpServletRequest request) {
+        HttpSession session = request.getSession();
+        SignInResponse userSession = (SignInResponse) session.getAttribute("userProfile");
+
+        if (userSession == null) {
+            throw new CustomException(ErrorCode.UNAUTHORIZED);
+        }
+
+        Product product = productRepository.findById(productId)
+                .orElseThrow(() -> new IllegalArgumentException("없는 상품 번호 입니다."));
+
+        // 글쓴이와 현재 로그인한 사용자가 같은지 확인
+        if (!product.getUser().getId().equals(userSession.getId())) {
+            throw new CustomException(ErrorCode.FORBIDDEN);
+        }
+
+        try {
             productRepository.deleteById(productId);
             return true;
+        } catch (Exception e) {
+            return false;
         }
-        return false;
     }
 
     public Page<ProductResponse> searchProducts(int page, int size, String title, String nickname, String sort) {
