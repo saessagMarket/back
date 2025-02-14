@@ -73,9 +73,21 @@ public class ProductService {
 
 
     //상품 수정
-    public ProductResponse updateProduct(Long productId, ProductRequest productRequest) {
+    public ProductResponse updateProduct(Long productId, ProductRequest productRequest, HttpServletRequest request) {
+        HttpSession session = request.getSession();
+        SignInResponse userSession = (SignInResponse) session.getAttribute("userProfile");
+
+        if (userSession == null) {
+            throw new CustomException(ErrorCode.UNAUTHORIZED);
+        }
+
         Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new IllegalArgumentException("없는 상품 번호 입니다."));
+
+        // 글쓴이와 현재 로그인한 사용자가 같은지 확인
+        if (!product.getUser().getId().equals(userSession.getId())) {
+            throw new CustomException(ErrorCode.FORBIDDEN);
+        }
 
         product.updateProduct(
                 productRequest.getTitle(),

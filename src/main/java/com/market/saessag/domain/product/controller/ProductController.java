@@ -72,23 +72,7 @@ public class ProductController {
             @PathVariable Long id,
             @RequestBody ProductRequest productRequest,
             HttpServletRequest request) {
-
-        HttpSession session = request.getSession();
-        SignInResponse userSession = (SignInResponse) session.getAttribute("userProfile");
-
-        if (userSession == null) {
-            throw new CustomException(ErrorCode.UNAUTHORIZED);
-        }
-
-        // 상품 조회
-        Product product = productService.getProduct(id);
-
-        // 글쓴이와 현재 로그인한 사용자가 같은지 확인
-        if (!product.getUser().getId().equals(userSession.getId())) {
-            throw new CustomException(ErrorCode.FORBIDDEN);
-        }
-
-        ProductResponse updatedProduct = productService.updateProduct(id, productRequest);
+        ProductResponse updatedProduct = productService.updateProduct(id, productRequest, request);
         return ApiResponse.success(SuccessCode.OK, updatedProduct);
     }
 
