@@ -1,6 +1,7 @@
 package com.market.saessag.domain.product.service;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -41,6 +42,8 @@ class ProductServiceTest {
 
     when(productRepository.findById(anyLong()))
             .thenReturn(Optional.of(product));
+    when(productRepository.save(any(Product.class)))
+            .thenReturn(product);  // save에 대한 mock 동작 추가
 
     // when
     Product newProduct = productService.bumpProduct(product.getId(), user.getId());
