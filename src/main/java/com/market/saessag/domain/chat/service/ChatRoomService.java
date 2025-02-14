@@ -23,7 +23,7 @@ public class ChatRoomService {
     private final UserRepository userRepository;
     private final ChatMessageRepository chatMessageRepository;
 
-    public ChatRoom createOrGetChatRoom(Long productId, Long buyerId, Long sellerId) {
+    public ChatRoomResponse createOrGetChatRoom(Long productId, Long buyerId, Long sellerId) {
         Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new IllegalArgumentException("상품을 찾을 수 없습니다."));
 
@@ -33,15 +33,24 @@ public class ChatRoomService {
         User seller = userRepository.findById(sellerId)
                 .orElseThrow(() -> new IllegalArgumentException("판매자를 찾을 수 없습니다."));
 
-        return chatRoomRepository.findByProductIdAndBuyerIdAndSellerId(product, buyer, seller)
+        ChatRoom chatRoom = chatRoomRepository.findByProductIdAndBuyerIdAndSellerId(product, buyer, seller)
                 .orElseGet(() -> {
                     ChatRoom newRoom = ChatRoom.builder()
                             .productId(product)
                             .buyerId(buyer)
                             .sellerId(seller)
                             .build();
+
                     return chatRoomRepository.save(newRoom);
                 });
+
+        ChatMessage lastMessage = chatMessageRepository
+                .findTopByChatRoomOrderByTimeStampDesc(chatRoom)
+                .orElse(null);
+
+        return ChatRoomResponse.fromEntity(chatRoom,
+                lastMessage != null ? lastMessage.getContent() : "메시지가 없습니다.",
+                lastMessage != null ? lastMessage.getTimeStamp() : null);
     }
 
     public List<ChatRoomResponse> getUserChatRooms(Long userId) {

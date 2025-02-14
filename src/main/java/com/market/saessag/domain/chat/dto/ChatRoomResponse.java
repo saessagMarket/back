@@ -15,6 +15,8 @@ import java.time.LocalDateTime;
 public class ChatRoomResponse {
     private Long roomId;
     private Long productId;
+    private Long buyerId;
+    private Long sellerId;
     private String productTitle;
     private String lastMessage;
     private LocalDateTime lastMessageTime;
@@ -24,6 +26,8 @@ public class ChatRoomResponse {
                 .roomId(chatRoom.getId())
                 .productId(chatRoom.getProductId().getId())
                 .productTitle(chatRoom.getProductId().getTitle())
+                .buyerId(chatRoom.getBuyerId().getId())
+                .sellerId(chatRoom.getSellerId().getId())
                 .lastMessage(lastMessage)
                 .lastMessageTime(lastMessageTime)
                 .build();
