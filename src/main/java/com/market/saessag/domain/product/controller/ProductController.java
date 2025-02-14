@@ -62,14 +62,7 @@ public class ProductController {
     @PostMapping
     public ApiResponse<ProductResponse> createProduct(@RequestBody ProductRequest productRequest,
                                                       HttpServletRequest request) {
-        HttpSession session = request.getSession();
-        SignInResponse userSession = (SignInResponse) session.getAttribute("userProfile");
-
-        if (userSession == null) {
-            throw new CustomException(ErrorCode.UNAUTHORIZED);
-        }
-
-        ProductResponse createdProduct = productService.createProduct(productRequest, userSession.getId());
+        ProductResponse createdProduct = productService.createProduct(productRequest, request);
         return ApiResponse.success(SuccessCode.PRODUCT_CREATED, createdProduct);
     }
 

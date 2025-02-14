@@ -10,12 +10,15 @@ import com.market.saessag.domain.product.entity.ProductView;
 import com.market.saessag.domain.product.repository.ProductLikeRepository;
 import com.market.saessag.domain.product.repository.ProductRepository;
 import com.market.saessag.domain.product.repository.ProductViewRepository;
+import com.market.saessag.domain.user.dto.SignInResponse;
 import com.market.saessag.domain.user.entity.User;
 import com.market.saessag.domain.user.repository.UserRepository;
 import com.market.saessag.domain.user.dto.UserProfileResponse;
 import com.market.saessag.global.exception.CustomException;
 import com.market.saessag.global.exception.ErrorCode;
 import com.market.saessag.util.TimeUtils;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
 import jakarta.transaction.Transactional;
 import java.time.LocalDateTime;
 import lombok.RequiredArgsConstructor;
@@ -42,8 +45,15 @@ public class ProductService {
     }
 
     //상품 생성
-    public ProductResponse createProduct(ProductRequest productRequest, Long userId) {
-        User user = userRepository.findById(userId)
+    public ProductResponse createProduct(ProductRequest productRequest, HttpServletRequest request) {
+        HttpSession session = request.getSession();
+        SignInResponse userSession = (SignInResponse) session.getAttribute("userProfile");
+
+        if (userSession == null) {
+            throw new CustomException(ErrorCode.UNAUTHORIZED);
+        }
+
+        User user = userRepository.findById(userSession.getId())
                 .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
 
         Product product = Product.builder()
@@ -60,6 +70,7 @@ public class ProductService {
                 .build();
         return convertToDTO(productRepository.save(product));
     }
+
 
     //상품 수정
     public ProductResponse updateProduct(Long productId, ProductRequest productRequest) {
