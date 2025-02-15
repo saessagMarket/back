@@ -2,8 +2,12 @@ package com.market.saessag.domain.user.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
 import java.time.LocalDateTime;
+import java.util.Collection;
+import java.util.List;
 
 @Entity
 @Getter
@@ -57,6 +61,11 @@ public class User {
     public void updatePassword(String newPassword) {
         this.password = newPassword;
         this.updatedAt = LocalDateTime.now();
+    }
+
+    // UserDetails 구현 메서드들
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return List.of(new SimpleGrantedAuthority("ROLE_USER"));
     }
 
 }
