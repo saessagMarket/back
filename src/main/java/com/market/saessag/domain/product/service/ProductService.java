@@ -28,8 +28,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
-import java.util.Optional;
-
 @Service
 @RequiredArgsConstructor
 public class ProductService {
@@ -56,6 +54,7 @@ public class ProductService {
         User user = userRepository.findById(userSession.getId())
                 .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
 
+        LocalDateTime now = LocalDateTime.now();
         Product product = Product.builder()
                 .user(user)
                 .title(productRequest.getTitle())
@@ -67,6 +66,8 @@ public class ProductService {
                 .detailedAddress(productRequest.getDetailedAddress())
                 .photo(productRequest.getPhoto())
                 .status(Product.ProductStatus.valueOf(productRequest.getStatus()))
+                .bumpAt(now)
+                .updatedAt(now)
                 .build();
         return convertToDTO(productRepository.save(product));
     }
@@ -128,12 +129,13 @@ public class ProductService {
         }
     }
 
+    // 상품 검색, 필터링, 정렬
     public Page<ProductResponse> searchProducts(int page, int size, String title, String nickname, String sort) {
         try {
             Sort sorting = (sort == null || sort.isEmpty()) ?
                 Sort.by(
-                    Sort.Order.desc("bumpAt"),
-                    Sort.Order.desc("addedDate")
+                    Sort.Order.desc("updatedAt"),  // 최신 업데이트 순
+                    Sort.Order.desc("bumpAt")      // 끌어올리기 순
                 ) : Sort.by(Sort.Order.by(sort));
 
             Pageable pageable = PageRequest.of(page, size, sorting);
@@ -197,7 +199,9 @@ public class ProductService {
             throw new CustomException(ErrorCode.FORBIDDEN);
         }
 
-        product.updateBumpAt(LocalDateTime.now());
+        LocalDateTime now = LocalDateTime.now();
+        product.updateBumpAt(now);
+        product.updateUpdatedAt(now);
         return productRepository.save(product);
     }
 

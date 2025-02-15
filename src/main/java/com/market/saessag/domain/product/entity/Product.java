@@ -44,6 +44,8 @@ public class Product {
 
     private LocalDateTime addedDate;
 
+    private LocalDateTime updatedAt; // 수정 시점
+
     @Enumerated(EnumType.STRING)
     private ProductStatus status;
 
@@ -80,6 +82,9 @@ public class Product {
         this.status = status;
     }
 
+    public void updateUpdatedAt(LocalDateTime updatedAt) {
+        this.updatedAt = updatedAt;
+    }
     public void updateBumpAt(LocalDateTime bumpAt) {
         this.bumpAt = bumpAt;
     }
