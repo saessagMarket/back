@@ -15,14 +15,14 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api")
+@RequestMapping("/api/sign-up")
 public class SignUpController {
 
     private final SignUpService signUpService;
     private final EmailService emailService;
 
     // 이메일 중복 확인 및 인증 코드 발송
-    @PostMapping("/sign-up/email/verify")
+    @PostMapping("/email/verify")
     public ResponseEntity<?> verifyEmail(@RequestBody @Validated EmailRequest emailRequest) {
         // 이메일 중복 확인 후 인증 코드 발송
         emailService.sendVerificationEmail(emailRequest.getEmail());
@@ -30,14 +30,14 @@ public class SignUpController {
     }
 
     // 인증 코드 확인
-    @PostMapping("/sign-up/email/confirm")
+    @PostMapping("/email/confirm")
     public ResponseEntity<?> confirmEmail(@RequestBody @Validated EmailVerificationRequest request) {
         emailService.verifyCode(request.getEmail(), request.getCode());
         return ResponseEntity.ok("이메일 인증이 완료되었습니다."); // 응답 포맷 통일 필요함
     }
 
     // 회원가입
-    @PostMapping("/sign-up")
+    @PostMapping
     public ResponseEntity<?> signUp(@RequestBody @Validated SignUpRequest signUpRequest) {
         // 이메일 인증 여부 확인 후 회원가입 진행
         signUpService.signUp(signUpRequest);
