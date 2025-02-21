@@ -5,6 +5,8 @@ import com.market.saessag.domain.user.entity.User;
 import com.market.saessag.domain.user.repository.UserRepository;
 import com.market.saessag.global.exception.CustomException;
 import com.market.saessag.global.exception.ErrorCode;
+import com.market.saessag.global.response.ApiResponse;
+import com.market.saessag.global.response.SuccessCode;
 import com.market.saessag.global.util.TemporaryPassword;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
@@ -29,9 +31,8 @@ public class PasswordService {
     private final BCryptPasswordEncoder passwordEncoder;
     private final Map<String, TemporaryPassword> temporaryPasswordStore = new ConcurrentHashMap<>(); // 임시 저장소 추가
 
-    
     // 임시 비밀번호 발급
-    public void sendTemporaryPassword(String email) {
+    public ApiResponse<String> sendTemporaryPassword(String email) {
         try {
             // 1. 사용자 존재 여부 확인
             User user = userRepository.findByEmail(email)
@@ -52,9 +53,10 @@ public class PasswordService {
             user.updatePassword(passwordEncoder.encode(temporaryPassword));
             userRepository.save(user);
 
+            return ApiResponse.success(SuccessCode.TEMP_PASSWORD_SENT);
         } catch (CustomException e) {
             temporaryPasswordStore.remove(email);
-            throw new CustomException(ErrorCode.EMAIL_SEND_FAILED);
+            return ApiResponse.error(ErrorCode.TEMP_PASSWORD_SEND_FAILED);
         }
     }
 
@@ -73,7 +75,8 @@ public class PasswordService {
         return password.toString();
     }
 
-    private void sendPasswordEmail(String email, String temporaryPassword) {
+    // 임시 비밀번호 발송
+    private ApiResponse<String> sendPasswordEmail(String email, String temporaryPassword) {
         try {
             // 이메일 메시지 생성
             MimeMessage message = mailSender.createMimeMessage();
@@ -85,23 +88,25 @@ public class PasswordService {
 
             // 이메일 발송
             mailSender.send(message);
-        } catch (MessagingException e) {// 이메일 발송 실패 시 임시 저장소에서 제거
-            temporaryPasswordStore.remove(email);
-            throw new CustomException(ErrorCode.EMAIL_SEND_FAILED); // 이메일 발송 실패
+            return ApiResponse.success(SuccessCode.TEMP_PASSWORD_EMAIL_SENT);
+
+        } catch (MessagingException e) {
+            temporaryPasswordStore.remove(email); // 이메일 발송 실패 시 임시 저장소에서 제거
+            return ApiResponse.error(ErrorCode.EMAIL_SEND_FAILED); // 이메일 발송 실패
         }
     }
 
     private String createEmailContent(String temporaryPassword) {
         return String.format("""
-            <div style='text-align: center; margin: 30px;'>
-                <h3> saessagMarket </h3>
-                <h2>임시 비밀번호 발급</h2>
-                <p> 본 메일은 saessagMarket 임시 비밀번호 발급을 위한 이메일입니다.</p>
-                <p>아래의 임시 비밀번호로 로그인해 주세요.</p>
-                <p>보안을 위해 로그인 후 비밀번호를 변경해 주세요.</p>
-                <p style='font-size: 24px; font-weight: bold; margin: 20px;'>%s</p>
-            </div>
-            """, temporaryPassword);
+                <div style='text-align: center; margin: 30px;'>
+                    <h3> saessagMarket </h3>
+                    <h2>임시 비밀번호 발급</h2>
+                    <p> 본 메일은 saessagMarket 임시 비밀번호 발급을 위한 이메일입니다.</p>
+                    <p>아래의 임시 비밀번호로 로그인해 주세요.</p>
+                    <p>보안을 위해 로그인 후 비밀번호를 변경해 주세요.</p>
+                    <p style='font-size: 24px; font-weight: bold; margin: 20px;'>%s</p>
+                </div>
+                """, temporaryPassword);
     }
 
     // 5분마다 만료된 임시 비밀번호 정리
@@ -109,21 +114,26 @@ public class PasswordService {
     public void cleanupExpiredPasswords() {
         temporaryPasswordStore.entrySet().removeIf(entry -> entry.getValue().isExpired());
     }
-    
+
     // 비밀번호 변경
     @Transactional
-    public void changePassword(PasswordChangeRequest request) {
-        User user = userRepository.findByEmail(request.getEmail())
-                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+    public ApiResponse<String> changePassword(PasswordChangeRequest request) {
+        try {
+            User user = userRepository.findByEmail(request.getEmail())
+                    .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
-        // 현재 비밀번호 확인
-        if (!passwordEncoder.matches(request.getCurrentPassword(), user.getPassword())) {
-            throw new CustomException(ErrorCode.INVALID_PASSWORD);
+            // 현재 비밀번호 확인
+            if (!passwordEncoder.matches(request.getCurrentPassword(), user.getPassword())) {
+                throw new CustomException(ErrorCode.INVALID_PASSWORD);
+            }
+
+            // 새 비밀번호 암호화 및 업데이트
+            user.updatePassword(passwordEncoder.encode(request.getNewPassword()));
+            userRepository.save(user);
+
+            return ApiResponse.success(SuccessCode.PASSWORD_CHANGED);
+        } catch (Exception e) {
+            return ApiResponse.error(ErrorCode.PASSWORD_CHANGE_FAILED);
         }
-
-        // 새 비밀번호 암호화 및 업데이트
-        user.updatePassword(passwordEncoder.encode(request.getNewPassword()));
-        userRepository.save(user);
     }
-
 }
