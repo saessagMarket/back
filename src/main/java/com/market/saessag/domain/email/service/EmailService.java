@@ -23,9 +23,7 @@ public class EmailService {
     private final UserRepository userRepository;
     private final Map<String, EmailVerification> verificationStore = new ConcurrentHashMap<>(); // 이메일 인증 정보를 저장하는 동시성 지원 Map (Key: 이메일, Value: 인증정보)
 
-    /*
-        sendVerificationEmail(): 이메일 인증 코드를 생성하고 발송하는 메서드
-    */
+    // 이메일 인증 요청
     public void sendVerificationEmail(String toEmail) {
         try {
             // 이메일 중복 확인
@@ -56,9 +54,7 @@ public class EmailService {
         }
     }
 
-    /*
-        verifyCode(): 인증 코드를 검증하는 메서드
-    */
+    // 인증 코드 확인
     public void verifyCode(String email, String code) { // (이메일 주소, 사용자가 입력한 인증 코드)
         // 저장된 인증 정보 조회
         EmailVerification verification = verificationStore.get(email);
@@ -81,9 +77,7 @@ public class EmailService {
         verification.verify();
     }
 
-    /*
-        isEmailVerified(): 이메일 인증 완료 여부를 확인하는 메서드
-    */
+    // 이메일 인증 완료 여부 확인
     public boolean isEmailVerified(String email) {
         EmailVerification verification = verificationStore.get(email);
         if (verification == null) {
@@ -92,16 +86,12 @@ public class EmailService {
         return verification.isVerified(); // 인증 완료 여부
     }
 
-    /*
-        generateVerificationCode(): 6자리 랜덤 인증 코드를 생성하는 메서드
-    */
+    // 6자리 랜덤 인증 코드를 생성
     private String generateVerificationCode() {
         return String.format("%06d", new Random().nextInt(1000000));
     }
 
-    /*
-        createEmailContent(): 이메일 본문 HTML을 생성하는 메서드
-    */
+    // 이메일 본문 HTML을 생성
     private String createEmailContent(String code) {
         return String.format("""
             <div style='text-align: center; margin: 30px;'>
@@ -114,12 +104,9 @@ public class EmailService {
             </div>
             """, code);
     }
-    /*
-        cleanupExpiredCodes(): 만료된 인증 정보를 정리하는 스케줄링 메서드
-    */
+    // 만료된 인증 정보를 정리하는 스케줄링 메서드
     @Scheduled(fixedRate = 300000) // 5분(300000ms)마다 자동 실행
     public void cleanupExpiredCodes() {
         verificationStore.entrySet().removeIf(entry -> entry.getValue().isExpired());
     }
-
 }
