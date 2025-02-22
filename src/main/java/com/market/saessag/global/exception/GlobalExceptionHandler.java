@@ -25,9 +25,8 @@ public class GlobalExceptionHandler {
 
     // 3. 공통된 예외 처리
     @ExceptionHandler(CustomException.class)
-    public ResponseEntity<ApiResponse<Void>> handleCustomException(CustomException e) {
-        ApiResponse<Void> response = ApiResponse.error(e.getErrorCode());
-        return ResponseEntity.status(e.getErrorCode().getHttpStatus()).body(response);
+    public ApiResponse<String> handleCustomException(CustomException e) {
+        return ApiResponse.error(e.getErrorCode());
     }
 
     // 4. 기타 서버 예외 처리
