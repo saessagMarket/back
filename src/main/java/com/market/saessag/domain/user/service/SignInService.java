@@ -4,12 +4,12 @@ import com.market.saessag.domain.user.dto.SignInRequest;
 import com.market.saessag.domain.user.dto.SignInResponse;
 import com.market.saessag.domain.user.entity.User;
 import com.market.saessag.domain.user.repository.UserRepository;
+import com.market.saessag.global.exception.CustomException;
+import com.market.saessag.global.exception.ErrorCode;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -20,10 +20,14 @@ public class SignInService {
 
     @Transactional
     public SignInResponse signIn(SignInRequest signInRequest) {
-        Optional<User> userOptional = userRepository.findByEmail(signInRequest.getEmail());
-        User user = userOptional.get();
-        validateUserExists(signInRequest.getEmail()); // 이메일 검증
-        validatePassword(signInRequest.getPassword(), user.getPassword()); // 비밀번호 검증
+        // 사용자 조회
+        User user = userRepository.findByEmail(signInRequest.getEmail())
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+
+        // 비밀번호 검증
+        if (!passwordEncoder.matches(signInRequest.getPassword(), user.getPassword())) {
+            throw new CustomException(ErrorCode.INVALID_PASSWORD);
+        }
 
         return SignInResponse.builder()
                 .id(user.getId())
@@ -32,17 +36,4 @@ public class SignInService {
                 .nickname(user.getNickname())
                 .build();
     }
-
-    private void validateUserExists(String email) {
-        if (!userRepository.existsByEmail(email)) {
-            throw new IllegalArgumentException("존재하지 않는 이메일입니다.");
-        }
-    }
-
-    private void validatePassword(String rawPassword, String encodedPassword) {
-        if (!passwordEncoder.matches(rawPassword, encodedPassword)) {
-            throw new IllegalArgumentException("비밀번호가 일치하지 않습니다.");
-        }
-    }
-
 }
