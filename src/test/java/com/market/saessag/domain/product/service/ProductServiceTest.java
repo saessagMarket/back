@@ -8,6 +8,7 @@ import static org.mockito.Mockito.when;
 
 import com.market.saessag.domain.product.dto.ProductResponse;
 import com.market.saessag.domain.product.entity.Product;
+import com.market.saessag.domain.product.entity.Product.ProductStatus;
 import com.market.saessag.domain.product.repository.ProductLikeRepository;
 import com.market.saessag.domain.product.repository.ProductRepository;
 import com.market.saessag.domain.product.repository.ProductViewRepository;
@@ -42,8 +43,8 @@ class ProductServiceTest {
     // given
     User user = User.builder()
         .id(1L)
-        .email("email")
-        .password("pw")
+        .email("test@email.com")
+        .password("password")
         .nickname("nickname")
         .role("role")
         .build();
@@ -51,17 +52,23 @@ class ProductServiceTest {
     Product product = Product.builder()
             .id(1L)
             .user(user)
-            .title("title")
+            .title("test title")
             .price(1000L)
-            .description("description")
-            .status(Product.ProductStatus.FOR_SALE)
+            .description("test description")
+            .status(ProductStatus.FOR_SALE)
             .build();
 
+    // Mock 세션 설정
     HttpServletRequest httpRequest = mock(HttpServletRequest.class);
     HttpSession session = mock(HttpSession.class);
-    SignInResponse userSession = new SignInResponse(user.getId(), user.getEmail(), user.getProfileUrl(), user.getNickname());
+    SignInResponse userSession = new SignInResponse(
+            user.getId(),
+            "profile-url",  // 프로필 URL 추가
+            user.getEmail(),
+            user.getNickname()
+    );
 
-    // 모킹 설정
+    // Mock 동작 설정
     when(httpRequest.getSession()).thenReturn(session);
     when(session.getAttribute("userProfile")).thenReturn(userSession);
     when(userRepository.findById(user.getId())).thenReturn(Optional.of(user));
