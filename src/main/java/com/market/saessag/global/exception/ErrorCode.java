@@ -22,7 +22,11 @@ public enum ErrorCode {
     INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "서버 내부 오류가 발생했습니다"),
     INVALID_ARGUMENT(HttpStatus.BAD_REQUEST, "잘못된 요청 값입니다"),
     RATE_LIMIT(HttpStatus.TOO_MANY_REQUESTS,"너무 많은 요청이 발생했습니다."),
-    FORBIDDEN(HttpStatus.FORBIDDEN, "권한이 없습니다.");
+    FORBIDDEN(HttpStatus.FORBIDDEN, "권한이 없습니다."),
+    SIGNUP_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "회원가입 처리 중 오류가 발생했습니다."),
+    SIGNIN_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "로그인 처리 중 오류가 발생했습니다."),
+    TEMP_PASSWORD_SEND_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "임시 비밀번호 발송에 실패했습니다."),
+    PASSWORD_CHANGE_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "비밀번호 변경에 실패했습니다.");
 
     private final HttpStatus httpStatus;
     private final String message;
