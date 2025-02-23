@@ -29,7 +29,6 @@ public class PasswordService {
     private final BCryptPasswordEncoder passwordEncoder;
     private final Map<String, TemporaryPassword> temporaryPasswordStore = new ConcurrentHashMap<>(); // 임시 저장소 추가
 
-    
     // 임시 비밀번호 발급
     public void sendTemporaryPassword(String email) {
         try {
@@ -125,5 +124,4 @@ public class PasswordService {
         user.updatePassword(passwordEncoder.encode(request.getNewPassword()));
         userRepository.save(user);
     }
-
 }
