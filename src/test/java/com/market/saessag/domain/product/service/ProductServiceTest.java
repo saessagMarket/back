@@ -8,7 +8,9 @@ import static org.mockito.Mockito.when;
 
 import com.market.saessag.domain.product.dto.ProductResponse;
 import com.market.saessag.domain.product.entity.Product;
+import com.market.saessag.domain.product.repository.ProductLikeRepository;
 import com.market.saessag.domain.product.repository.ProductRepository;
+import com.market.saessag.domain.product.repository.ProductViewRepository;
 import com.market.saessag.domain.user.dto.SignInResponse;
 import com.market.saessag.domain.user.entity.User;
 import com.market.saessag.domain.user.repository.UserRepository;
@@ -30,6 +32,10 @@ class ProductServiceTest {
   private ProductRepository productRepository;
   @Mock
   private UserRepository userRepository;
+  @Mock
+  private ProductLikeRepository productLikeRepository;
+  @Mock
+  private ProductViewRepository productViewRepository;
 
   @Test
   void bumpProduct() {
@@ -61,6 +67,8 @@ class ProductServiceTest {
     when(userRepository.findById(user.getId())).thenReturn(Optional.of(user));
     when(productRepository.findById(product.getId())).thenReturn(Optional.of(product));
     when(productRepository.save(any(Product.class))).thenReturn(product);
+    when(productLikeRepository.countByProduct(any(Product.class))).thenReturn(0L);
+    when(productViewRepository.countByProduct(any(Product.class))).thenReturn(0L);
 
     // when
     ProductResponse response = productService.bumpProduct(product.getId(), httpRequest);
