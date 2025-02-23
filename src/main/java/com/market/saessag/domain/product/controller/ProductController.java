@@ -4,7 +4,6 @@ import com.market.saessag.domain.product.dto.ProductChangeStatusRequest;
 import com.market.saessag.domain.product.dto.ProductChangeStatusResponse;
 import com.market.saessag.domain.product.dto.ProductRequest;
 import com.market.saessag.domain.product.dto.ProductResponse;
-import com.market.saessag.domain.product.entity.Product;
 import com.market.saessag.domain.product.service.ProductService;
 import com.market.saessag.domain.user.dto.SignInResponse;
 import com.market.saessag.global.exception.CustomException;
@@ -109,27 +108,16 @@ public class ProductController {
     // 상품 끌어올리기
     // @PreAuthorize("isAuthenticated()")  인증된 사용자만 접근 가능한 시큐리티의 메서드 방식 --> 나중에 리팩토링
     @PostMapping("/bump/{id}")
-    public ApiResponse<?> bumpProduct(@PathVariable Long id, HttpServletRequest request) {
-        // 1. 세션 확인
-        HttpSession session = request.getSession();
-        SignInResponse userSession = (SignInResponse) session.getAttribute("userProfile");
-
-        if (userSession == null) {
-            throw new CustomException(ErrorCode.UNAUTHORIZED);
-        }
-
-        // 2. 서비스 호출 (소유자 검증은 서비스에서 처리)
-        Product bumpedProduct = productService.bumpProduct(id, userSession.getId());
-        return ApiResponse.success(SuccessCode.OK, bumpedProduct.getId());
+    public ApiResponse<ProductResponse> bumpProduct(@PathVariable Long id, HttpServletRequest httpRequest) {
+        ProductResponse bumpedProduct = productService.bumpProduct(id, httpRequest);
+        return ApiResponse.success(SuccessCode.OK, bumpedProduct);
     }
+
 
     // 상품 상태 값 변경(본인 소유의 상품의 상태 값만 변경 가능)
     @PostMapping("/changeStatus")
-    public ApiResponse<ProductChangeStatusResponse> changeStatus(
-            @RequestBody ProductChangeStatusRequest req,
-            HttpServletRequest request) {
+    public ApiResponse<ProductChangeStatusResponse> changeStatus(@RequestBody ProductChangeStatusRequest req, HttpServletRequest request) {
         ProductChangeStatusResponse response = productService.changeStatus(req, request);
         return ApiResponse.success(SuccessCode.OK, response);
     }
-
 }

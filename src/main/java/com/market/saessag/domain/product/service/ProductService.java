@@ -20,15 +20,12 @@ import com.market.saessag.util.TimeUtils;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import jakarta.transaction.Transactional;
-import java.time.LocalDateTime;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
-
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -44,62 +41,19 @@ public class ProductService {
                 .orElseThrow(() -> new CustomException(ErrorCode.PRODUCT_NOT_FOUND));
     }
 
-    //상품 생성
-    public ProductResponse createProduct(ProductRequest productRequest, HttpServletRequest request) {
-        HttpSession session = request.getSession();
-        SignInResponse userSession = (SignInResponse) session.getAttribute("userProfile");
-
-        if (userSession == null) {
-            throw new CustomException(ErrorCode.UNAUTHORIZED);
-        }
-
-        User user = userRepository.findById(userSession.getId())
-                .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
-
-        Product product = Product.builder()
-                .user(user)
-                .title(productRequest.getTitle())
-                .price(productRequest.getPrice())
-                .description(productRequest.getDescription())
-                .latitude(productRequest.getLatitude())
-                .longitude(productRequest.getLongitude())
-                .basicAddress(productRequest.getBasicAddress())
-                .detailedAddress(productRequest.getDetailedAddress())
-                .photo(productRequest.getPhoto())
-                .status(Product.ProductStatus.valueOf(productRequest.getStatus()))
-                .build();
+    // 상품 생성
+    public ProductResponse createProduct(ProductRequest request, HttpServletRequest httpRequest) {
+        User user = getUserFromSession(httpRequest);
+        Product product = Product.createProduct(user, request);
         return convertToDTO(productRepository.save(product));
     }
 
+    // 상품 수정
+    public ProductResponse updateProduct(Long productId, ProductRequest request, HttpServletRequest httpRequest) {
+        User user = getUserFromSession(httpRequest);
+        Product product = getProductAndValidateOwner(productId, user.getId());
 
-    //상품 수정
-    public ProductResponse updateProduct(Long productId, ProductRequest productRequest, HttpServletRequest request) {
-        HttpSession session = request.getSession();
-        SignInResponse userSession = (SignInResponse) session.getAttribute("userProfile");
-
-        if (userSession == null) {
-            throw new CustomException(ErrorCode.UNAUTHORIZED);
-        }
-
-        Product product = productRepository.findById(productId)
-                .orElseThrow(() -> new IllegalArgumentException("없는 상품 번호 입니다."));
-
-        // 글쓴이와 현재 로그인한 사용자가 같은지 확인
-        if (!product.getUser().getId().equals(userSession.getId())) {
-            throw new CustomException(ErrorCode.FORBIDDEN);
-        }
-
-        product.updateProduct(
-                productRequest.getTitle(),
-                productRequest.getPrice(),
-                productRequest.getDescription(),
-                productRequest.getPhoto(),
-                productRequest.getLatitude(),
-                productRequest.getLongitude(),
-                productRequest.getBasicAddress(),
-                productRequest.getDetailedAddress(),
-                Product.ProductStatus.valueOf(productRequest.getStatus()));
-
+        product.updateProduct(request);
         return convertToDTO(productRepository.save(product));
     }
 
@@ -128,12 +82,12 @@ public class ProductService {
         }
     }
 
+    // 상품 검색, 필터링, 정렬
     public Page<ProductResponse> searchProducts(int page, int size, String title, String nickname, String sort) {
         try {
             Sort sorting = (sort == null || sort.isEmpty()) ?
                 Sort.by(
-                    Sort.Order.desc("bumpAt"),
-                    Sort.Order.desc("addedDate")
+                    Sort.Order.desc("updatedAt")  // 최신 업데이트 순
                 ) : Sort.by(Sort.Order.by(sort));
 
             Pageable pageable = PageRequest.of(page, size, sorting);
@@ -181,6 +135,31 @@ public class ProductService {
                 .build();
     }
 
+    // 세션에서 사용자 정보를 가져와서 검증
+    private User getUserFromSession(HttpServletRequest request) {
+        HttpSession session = request.getSession();
+        SignInResponse userSession = (SignInResponse) session.getAttribute("userProfile");
+
+        if (userSession == null) {
+            throw new CustomException(ErrorCode.UNAUTHORIZED);
+        }
+
+        return userRepository.findById(userSession.getId())
+                .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
+    }
+
+    // 상품을 찾고 해당 상품의 소유자가 맞는지 검증
+    private Product getProductAndValidateOwner(Long productId, Long userId) {
+        Product product = productRepository.findById(productId)
+                .orElseThrow(() -> new CustomException(ErrorCode.PRODUCT_NOT_FOUND));
+
+        if (!product.getUser().getId().equals(userId)) {
+            throw new CustomException(ErrorCode.FORBIDDEN);
+        }
+
+        return product;
+    }
+
     public ProductResponse getProductDetail(Long productId) {
         Product id = productRepository.findById(productId)
                 .orElseThrow(()-> new IllegalArgumentException("상품이 없습니다."));
@@ -188,17 +167,12 @@ public class ProductService {
     }
 
     // 상품 끌어올리기
-    public Product bumpProduct(Long productId, Long userId) {
-        Product product = productRepository.findById(productId)
-            .orElseThrow(() -> new CustomException(ErrorCode.PRODUCT_NOT_FOUND));
+    public ProductResponse bumpProduct(Long productId, HttpServletRequest httpRequest) {
+        User user = getUserFromSession(httpRequest);
+        Product product = getProductAndValidateOwner(productId, user.getId());
 
-        // 상품 소유자 검증
-        if (!product.getUser().getId().equals(userId)) {
-            throw new CustomException(ErrorCode.FORBIDDEN);
-        }
-
-        product.updateBumpAt(LocalDateTime.now());
-        return productRepository.save(product);
+        product.bump();  // updatedAt만 갱신
+        return convertToDTO(productRepository.save(product));
     }
 
     // 조회수 증가
@@ -246,23 +220,12 @@ public class ProductService {
     }
 
     // 상품 상태 값 변경
-    public ProductChangeStatusResponse changeStatus(ProductChangeStatusRequest req, HttpServletRequest request) {
-        HttpSession session = request.getSession();
-        SignInResponse userSession = (SignInResponse) session.getAttribute("userProfile");
-
-        if (userSession == null) {
-            throw new CustomException(ErrorCode.UNAUTHORIZED);
-        }
-
-        Product product = productRepository.findById(req.getId())
-                .orElseThrow(() -> new CustomException(ErrorCode.PRODUCT_NOT_FOUND));
-
-        if (!product.getUser().getId().equals(userSession.getId())) {
-            throw new CustomException(ErrorCode.FORBIDDEN);
-        }
+    public ProductChangeStatusResponse changeStatus(ProductChangeStatusRequest request, HttpServletRequest httpRequest) {
+        User user = getUserFromSession(httpRequest);
+        Product product = getProductAndValidateOwner(request.getId(), user.getId());
 
         try {
-            product.updateStatus(req.getStatus());
+            product.updateStatus(request.getStatus());
             Product savedProduct = productRepository.save(product);
 
             return ProductChangeStatusResponse.builder()
@@ -273,5 +236,4 @@ public class ProductService {
             throw new CustomException(ErrorCode.INTERNAL_SERVER_ERROR);
         }
     }
-
 }

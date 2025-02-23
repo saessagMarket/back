@@ -1,5 +1,6 @@
 package com.market.saessag.domain.product.entity;
 
+import com.market.saessag.domain.product.dto.ProductRequest;
 import com.market.saessag.domain.user.entity.User;
 import jakarta.persistence.*;
 import lombok.*;
@@ -44,11 +45,10 @@ public class Product {
 
     private LocalDateTime addedDate;
 
+    private LocalDateTime updatedAt; // 수정 시점
+
     @Enumerated(EnumType.STRING)
     private ProductStatus status;
-
-    private LocalDateTime bumpAt;
-
 
     public enum ProductStatus {
         FOR_SALE, HIDDEN, SOLD_OUT
@@ -59,24 +59,41 @@ public class Product {
         this.addedDate = LocalDateTime.now(); // 현재 시간 자동 설정
     }
 
-    public void updateProduct(String title, Long price, String description, List<String> photo,
-                              Double latitude, Double longitude, String basicAddress, String detailedAddress, ProductStatus status) {
-        this.title = title;
-        this.price = price;
-        this.description = description;
-        this.photo = photo;
-        this.latitude = latitude;
-        this.longitude = longitude;
-        this.basicAddress = basicAddress;
-        this.detailedAddress = detailedAddress;
-        this.status = status;
-    }
-
-    public void updateBumpAt(LocalDateTime bumpAt) {
-        this.bumpAt = bumpAt;
-    }
-
     public void updateStatus(ProductStatus status) {
         this.status = status;
+    }
+
+    // 끌어올리기 전용 메서드
+    public void bump() { this.updatedAt = LocalDateTime.now(); }
+
+    // 상품 생성(정적 팩토리 메서드)
+    public static Product createProduct(User user, ProductRequest request) {
+        Product product = new Product();
+        product.user = user;
+        product.title = request.getTitle();
+        product.price = request.getPrice();
+        product.description = request.getDescription();
+        product.photo = request.getPhoto();
+        product.latitude = request.getLatitude();
+        product.longitude = request.getLongitude();
+        product.basicAddress = request.getBasicAddress();
+        product.detailedAddress = request.getDetailedAddress();
+        product.status = ProductStatus.valueOf(request.getStatus());
+        product.updatedAt = LocalDateTime.now();
+        return product;
+    }
+
+    // 상품 정보 수정(정적 팩토리 메서드)
+    public void updateProduct(ProductRequest request) {
+        this.title = request.getTitle();
+        this.price = request.getPrice();
+        this.description = request.getDescription();
+        this.photo = request.getPhoto();
+        this.latitude = request.getLatitude();
+        this.longitude = request.getLongitude();
+        this.basicAddress = request.getBasicAddress();
+        this.detailedAddress = request.getDetailedAddress();
+        this.status = ProductStatus.valueOf(request.getStatus());
+        this.updatedAt = LocalDateTime.now();
     }
 }
