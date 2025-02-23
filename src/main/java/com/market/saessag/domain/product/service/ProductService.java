@@ -171,20 +171,7 @@ public class ProductService {
         User user = getUserFromSession(httpRequest);
         Product product = getProductAndValidateOwner(productId, user.getId());
 
-        // 기존 상품 정보로 ProductRequest 생성
-        ProductRequest request = ProductRequest.builder()
-                .title(product.getTitle())
-                .price(product.getPrice())
-                .description(product.getDescription())
-                .photo(product.getPhoto())
-                .latitude(product.getLatitude())
-                .longitude(product.getLongitude())
-                .basicAddress(product.getBasicAddress())
-                .detailedAddress(product.getDetailedAddress())
-                .status(product.getStatus().toString())
-                .build();
-
-        product.updateProduct(request);
+        product.bump();  // updatedAt만 갱신
         return convertToDTO(productRepository.save(product));
     }
 

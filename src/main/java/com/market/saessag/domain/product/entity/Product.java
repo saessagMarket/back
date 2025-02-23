@@ -63,6 +63,8 @@ public class Product {
         this.status = status;
     }
 
+    // 끌어올리기 전용 메서드
+    public void bump() { this.updatedAt = LocalDateTime.now(); }
 
     // 상품 생성(정적 팩토리 메서드)
     public static Product createProduct(User user, ProductRequest request) {
