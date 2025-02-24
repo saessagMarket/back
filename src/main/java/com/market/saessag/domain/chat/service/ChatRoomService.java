@@ -26,6 +26,7 @@ public class ChatRoomService {
     private final ChatMessageRepository chatMessageRepository;
     private final ChatSubscriptionRepository chatSubscriptionRepository;
 
+    //방 생성 (방 존재 시 채팅방 반환)
     public ChatRoomResponse createOrGetChatRoom(Long productId, Long buyerId, Long sellerId) {
         Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new IllegalArgumentException("상품을 찾을 수 없습니다."));
@@ -53,7 +54,7 @@ public class ChatRoomService {
         return chatRoomResponseEntity(chatRoom);
     }
 
-
+    // 유저의 모든 채팅방 반환
     public List<ChatRoomResponse> getUserChatRooms(Long userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("유저가 없습니다."));
@@ -65,6 +66,18 @@ public class ChatRoomService {
                 .collect(Collectors.toList());
     }
 
+    // ChatRoomResponse DTO 변환
+    private ChatRoomResponse chatRoomResponseEntity(ChatRoom chatRoom) {
+        ChatMessage lastMessage = chatMessageRepository
+                .findTopByChatRoomOrderByTimeStampDesc(chatRoom)
+                .orElse(null);
+
+        return ChatRoomResponse.fromEntity(chatRoom,
+                lastMessage != null ? lastMessage.getContent() : "메시지가 없습니다.",
+                lastMessage != null ? lastMessage.getTimeStamp() : null);
+    }
+
+    // 유저가 채팅방을 구독하지 않고 있을 시 구독 설정
     private void subscribeUserToChatRoom(User user, ChatRoom chatRoom) {
         if (chatSubscriptionRepository.findByUserAndChatRoom(user, chatRoom).isEmpty()) {
             ChatSubscription subscription = ChatSubscription.builder()
@@ -76,13 +89,4 @@ public class ChatRoomService {
         }
     }
 
-    private ChatRoomResponse chatRoomResponseEntity(ChatRoom chatRoom) {
-        ChatMessage lastMessage = chatMessageRepository
-                .findTopByChatRoomOrderByTimeStampDesc(chatRoom)
-                .orElse(null);
-
-        return ChatRoomResponse.fromEntity(chatRoom,
-                lastMessage != null ? lastMessage.getContent() : "메시지가 없습니다.",
-                lastMessage != null ? lastMessage.getTimeStamp() : null);
-    }
 }

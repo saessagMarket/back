@@ -18,14 +18,15 @@ import java.util.List;
 public class ChatRoomController {
     private final ChatRoomService chatRoomService;
 
+    // 방 생성
     @PostMapping()
     public ResponseEntity<ApiResponse<ChatRoomResponse>> createChatRoom(@RequestBody ChatRoomRequest request) {
-        System.out.println("request.getSellerId() = " + request.getSellerId());
         ChatRoomResponse chatRoom = chatRoomService.createOrGetChatRoom(request.getProductId(), request.getBuyerId(), request.getSellerId());
 
         return ResponseEntity.ok(ApiResponse.success(SuccessCode.OK, chatRoom));
     }
 
+    // 특정 유저가 속해있는 채팅방 리스트 반환
     @GetMapping("/{userId}")
     public ResponseEntity<ApiResponse<List<ChatRoomResponse>>> getChatRoom(@PathVariable Long userId) {
         List<ChatRoomResponse> chatRooms = chatRoomService.getUserChatRooms(userId);

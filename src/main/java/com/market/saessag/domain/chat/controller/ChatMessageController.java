@@ -16,6 +16,7 @@ import java.util.List;
 public class ChatMessageController {
     private final ChatMessageService chatMessageService;
 
+    // 채팅방 전체 메시지 반환
     @GetMapping("/{roomId}")
     public ResponseEntity<ApiResponse<List<ChatMessageResponse>>> getMessages(
             @PathVariable Long roomId,
