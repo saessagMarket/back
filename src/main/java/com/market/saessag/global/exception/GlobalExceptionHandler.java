@@ -1,9 +1,11 @@
 package com.market.saessag.global.exception;
 
 import com.market.saessag.global.response.ApiResponse;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.HttpSessionRequiredException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 @RestControllerAdvice
@@ -11,9 +13,9 @@ public class GlobalExceptionHandler {
 
     // 1. 세션 관련 예외를 먼저 처리
     @ExceptionHandler(HttpSessionRequiredException.class)
-    public ResponseEntity<ApiResponse<Void>> handleSessionException(HttpSessionRequiredException e) {
-        ApiResponse<Void> response = ApiResponse.error(ErrorCode.UNAUTHORIZED);
-        return ResponseEntity.status(ErrorCode.UNAUTHORIZED.getHttpStatus()).body(response);
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    public ApiResponse<Void> handleSessionException(HttpSessionRequiredException e) {
+        return ApiResponse.error(ErrorCode.UNAUTHORIZED);
     }
 
     // 2. IllegalArgumentException 처리
