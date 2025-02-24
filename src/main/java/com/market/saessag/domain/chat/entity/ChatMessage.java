@@ -32,6 +32,7 @@ public class ChatMessage {
     @JoinColumn(name = "sender_id")
     private User sender;
 
+    @Column(columnDefinition = "TEXT")
     private String content;
 
     @OneToMany(mappedBy = "chatMessage", cascade = CascadeType.ALL, orphanRemoval = true)
