@@ -7,6 +7,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.Optional;
 
 @NoArgsConstructor
 @AllArgsConstructor
@@ -24,7 +25,7 @@ public class ChatMessageResponse {
                 .id(chatMessage.getId())
                 .roomId(chatMessage.getChatRoom().getId())
                 .senderId(chatMessage.getSender().getId())
-                .content(chatMessage.getContent())
+                .content(Optional.ofNullable(chatMessage.getContent()).orElse(""))
                 .timeStamp(chatMessage.getTimeStamp())
                 .build();
     }

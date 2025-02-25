@@ -29,7 +29,7 @@ public class ChatMessage {
     private ChatRoom chatRoom;
 
     @ManyToOne
-    @JoinColumn(name = "sender_id")
+    @JoinColumn(name = "sender_id", nullable = false)
     private User sender;
 
     @Column(columnDefinition = "TEXT")
