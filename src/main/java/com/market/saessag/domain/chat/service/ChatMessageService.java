@@ -54,4 +54,17 @@ public class ChatMessageService {
                 .map(ChatMessageResponse::fromEntity)
                 .collect(Collectors.toList());
     }
+
+    // 메시지 검색
+    public List<ChatMessageResponse> searchMessages(Long roomId, String keyword){
+        ChatRoom chatRoom = chatRoomRepository.findById(roomId)
+                .orElseThrow(() -> new IllegalArgumentException("해당 방이 없습니다."));
+
+        List<ChatMessage> messages = chatMessageRepository.findByChatRoomAndContentContainingOrderByTimeStampDesc(chatRoom, keyword);
+
+        return messages.stream()
+                .map(ChatMessageResponse::fromEntity)
+                .collect(Collectors.toList());
+    }
+
 }

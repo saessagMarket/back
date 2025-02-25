@@ -26,4 +26,13 @@ public class ChatMessageController {
         List<ChatMessageResponse> messages = chatMessageService.getMessages(roomId, page, size);
         return ResponseEntity.ok(ApiResponse.success(SuccessCode.OK, messages));
     }
+
+    // 채팅방 내 메시지 검색
+    @GetMapping("/{roomId}/search")
+    public ResponseEntity<ApiResponse<List<ChatMessageResponse>>> searchMessages(
+            @PathVariable Long roomId,
+            @RequestParam String keyword) {
+        return ResponseEntity.ok(ApiResponse.success(SuccessCode.OK, chatMessageService.searchMessages(roomId, keyword)));
+    }
+
 }
