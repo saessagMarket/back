@@ -19,14 +19,16 @@ public class ChatMessageResponse {
     private Long senderId;
     private String content;
     private LocalDateTime timeStamp;
+    private Boolean isRead;
 
-    public static ChatMessageResponse fromEntity(ChatMessage chatMessage) {
+    public static ChatMessageResponse fromEntity(ChatMessage chatMessage, boolean isRead) {
         return ChatMessageResponse.builder()
                 .id(chatMessage.getId())
                 .roomId(chatMessage.getChatRoom().getId())
                 .senderId(chatMessage.getSender().getId())
                 .content(Optional.ofNullable(chatMessage.getContent()).orElse(""))
                 .timeStamp(chatMessage.getTimeStamp())
+                .isRead(isRead)
                 .build();
     }
 }

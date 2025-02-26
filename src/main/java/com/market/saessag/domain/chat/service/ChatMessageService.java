@@ -67,4 +67,67 @@ public class ChatMessageService {
                 .collect(Collectors.toList());
     }
 
+    // 읽음 처리
+    @Transactional
+    public void markMessagesAsRead(Long roomId, Long userId) {
+        ChatRoom chatRoom = chatRoomRepository.findById(roomId)
+                .orElseThrow(() -> new IllegalArgumentException("해당 채팅방이 없습니다."));
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("해당 유저가 없습니다."));
+
+        List<ChatMessage> unreadMessages = chatMessageRepository.findByChatRoom(chatRoom);
+
+        // ChatMessageRead 테이블에 안 읽은 메시지 전부 저장
+        for (ChatMessage message : unreadMessages) {
+            if (!chatMessageReadRepository.existsByChatMessageAndUser(message, user)) {
+                ChatMessageRead chatMessageRead = ChatMessageRead.builder()
+                        .chatMessage(message)
+                        .user(user)
+                        .isRead(true)
+                        .build();
+                chatMessageReadRepository.save(chatMessageRead);
+            }
+        }
+    }
+
+    // 안 읽은 메시지 수 카운트
+    @Transactional
+    public Long getUnreadMessageCount(Long roomId, Long userId) {
+        ChatRoom chatRoom = chatRoomRepository.findById(roomId)
+                .orElseThrow(() -> new IllegalArgumentException("해당 채팅방이 없습니다."));
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("해당 유저가 없습니다."));
+
+        List<Long> readMessageIds = chatMessageReadRepository.findMessageIdByUserAndChatRoom(user, chatRoom);
+        if (readMessageIds.isEmpty()) {
+            return chatMessageRepository.countByChatRoom(chatRoom);
+        }
+
+        return chatMessageRepository.countByChatRoomAndIdNotIn(chatRoom, readMessageIds);
+    }
+
+    // 안 읽은 메시지 조회
+    public List<ChatMessageResponse> getUnreadMessages(Long roomId, Long userId) {
+        ChatRoom chatRoom = chatRoomRepository.findById(roomId)
+                .orElseThrow(() -> new IllegalArgumentException("해당 채팅방이 없습니다."));
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("해당 유저가 없습니다."));
+
+        // 읽은 메시지 테이블에서 특정 채팅방에서 해당 유저가 읽은 메시지의 ID 리스트를 반환
+        List<Long> readMessageIds = chatMessageReadRepository.findMessageIdByUserAndChatRoom(user, chatRoom);
+
+        List<ChatMessage> unreadMessages;
+        if (readMessageIds.isEmpty()) {
+            unreadMessages = chatMessageRepository.findByChatRoom(chatRoom);
+        } else {
+            unreadMessages = chatMessageRepository.findByChatRoomAndIdNotIn(chatRoom, readMessageIds);
+        }
+
+        return unreadMessages.stream()
+                .map(message -> ChatMessageResponse.fromEntity(message, false))
+                .collect(Collectors.toList());
+    }
 }

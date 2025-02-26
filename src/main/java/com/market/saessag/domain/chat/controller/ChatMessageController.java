@@ -35,4 +35,26 @@ public class ChatMessageController {
         return ResponseEntity.ok(ApiResponse.success(SuccessCode.OK, chatMessageService.searchMessages(roomId, keyword)));
     }
 
+    // 읽음 처리
+    @PostMapping("/{roomId}/mark-read")
+    public ResponseEntity<ApiResponse<Void>> markMessageAsRead(@PathVariable Long roomId, @RequestParam Long userId) { //user 세션으로 바꿀 것
+        chatMessageService.markMessagesAsRead(roomId, userId);
+        return ResponseEntity.ok(ApiResponse.success(SuccessCode.OK, null));
+    }
+
+    // 안 읽은 메시지 목록 조회
+    @GetMapping("/{roomId}/unread-list")
+    public ResponseEntity<ApiResponse<List<ChatMessageResponse>>> getUnreadMessages(@PathVariable Long roomId, @RequestParam Long userId) {
+        List<ChatMessageResponse> unreadMessages = chatMessageService.getUnreadMessages(roomId, userId);
+        return ResponseEntity.ok(ApiResponse.success(SuccessCode.OK, unreadMessages));
+    }
+
+    // 안 읽은 메시지 개수 조회
+    @GetMapping("/{roomId}/unread-count")
+    public ResponseEntity<ApiResponse<Long>> unreadMessageCount(@PathVariable Long roomId, @RequestParam Long userId) {
+        Long unreadCount = chatMessageService.getUnreadMessageCount(roomId, userId);
+        return ResponseEntity.ok(ApiResponse.success(SuccessCode.OK, unreadCount));
+    }
+
+
 }
