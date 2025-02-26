@@ -78,7 +78,7 @@ public class ChatMessageService {
         List<ChatMessage> messages = chatMessageRepository.findByChatRoomAndContentContainingOrderByTimeStampDesc(chatRoom, keyword);
 
         return messages.stream()
-                .map(ChatMessageResponse::fromEntity)
+                .map(ChatMessageResponse::fromEntityForSearch)
                 .collect(Collectors.toList());
     }
 
