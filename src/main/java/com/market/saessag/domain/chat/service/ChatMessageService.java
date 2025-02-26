@@ -3,11 +3,14 @@ package com.market.saessag.domain.chat.service;
 import com.market.saessag.domain.chat.dto.ChatMessageRequest;
 import com.market.saessag.domain.chat.dto.ChatMessageResponse;
 import com.market.saessag.domain.chat.entity.ChatMessage;
+import com.market.saessag.domain.chat.entity.ChatMessageRead;
 import com.market.saessag.domain.chat.entity.ChatRoom;
+import com.market.saessag.domain.chat.repository.ChatMessageReadRepository;
 import com.market.saessag.domain.chat.repository.ChatMessageRepository;
 import com.market.saessag.domain.chat.repository.ChatRoomRepository;
 import com.market.saessag.domain.user.entity.User;
 import com.market.saessag.domain.user.repository.UserRepository;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -15,6 +18,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -23,12 +27,13 @@ public class ChatMessageService {
     private final ChatMessageRepository chatMessageRepository;
     private final ChatRoomRepository chatRoomRepository;
     private final UserRepository userRepository;
+    private final ChatMessageReadRepository chatMessageReadRepository;
 
     public ChatMessageResponse saveMessage(Long roomId, ChatMessageRequest message) {
         ChatRoom chatRoom = chatRoomRepository.findById(roomId)
                 .orElseThrow(() -> new IllegalArgumentException("해당 방이 없습니다."));
 
-        User sender = userRepository.findById(message.getSenderId())
+        User sender = userRepository.findById(message.getSenderId()) //세션으로 변경
                 .orElseThrow(() -> new IllegalArgumentException("해당 유저가 없습니다."));
 
         ChatMessage newMessage = ChatMessage.builder()
@@ -40,18 +45,28 @@ public class ChatMessageService {
 
         ChatMessage savedMessage = chatMessageRepository.save(newMessage);
 
-        return ChatMessageResponse.fromEntity(savedMessage);
+        return ChatMessageResponse.fromEntity(savedMessage, false);
     }
 
-    public List<ChatMessageResponse> getMessages(Long roomId, int page, int size) {
+    public List<ChatMessageResponse> getMessages(Long roomId, Long userId, int page, int size) {
         ChatRoom chatRoom = chatRoomRepository.findById(roomId)
                 .orElseThrow(() -> new IllegalArgumentException("해당 채팅방이 없습니다."));
+
+        User sender = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("해당 유저가 없습니다."));
+
+        Long receiverId = chatRoom.getBuyer().getId().equals(userId) ? chatRoom.getSeller().getId() : chatRoom.getBuyer().getId();
 
         PageRequest pageRequest = PageRequest.of(page, size);
         Page<ChatMessage> messages = chatMessageRepository.findByChatRoomOrderByTimeStampDesc(chatRoom, pageRequest);
 
+
+        // 상대방이 안 읽은 메시지
+        List<ChatMessage> unreadMessages = chatMessageRepository.findUnreadMessagesSentByUser(roomId, userId, receiverId);
+        Set<Long> unreadMessageIds = unreadMessages.stream().map(ChatMessage::getId).collect(Collectors.toSet());
+
         return messages.stream()
-                .map(ChatMessageResponse::fromEntity)
+                .map(message -> ChatMessageResponse.fromEntity(message, !unreadMessageIds.contains(message.getId())))
                 .collect(Collectors.toList());
     }
 

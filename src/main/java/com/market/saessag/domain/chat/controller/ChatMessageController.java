@@ -20,10 +20,11 @@ public class ChatMessageController {
     @GetMapping("/{roomId}")
     public ResponseEntity<ApiResponse<List<ChatMessageResponse>>> getMessages(
             @PathVariable Long roomId,
+            @RequestParam Long userId,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
 
-        List<ChatMessageResponse> messages = chatMessageService.getMessages(roomId, page, size);
+        List<ChatMessageResponse> messages = chatMessageService.getMessages(roomId, userId, page, size);
         return ResponseEntity.ok(ApiResponse.success(SuccessCode.OK, messages));
     }
 
