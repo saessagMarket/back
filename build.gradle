@@ -43,6 +43,11 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-security'
 	implementation 'org.springframework.boot:spring-boot-starter-websocket'
 
+	// 테스트 관련
+	testImplementation 'org.mockito:mockito-core:5.7.0'
+	testImplementation 'net.bytebuddy:byte-buddy:1.14.11'
+	testImplementation 'net.bytebuddy:byte-buddy-agent:1.14.11'
+
 }
 
 test {
