@@ -19,43 +19,43 @@ public class ChatMessageController {
 
     // 채팅방 전체 메시지 반환
     @GetMapping("/{roomId}")
-    public ResponseEntity<ApiResponse<List<ChatMessageResponse>>> getMessages(
+    public ApiResponse<List<ChatMessageResponse>> getMessages(
             @PathVariable Long roomId,
             @RequestParam Long userId,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
 
         List<ChatMessageResponse> messages = chatMessageService.getMessages(roomId, userId, page, size);
-        return ResponseEntity.ok(ApiResponse.success(SuccessCode.OK, messages));
+        return ApiResponse.success(SuccessCode.OK, messages);
     }
 
     // 채팅방 내 메시지 검색
     @GetMapping("/{roomId}/search")
-    public ResponseEntity<ApiResponse<List<ChatMessageResponse>>> searchMessages(
+    public ApiResponse<List<ChatMessageResponse>> searchMessages(
             @PathVariable Long roomId,
             @RequestParam String keyword) {
-        return ResponseEntity.ok(ApiResponse.success(SuccessCode.OK, chatMessageService.searchMessages(roomId, keyword)));
+        return ApiResponse.success(SuccessCode.OK, chatMessageService.searchMessages(roomId, keyword));
     }
 
     // 읽음 처리
     @PostMapping("/{roomId}/mark-read")
-    public ResponseEntity<ApiResponse<Void>> markMessageAsRead(@PathVariable Long roomId, HttpServletRequest request) { //user 세션으로 바꿀 것
+    public ApiResponse<Void> markMessageAsRead(@PathVariable Long roomId, HttpServletRequest request) { //user 세션으로 바꿀 것
         chatMessageService.markMessagesAsRead(roomId, request);
-        return ResponseEntity.ok(ApiResponse.success(SuccessCode.OK, null));
+        return ApiResponse.success(SuccessCode.OK, null);
     }
 
     // 안 읽은 메시지 목록 조회
     @GetMapping("/{roomId}/unread-list")
-    public ResponseEntity<ApiResponse<List<ChatMessageResponse>>> getUnreadMessages(@PathVariable Long roomId, HttpServletRequest request) {
+    public ApiResponse<List<ChatMessageResponse>> getUnreadMessages(@PathVariable Long roomId, HttpServletRequest request) {
         List<ChatMessageResponse> unreadMessages = chatMessageService.getUnreadMessages(roomId, request);
-        return ResponseEntity.ok(ApiResponse.success(SuccessCode.OK, unreadMessages));
+        return ApiResponse.success(SuccessCode.OK, unreadMessages);
     }
 
     // 안 읽은 메시지 개수 조회
     @GetMapping("/{roomId}/unread-count")
-    public ResponseEntity<ApiResponse<Long>> unreadMessageCount(@PathVariable Long roomId, HttpServletRequest request) {
+    public ApiResponse<Long> unreadMessageCount(@PathVariable Long roomId, HttpServletRequest request) {
         Long unreadCount = chatMessageService.getUnreadMessageCount(roomId, request);
-        return ResponseEntity.ok(ApiResponse.success(SuccessCode.OK, unreadCount));
+        return ApiResponse.success(SuccessCode.OK, unreadCount);
     }
 
 

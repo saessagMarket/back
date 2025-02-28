@@ -20,18 +20,18 @@ public class ChatRoomController {
 
     // 방 생성
     @PostMapping()
-    public ResponseEntity<ApiResponse<ChatRoomResponse>> createChatRoom(@RequestBody ChatRoomRequest request) {
+    public ApiResponse<ChatRoomResponse> createChatRoom(@RequestBody ChatRoomRequest request) {
         ChatRoomResponse chatRoom = chatRoomService.createOrGetChatRoom(request.getProductId(), request.getBuyerId(), request.getSellerId());
 
-        return ResponseEntity.ok(ApiResponse.success(SuccessCode.OK, chatRoom));
+        return ApiResponse.success(SuccessCode.OK, chatRoom);
     }
 
     // 특정 유저가 속해있는 채팅방 리스트 반환
     @GetMapping("/{userId}")
-    public ResponseEntity<ApiResponse<List<ChatRoomResponse>>> getChatRoom(@PathVariable Long userId) {
+    public ApiResponse<List<ChatRoomResponse>> getChatRoom(@PathVariable Long userId) {
         List<ChatRoomResponse> chatRooms = chatRoomService.getUserChatRooms(userId);
 
-        return ResponseEntity.ok(ApiResponse.success(SuccessCode.OK, chatRooms));
+        return ApiResponse.success(SuccessCode.OK, chatRooms);
     }
 
 }

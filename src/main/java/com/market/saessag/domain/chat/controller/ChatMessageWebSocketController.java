@@ -29,20 +29,20 @@ public class ChatMessageWebSocketController {
     // 메시지 전송
     @MessageMapping("/chat/{roomId}/sendMessage")
     @SendTo("/topic/chat/{roomId}")
-    public ResponseEntity<ApiResponse<ChatMessageResponse>> sendMessage(@DestinationVariable Long roomId, @Payload ChatMessageRequest message) {
+    public ApiResponse<ChatMessageResponse> sendMessage(@DestinationVariable Long roomId, @Payload ChatMessageRequest message) {
         ChatMessageResponse savedMessage = chatMessageService.saveMessage(roomId, message);
 
         //오프라인 구독자들에게 메시지 전송
         chatSubscriptionService.sendToOffSubscriber(savedMessage, roomId);
-        return ResponseEntity.ok(ApiResponse.success(SuccessCode.OK, savedMessage));
+        return ApiResponse.success(SuccessCode.OK, savedMessage);
     }
 
     // 파일 전송
     @MessageMapping("/chat/{roomId}/sendFile")
     @SendTo("/topic/chat/{roomId}")
-    public ResponseEntity<ApiResponse<List<ChatFileResponse>>> sendFile(@DestinationVariable Long roomId, @Payload ChatFileRequest fileRequest) {
+    public ApiResponse<List<ChatFileResponse>> sendFile(@DestinationVariable Long roomId, @Payload ChatFileRequest fileRequest) {
         List<ChatFileResponse> savedFile = chatFileService.saveFile(roomId, fileRequest);
 
-        return ResponseEntity.ok(ApiResponse.success(SuccessCode.OK, savedFile));
+        return ApiResponse.success(SuccessCode.OK, savedFile);
     }
 }
