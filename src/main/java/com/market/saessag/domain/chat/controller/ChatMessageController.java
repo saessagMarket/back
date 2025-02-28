@@ -6,7 +6,6 @@ import com.market.saessag.global.response.ApiResponse;
 import com.market.saessag.global.response.SuccessCode;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -34,28 +33,28 @@ public class ChatMessageController {
     public ApiResponse<List<ChatMessageResponse>> searchMessages(
             @PathVariable Long roomId,
             @RequestParam String keyword) {
-        return ApiResponse.success(SuccessCode.OK, chatMessageService.searchMessages(roomId, keyword));
+        return ApiResponse.success(SuccessCode.DATA_FETCHED, chatMessageService.searchMessages(roomId, keyword));
     }
 
     // 읽음 처리
     @PostMapping("/{roomId}/mark-read")
     public ApiResponse<Void> markMessageAsRead(@PathVariable Long roomId, HttpServletRequest request) { //user 세션으로 바꿀 것
         chatMessageService.markMessagesAsRead(roomId, request);
-        return ApiResponse.success(SuccessCode.OK, null);
+        return ApiResponse.success(SuccessCode.OK);
     }
 
     // 안 읽은 메시지 목록 조회
     @GetMapping("/{roomId}/unread-list")
     public ApiResponse<List<ChatMessageResponse>> getUnreadMessages(@PathVariable Long roomId, HttpServletRequest request) {
         List<ChatMessageResponse> unreadMessages = chatMessageService.getUnreadMessages(roomId, request);
-        return ApiResponse.success(SuccessCode.OK, unreadMessages);
+        return ApiResponse.success(SuccessCode.DATA_FETCHED, unreadMessages);
     }
 
     // 안 읽은 메시지 개수 조회
     @GetMapping("/{roomId}/unread-count")
     public ApiResponse<Long> unreadMessageCount(@PathVariable Long roomId, HttpServletRequest request) {
         Long unreadCount = chatMessageService.getUnreadMessageCount(roomId, request);
-        return ApiResponse.success(SuccessCode.OK, unreadCount);
+        return ApiResponse.success(SuccessCode.DATA_FETCHED, unreadCount);
     }
 
 
