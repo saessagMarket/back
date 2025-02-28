@@ -21,12 +21,12 @@ public class ChatMessageController {
     @GetMapping("/{roomId}")
     public ApiResponse<List<ChatMessageResponse>> getMessages(
             @PathVariable Long roomId,
-            @RequestParam Long userId,
+            HttpServletRequest request,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
 
-        List<ChatMessageResponse> messages = chatMessageService.getMessages(roomId, userId, page, size);
-        return ApiResponse.success(SuccessCode.OK, messages);
+        List<ChatMessageResponse> messages = chatMessageService.getMessages(roomId, request, page, size);
+        return ApiResponse.success(SuccessCode.DATA_FETCHED, messages);
     }
 
     // 채팅방 내 메시지 검색

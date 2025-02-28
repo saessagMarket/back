@@ -53,12 +53,11 @@ public class ChatMessageService {
         return ChatMessageResponse.fromEntity(savedMessage, false);
     }
 
-    public List<ChatMessageResponse> getMessages(Long roomId, Long userId, int page, int size) {
+    public List<ChatMessageResponse> getMessages(Long roomId, HttpServletRequest httpRequest, int page, int size) {
         ChatRoom chatRoom = chatRoomRepository.findById(roomId)
                 .orElseThrow(() -> new IllegalArgumentException("해당 채팅방이 없습니다."));
 
-        User sender = userRepository.findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException("해당 유저가 없습니다."));
+        Long userId = getUserFromSession(httpRequest).getId();
 
         Long receiverId = chatRoom.getBuyer().getId().equals(userId) ? chatRoom.getSeller().getId() : chatRoom.getBuyer().getId();
 
