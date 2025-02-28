@@ -1,5 +1,6 @@
 package com.market.saessag.global.config;
 
+import com.market.saessag.global.interceptor.RateLimitInterceptor;
 import com.market.saessag.global.interceptor.SessionInterceptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -12,6 +13,10 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 public class WebConfig implements WebMvcConfigurer {
     @Autowired
     private SessionInterceptor sessionInterceptor;
+
+    @Autowired
+    private RateLimitInterceptor rateLimitInterceptor;
+
     @Bean
     public RequestContextListener requestContextListener() {
         return new RequestContextListener();
@@ -22,5 +27,8 @@ public class WebConfig implements WebMvcConfigurer {
         registry.addInterceptor(sessionInterceptor)
                 .addPathPatterns("/**")        // 모든 경로에 인터셉터 적용
                 .excludePathPatterns(PathConst.EXCLUDED_PATHS); // 제외할 경로 설정
+
+        registry.addInterceptor(rateLimitInterceptor)
+                .addPathPatterns("/**");
     }
 }

@@ -1,4 +1,3 @@
-// 회원가입 처리
 package com.market.saessag.domain.user.service;
 
 import com.market.saessag.domain.email.service.EmailService;
@@ -20,6 +19,7 @@ public class SignUpService {
     private final EmailService emailService;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
 
+    // 회원가입
     @Transactional
     public void signUp(SignUpRequest signUpRequest) {
         String email = signUpRequest.getEmail();
@@ -44,5 +44,4 @@ public class SignUpService {
 
         userRepository.save(user);
     }
-
 }

@@ -12,19 +12,28 @@ public class ApiResponse<T> {
     private final String message; // 응답 메시지
     private final T data;        // 실제 데이터
 
-    // 성공 응답 생성
+    // 성공 응답 생성 (조회 등 데이터를 포함한 응답)
     public static <T> ApiResponse<T> success(SuccessCode successCode, T data) {
         return ApiResponse.<T>builder()
-                .status(successCode.getStatus())
+                .status(successCode.getHttpStatus())
                 .message(successCode.getMessage())
                 .data(data)
+                .build();
+    }
+
+    // 성공 응답 생성
+    public static <T> ApiResponse<T> success(SuccessCode successCode) {
+        return ApiResponse.<T>builder()
+                .status(successCode.getHttpStatus())
+                .message(successCode.getMessage())
+                .data(null)
                 .build();
     }
 
     // 에러 응답 생성
     public static <T> ApiResponse<T> error(ErrorCode errorCode) {
         return ApiResponse.<T>builder()
-                .status(errorCode.getStatus())
+                .status(errorCode.getHttpStatus())
                 .message(errorCode.getMessage())
                 .data(null)
                 .build();
