@@ -8,7 +8,10 @@ public class PathConst {
             "/api/sign-in",                    // 로그인
             "/api/products/list",              // 상품 목록 조회
             "/api/password/find",              // 비밀번호 발급
-            "/error"                           // 에러 페이지
+            "/error",                           // 에러 페이지
+            "/ws/**",                           // 웹 소켓
+            "/topic/**",
+            "/api/chat/**" // 채팅 관련 (임시)
     };
 
     // 인증(로그인)이 필요한 경로들
