@@ -11,6 +11,8 @@ import com.market.saessag.domain.chat.repository.ChatRoomRepository;
 import com.market.saessag.domain.photo.service.S3Service;
 import com.market.saessag.domain.user.entity.User;
 import com.market.saessag.domain.user.repository.UserRepository;
+import com.market.saessag.global.exception.CustomException;
+import com.market.saessag.global.exception.ErrorCode;
 import com.market.saessag.util.FileTypeUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -32,10 +34,10 @@ public class ChatFileService {
 
     public List<ChatFileResponse> saveFile(Long roomId, ChatFileRequest fileRequest) {
         ChatRoom chatRoom = chatRoomRepository.findById(roomId)
-                .orElseThrow(() -> new IllegalArgumentException("해당 방이 없습니다."));
+                .orElseThrow(() -> new CustomException(ErrorCode.ROOM_NOT_FOUND));
 
         User sender = userRepository.findById(fileRequest.getSenderId())
-                .orElseThrow(() -> new IllegalArgumentException("해당 유저가 없습니다."));
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
         ChatMessage chatMessage = ChatMessage.builder()
                 .chatRoom(chatRoom)

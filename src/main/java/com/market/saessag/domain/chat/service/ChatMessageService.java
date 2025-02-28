@@ -36,10 +36,10 @@ public class ChatMessageService {
 
     public ChatMessageResponse saveMessage(Long roomId, ChatMessageRequest message) {
         ChatRoom chatRoom = chatRoomRepository.findById(roomId)
-                .orElseThrow(() -> new IllegalArgumentException("해당 방이 없습니다."));
+                .orElseThrow(() -> new CustomException(ErrorCode.ROOM_NOT_FOUND));
 
         User sender = userRepository.findById(message.getSenderId()) //세션으로 변경
-                .orElseThrow(() -> new IllegalArgumentException("해당 유저가 없습니다."));
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
         ChatMessage newMessage = ChatMessage.builder()
                 .chatRoom(chatRoom)
@@ -55,7 +55,7 @@ public class ChatMessageService {
 
     public List<ChatMessageResponse> getMessages(Long roomId, HttpServletRequest httpRequest, int page, int size) {
         ChatRoom chatRoom = chatRoomRepository.findById(roomId)
-                .orElseThrow(() -> new IllegalArgumentException("해당 채팅방이 없습니다."));
+                .orElseThrow(() -> new CustomException(ErrorCode.ROOM_NOT_FOUND));
 
         Long userId = getUserFromSession(httpRequest).getId();
 
@@ -77,7 +77,7 @@ public class ChatMessageService {
     // 메시지 검색
     public List<ChatMessageResponse> searchMessages(Long roomId, String keyword){
         ChatRoom chatRoom = chatRoomRepository.findById(roomId)
-                .orElseThrow(() -> new IllegalArgumentException("해당 방이 없습니다."));
+                .orElseThrow(() -> new CustomException(ErrorCode.ROOM_NOT_FOUND));
 
         List<ChatMessage> messages = chatMessageRepository.findByChatRoomAndContentContainingOrderByTimeStampDesc(chatRoom, keyword);
 
@@ -90,7 +90,7 @@ public class ChatMessageService {
     @Transactional
     public void markMessagesAsRead(Long roomId, HttpServletRequest httpRequest) {
         ChatRoom chatRoom = chatRoomRepository.findById(roomId)
-                .orElseThrow(() -> new IllegalArgumentException("해당 채팅방이 없습니다."));
+                .orElseThrow(() -> new CustomException(ErrorCode.ROOM_NOT_FOUND));
 
         User user = getUserFromSession(httpRequest);
 
@@ -113,7 +113,7 @@ public class ChatMessageService {
     @Transactional
     public Long getUnreadMessageCount(Long roomId, HttpServletRequest httpRequest) {
         ChatRoom chatRoom = chatRoomRepository.findById(roomId)
-                .orElseThrow(() -> new IllegalArgumentException("해당 채팅방이 없습니다."));
+                .orElseThrow(() -> new CustomException(ErrorCode.ROOM_NOT_FOUND));
 
         User user = getUserFromSession(httpRequest);
 
@@ -128,7 +128,7 @@ public class ChatMessageService {
     // 안 읽은 메시지 조회
     public List<ChatMessageResponse> getUnreadMessages(Long roomId, HttpServletRequest httpRequest) {
         ChatRoom chatRoom = chatRoomRepository.findById(roomId)
-                .orElseThrow(() -> new IllegalArgumentException("해당 채팅방이 없습니다."));
+                .orElseThrow(() -> new CustomException(ErrorCode.ROOM_NOT_FOUND));
 
         User user = getUserFromSession(httpRequest);
 
@@ -157,6 +157,6 @@ public class ChatMessageService {
         }
 
         return userRepository.findById(userSession.getId())
-                .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
     }
 }

@@ -11,6 +11,8 @@ import com.market.saessag.domain.product.entity.Product;
 import com.market.saessag.domain.product.repository.ProductRepository;
 import com.market.saessag.domain.user.entity.User;
 import com.market.saessag.domain.user.repository.UserRepository;
+import com.market.saessag.global.exception.CustomException;
+import com.market.saessag.global.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -29,7 +31,7 @@ public class ChatRoomService {
     //방 생성 (방 존재 시 채팅방 반환)
     public ChatRoomResponse createOrGetChatRoom(Long productId, Long buyerId, Long sellerId) {
         Product product = productRepository.findById(productId)
-                .orElseThrow(() -> new IllegalArgumentException("상품을 찾을 수 없습니다."));
+                .orElseThrow(() -> new CustomException(ErrorCode.PRODUCT_NOT_FOUND));
 
         User buyer = userRepository.findById(buyerId)
                 .orElseThrow(() -> new IllegalArgumentException("구매자를 찾을 수 없습니다."));
@@ -57,7 +59,7 @@ public class ChatRoomService {
     // 유저의 모든 채팅방 반환
     public List<ChatRoomResponse> getUserChatRooms(Long userId) {
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException("유저가 없습니다."));
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
         List<ChatRoom> chatRooms = chatRoomRepository.findByBuyerOrSeller(user, user);
 
