@@ -25,7 +25,9 @@ public enum SuccessCode {
     TEMP_PASSWORD_EMAIL_SENT(HttpStatus.OK, "임시 비밀번호가 이메일로 발송되었습니다."),
     VALIDATION_SUCCESS(HttpStatus.OK, "검증이 성공적으로 완료되었습니다."),
     EMAIL_VERIFIED(HttpStatus.OK, "이메일 인증이 완료되었습니다"),
-    SIGNUP_COMPLETED(HttpStatus.CREATED, "회원가입이 완료되었습니다");
+    SIGNUP_COMPLETED(HttpStatus.CREATED, "회원가입이 완료되었습니다"),
+    ROOM_CREATED(HttpStatus.OK,"방이 성공적으로 생성되었습니다."),
+    DATA_FETCHED(HttpStatus.OK, "데이터 조회에 성공했습니다.");
 
     private final HttpStatus httpStatus;
     private final String message;

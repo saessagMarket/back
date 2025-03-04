@@ -5,6 +5,8 @@ import com.market.saessag.domain.chat.entity.ChatRoom;
 import com.market.saessag.domain.chat.entity.ChatSubscription;
 import com.market.saessag.domain.chat.repository.ChatRoomRepository;
 import com.market.saessag.domain.chat.repository.ChatSubscriptionRepository;
+import com.market.saessag.global.exception.CustomException;
+import com.market.saessag.global.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.messaging.simp.user.SimpUserRegistry;
@@ -23,7 +25,7 @@ public class ChatSubscriptionService {
     public void sendToOffSubscriber(ChatMessageResponse savedMessage, Long roomId) {
         // DB에서 해당 채팅방을 구독한 사용자 목록 조회
         ChatRoom chatRoom = chatRoomRepository.findById(roomId)
-                .orElseThrow(() -> new IllegalArgumentException("해당 방이 없습니다."));
+                .orElseThrow(() -> new CustomException(ErrorCode.ROOM_NOT_FOUND));
         List<ChatSubscription> subscriptions = chatSubscriptionRepository.findByChatRoom(chatRoom);
 
         for (ChatSubscription subscription : subscriptions) {
