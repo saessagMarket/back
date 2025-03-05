@@ -65,13 +65,13 @@ public class S3Service {
                 .build();
     }
 
-    public String uploadFile(MultipartFile file) throws IOException{
+    public String uploadFile(MultipartFile file) {
         String fileName = UUID.randomUUID().toString() + "_" + file.getOriginalFilename();
 
-        File tempFile = File.createTempFile("upload-", file.getOriginalFilename());
-        file.transferTo(tempFile);
-
         try {
+            File tempFile = File.createTempFile("upload-", file.getOriginalFilename());
+            file.transferTo(tempFile);
+
             s3Client.putObject(
                     PutObjectRequest.builder()
                             .bucket(bucketName)
@@ -83,6 +83,8 @@ public class S3Service {
             tempFile.delete();
 
             return fileName;
+        } catch (IOException e) {
+            throw new CustomException(ErrorCode.FILE_UPLOAD_ERROR);
         } catch (S3Exception e) {
             throw new CustomException(ErrorCode.S3_UPLOAD_ERROR);
         }
@@ -112,14 +114,10 @@ public class S3Service {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
-        try {
-            String fileUrl = uploadFile(file);
-            user.setProfileUrl(fileUrl);
-            userRepository.save(user);
-            return fileUrl;
-        } catch (IOException e) {
-            throw new CustomException(ErrorCode.FILE_UPLOAD_ERROR);
-        }
+        String fileUrl = uploadFile(file);
+        user.setProfileUrl(fileUrl);
+        userRepository.save(user);
+        return fileUrl;
     }
 
     public Map<String, String> getProfileImageUrl(String email) {
