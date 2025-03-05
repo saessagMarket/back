@@ -15,8 +15,8 @@ import java.io.IOException;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/api/profile")
 @RequiredArgsConstructor
+@RequestMapping("/api/profile")
 public class ProfileImageController {
     private final AuthService authService;
     private final S3Service s3Service;

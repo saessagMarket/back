@@ -6,6 +6,7 @@ import com.market.saessag.global.exception.ErrorCode;
 import com.market.saessag.global.response.ApiResponse;
 import com.market.saessag.global.response.SuccessCode;
 import jakarta.servlet.http.HttpServletRequest;
+import lombok.RequiredArgsConstructor;
 import org.springframework.web.HttpSessionRequiredException;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -16,15 +17,11 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
+@RequiredArgsConstructor
 @RequestMapping("/api/photos")
 public class PhotoController {
     private final AuthService authService;
     private final S3Service s3Service;
-
-    public PhotoController(AuthService authService, S3Service s3Service) {
-        this.authService = authService;
-        this.s3Service = s3Service;
-    }
 
     @PostMapping("/upload")
     public ApiResponse<List<String>> uploadPhotos(@RequestParam MultipartFile[] files, HttpServletRequest request) {
