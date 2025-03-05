@@ -10,9 +10,7 @@ import java.util.List;
 
 @Entity
 @Getter
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Product {
 
     @Id
@@ -95,5 +93,24 @@ public class Product {
         this.detailedAddress = request.getDetailedAddress();
         this.status = ProductStatus.valueOf(request.getStatus());
         this.updatedAt = LocalDateTime.now();
+    }
+
+    // id를 제외한 필드만 받는 빌더 전용 생성자
+    @Builder
+    public Product(User user, List<String> photo, String title, Long price, String description,
+            Double latitude, Double longitude, String basicAddress, String detailedAddress,
+            LocalDateTime addedDate, LocalDateTime updatedAt, ProductStatus status) {
+        this.user = user;
+        this.photo = photo;
+        this.title = title;
+        this.price = price;
+        this.description = description;
+        this.latitude = latitude;
+        this.longitude = longitude;
+        this.basicAddress = basicAddress;
+        this.detailedAddress = detailedAddress;
+        this.addedDate = addedDate;
+        this.updatedAt = updatedAt;
+        this.status = status;
     }
 }

@@ -11,8 +11,6 @@ import java.util.List;
 
 @Entity
 @Getter
-@Builder
-@AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(name = "users")
 public class User {
@@ -37,8 +35,7 @@ public class User {
     private String role; // 사용자 권한
 
     @Column
-    @Builder.Default
-    private Boolean emailVerified = null; // 이메일 인증 여부
+    private Boolean emailVerified;// 이메일 인증 여부
 
     @Column
     private LocalDateTime createdAt; // 생성 시간
@@ -51,9 +48,9 @@ public class User {
         this.email = email;
         this.password = password;
         this.profileUrl = profileUrl;
+        this.nickname = nickname;
         this.role = role;
         this.emailVerified = true; // 회원가입 시점에는 이미 인증이 완료된 상태
-        this.nickname = nickname;
         this.createdAt = LocalDateTime.now();
         this.updatedAt = LocalDateTime.now();
     }
