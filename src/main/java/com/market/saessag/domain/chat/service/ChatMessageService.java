@@ -62,8 +62,17 @@ public class ChatMessageService {
         Long receiverId = chatRoom.getBuyer().getId().equals(userId) ? chatRoom.getSeller().getId() : chatRoom.getBuyer().getId();
 
         PageRequest pageRequest = PageRequest.of(page, size);
-        Page<ChatMessage> messages = chatMessageRepository.findByChatRoomOrderByTimeStampDesc(chatRoom, pageRequest);
+        Page<ChatMessage> messages;
 
+        if (userId.equals(chatRoom.getBuyer().getId())) {
+            // 사용자가 구매자일 경우
+            messages = chatMessageRepository.findMessagesAfterLeftTime(roomId, userId, chatRoom.getBuyerLeftAt(), pageRequest);
+        } else if (userId.equals(chatRoom.getSeller().getId())) {
+            // 사용자가 판매자일 경우
+            messages = chatMessageRepository.findMessagesAfterLeftTime(roomId, userId, chatRoom.getSellerLeftAt(), pageRequest);
+        } else {
+            throw new CustomException(ErrorCode.ROOM_HAS_NOT_USER);
+        }
 
         // 상대방이 안 읽은 메시지
         List<ChatMessage> unreadMessages = chatMessageRepository.findUnreadMessagesSentByUser(roomId, userId, receiverId);

@@ -8,13 +8,23 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
 public interface ChatMessageRepository extends JpaRepository<ChatMessage, Long> {
 
-    // 해당 채팅방의 최신 메시지부터 반환
-    Page<ChatMessage> findByChatRoomOrderByTimeStampDesc(ChatRoom chatRoom,PageRequest pageRequest);
+    // 해당 채팅방의 최신 메시지부터 반환 (퇴장후만 보이도록 수정)
+    @Query("SELECT m FROM ChatMessage m " +
+            "WHERE m.chatRoom.id=:roomId " +
+            "AND ((m.sender.id = :userId AND (m.timeStamp > :leftAt OR :leftAt IS NULL))" +
+            "OR (m.sender.id <> :userId AND (m.timeStamp>:leftAt OR :leftAt IS NULL)))" +
+            "ORDER BY m.timeStamp DESC")
+    Page<ChatMessage> findMessagesAfterLeftTime(
+            @Param("roomId") Long roomId,
+            @Param("userId") Long userId,
+            @Param("leftAt") LocalDateTime leftAt,
+            PageRequest pageRequest);
 
     // 해당 채팅방의 최신 메시지 1개 반환
     Optional<ChatMessage> findTopByChatRoomOrderByTimeStampDesc(ChatRoom chatRoom);
