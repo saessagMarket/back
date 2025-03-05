@@ -27,7 +27,8 @@ public enum ErrorCode {
     SIGNIN_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "로그인 처리 중 오류가 발생했습니다."),
     TEMP_PASSWORD_SEND_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "임시 비밀번호 발송에 실패했습니다."),
     PASSWORD_CHANGE_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "비밀번호 변경에 실패했습니다."),
-    ROOM_NOT_FOUND(HttpStatus.NOT_FOUND,"존재하지 않는 방입니다.");
+    ROOM_NOT_FOUND(HttpStatus.NOT_FOUND,"존재하지 않는 방입니다."),
+    ROOM_HAS_NOT_USER(HttpStatus.NOT_FOUND,"해당 방에 존재하지 않는 유저입니다.");
 
     private final HttpStatus httpStatus;
     private final String message;

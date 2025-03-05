@@ -6,6 +6,7 @@ import com.market.saessag.domain.chat.entity.ChatRoom;
 import com.market.saessag.domain.chat.service.ChatRoomService;
 import com.market.saessag.global.response.ApiResponse;
 import com.market.saessag.global.response.SuccessCode;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -32,6 +33,13 @@ public class ChatRoomController {
         List<ChatRoomResponse> chatRooms = chatRoomService.getUserChatRooms(userId);
 
         return ApiResponse.success(SuccessCode.DATA_FETCHED, chatRooms);
+    }
+
+    // 방 퇴장
+    @PostMapping("/left/{roomId}")
+    public ApiResponse<Void> leftChatRoom(@PathVariable Long roomId, HttpServletRequest request) {
+        chatRoomService.leftChatRoom(roomId, request);
+        return ApiResponse.success(SuccessCode.OK);
     }
 
 }

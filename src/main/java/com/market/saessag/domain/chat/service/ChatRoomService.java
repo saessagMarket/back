@@ -9,10 +9,14 @@ import com.market.saessag.domain.chat.repository.ChatRoomRepository;
 import com.market.saessag.domain.chat.repository.ChatSubscriptionRepository;
 import com.market.saessag.domain.product.entity.Product;
 import com.market.saessag.domain.product.repository.ProductRepository;
+import com.market.saessag.domain.user.dto.SignInResponse;
 import com.market.saessag.domain.user.entity.User;
 import com.market.saessag.domain.user.repository.UserRepository;
 import com.market.saessag.global.exception.CustomException;
 import com.market.saessag.global.exception.ErrorCode;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -91,4 +95,34 @@ public class ChatRoomService {
         }
     }
 
+    @Transactional
+    public void leftChatRoom(Long roomId, HttpServletRequest request) {
+        User user = getUserFromSession(request);
+
+        ChatRoom chatRoom = chatRoomRepository.findById(roomId)
+                .orElseThrow(() -> new CustomException(ErrorCode.ROOM_NOT_FOUND));
+
+        if (user == chatRoom.getBuyer()) {
+            chatRoom.updateBuyerLeftAt();
+        } else if (user == chatRoom.getSeller()) {
+            chatRoom.updateSellerLeftAt();
+        } else {
+            throw new CustomException(ErrorCode.ROOM_HAS_NOT_USER);
+        }
+
+        chatRoomRepository.save(chatRoom);
+    }
+
+    // 세션에서 사용자 정보를 가져와서 검증
+    private User getUserFromSession(HttpServletRequest request) {
+        HttpSession session = request.getSession();
+        SignInResponse userSession = (SignInResponse) session.getAttribute("userProfile");
+
+        if (userSession == null) {
+            throw new CustomException(ErrorCode.UNAUTHORIZED);
+        }
+
+        return userRepository.findById(userSession.getId())
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+    }
 }
