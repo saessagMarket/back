@@ -28,9 +28,9 @@ public class ChatRoomController {
     }
 
     // 특정 유저가 속해있는 채팅방 리스트 반환
-    @GetMapping("/{userId}")
-    public ApiResponse<List<ChatRoomResponse>> getChatRoom(@PathVariable Long userId) {
-        List<ChatRoomResponse> chatRooms = chatRoomService.getUserChatRooms(userId);
+    @GetMapping()
+    public ApiResponse<List<ChatRoomResponse>> getChatRoom(HttpServletRequest request) {
+        List<ChatRoomResponse> chatRooms = chatRoomService.getUserChatRooms(request);
 
         return ApiResponse.success(SuccessCode.DATA_FETCHED, chatRooms);
     }

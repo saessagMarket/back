@@ -61,11 +61,9 @@ public class ChatRoomService {
     }
 
     // 유저의 모든 채팅방 반환
-    public List<ChatRoomResponse> getUserChatRooms(Long userId) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
-
-        List<ChatRoom> chatRooms = chatRoomRepository.findByBuyerOrSeller(user, user);
+    public List<ChatRoomResponse> getUserChatRooms(HttpServletRequest request) {
+        User user = getUserFromSession(request);
+        List<ChatRoom> chatRooms = chatRoomRepository.findByBuyerOrSeller(user);
 
         return chatRooms.stream()
                 .map(this::chatRoomResponseEntity)
