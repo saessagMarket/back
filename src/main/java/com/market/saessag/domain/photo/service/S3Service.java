@@ -109,15 +109,18 @@ public class S3Service {
                 ));
     }
 
-    public String uploadProfileImage(MultipartFile file, String email) throws IOException {
+    public String uploadProfileImage(MultipartFile file, String email) {
         User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new UsernameNotFoundException("사용자를 찾을 수 없습니다."));
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
-        String fileUrl = uploadFile(file);
-        user.setProfileUrl(fileUrl);
-        userRepository.save(user);
-
-        return fileUrl;
+        try {
+            String fileUrl = uploadFile(file);
+            user.setProfileUrl(fileUrl);
+            userRepository.save(user);
+            return fileUrl;
+        } catch (IOException e) {
+            throw new CustomException(ErrorCode.FILE_UPLOAD_ERROR);
+        }
     }
 
     public Map<String, String> getProfileImageUrl(String email) {
