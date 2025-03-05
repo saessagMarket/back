@@ -6,7 +6,6 @@ import com.market.saessag.global.exception.CustomException;
 import com.market.saessag.global.exception.ErrorCode;
 import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.multipart.MultipartFile;
@@ -50,7 +49,7 @@ public class S3Service {
         String secretKey = System.getenv("AWS_SECRET_KEY");
 
         if (accessKey == null || secretKey == null) {
-            throw new IllegalArgumentException("액세스 키, 또는 시크릿 키 환경 변수가 설정되지 않았습니다.");
+            throw new CustomException(ErrorCode.KEY_CREDENTIALS_MISSING);
         }
 
         AwsBasicCredentials awsCreds = AwsBasicCredentials.create(accessKey,secretKey);
@@ -85,7 +84,7 @@ public class S3Service {
 
             return fileName;
         } catch (S3Exception e) {
-            throw new RuntimeException("S3에 파일 업로드 중 문제가 발생했습니다. : " + e.getMessage(), e);
+            throw new CustomException(ErrorCode.S3_UPLOAD_ERROR);
         }
     }
 
@@ -125,7 +124,7 @@ public class S3Service {
 
     public Map<String, String> getProfileImageUrl(String email) {
         User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new UsernameNotFoundException("사용자를 찾을 수 없습니다."));
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
         if (user.getProfileUrl() == null) {
             throw new CustomException(ErrorCode.PROFILE_IMAGE_NOT_FOUND);
@@ -133,5 +132,4 @@ public class S3Service {
 
         return getPresignedUrl(Collections.singletonList(user.getProfileUrl()));
     }
-
 }

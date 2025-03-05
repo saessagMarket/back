@@ -27,7 +27,9 @@ public enum ErrorCode {
     SIGNIN_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "로그인 처리 중 오류가 발생했습니다."),
     TEMP_PASSWORD_SEND_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "임시 비밀번호 발송에 실패했습니다."),
     PASSWORD_CHANGE_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "비밀번호 변경에 실패했습니다."),
-    ROOM_NOT_FOUND(HttpStatus.NOT_FOUND,"존재하지 않는 방입니다.");
+    ROOM_NOT_FOUND(HttpStatus.NOT_FOUND,"존재하지 않는 방입니다."),
+    KEY_CREDENTIALS_MISSING(HttpStatus.INTERNAL_SERVER_ERROR, "액세스 키, 또는 시크릿 키 환경 변수가 설정되지 않았습니다."),
+    S3_UPLOAD_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "S3에 파일 업로드 중 문제가 발생했습니다.");
 
     private final HttpStatus httpStatus;
     private final String message;
