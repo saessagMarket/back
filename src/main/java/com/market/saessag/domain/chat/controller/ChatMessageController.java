@@ -40,7 +40,7 @@ public class ChatMessageController {
     @PostMapping("/{roomId}/mark-read")
     public ApiResponse<Void> markMessageAsRead(@PathVariable Long roomId, HttpServletRequest request) { //user 세션으로 바꿀 것
         chatMessageService.markMessagesAsRead(roomId, request);
-        return ApiResponse.success(SuccessCode.OK);
+        return ApiResponse.success();
     }
 
     // 안 읽은 메시지 목록 조회

@@ -34,7 +34,7 @@ public class ChatMessageWebSocketController {
 
         //오프라인 구독자들에게 메시지 전송
         chatSubscriptionService.sendToOffSubscriber(savedMessage, roomId);
-        return ApiResponse.success(SuccessCode.OK, savedMessage);
+        return ApiResponse.success(savedMessage);
     }
 
     // 파일 전송
@@ -43,6 +43,6 @@ public class ChatMessageWebSocketController {
     public ApiResponse<List<ChatFileResponse>> sendFile(@DestinationVariable Long roomId, @Payload ChatFileRequest fileRequest) {
         List<ChatFileResponse> savedFile = chatFileService.saveFile(roomId, fileRequest);
 
-        return ApiResponse.success(SuccessCode.OK, savedFile);
+        return ApiResponse.success(savedFile);
     }
 }
