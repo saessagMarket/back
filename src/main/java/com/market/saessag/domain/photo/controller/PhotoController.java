@@ -33,7 +33,7 @@ public class PhotoController {
                 String fileUrl = s3Service.uploadFile(file);
                 fileUrls.add(fileUrl);
             }
-            return ApiResponse.success(SuccessCode.OK, fileUrls);
+            return ApiResponse.success(fileUrls);
         } catch (HttpSessionRequiredException e) {
             return ApiResponse.error(ErrorCode.UNAUTHORIZED);
         } catch (IOException e) {
@@ -43,7 +43,6 @@ public class PhotoController {
 
     @GetMapping()
     public ApiResponse<Map<String, String>> getPresignedUrl(@RequestParam List<String> keys) {
-        Map<String, String> urls = s3Service.getPresignedUrl(keys);
-        return ApiResponse.success(SuccessCode.OK, urls);
+        return ApiResponse.success(s3Service.getPresignedUrl(keys));
     }
 }

@@ -40,8 +40,7 @@ public class ProfileImageController {
     public ApiResponse<Map<String, String>> getProfileImageUrl(HttpServletRequest request) {
         try {
             String email = authService.getAuthenticatedEmail(request);
-            Map<String, String> urls = s3Service.getProfileImageUrl(email);
-            return ApiResponse.success(SuccessCode.OK, urls);
+            return ApiResponse.success(s3Service.getProfileImageUrl(email));
         } catch (HttpSessionRequiredException e) {
             return ApiResponse.error(ErrorCode.UNAUTHORIZED);
         }
