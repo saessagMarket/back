@@ -126,8 +126,14 @@ public class ChatMessageService {
 
         User user = getUserFromSession(httpRequest);
 
-        List<Long> readMessageIds = chatMessageReadRepository.findMessageIdByUserAndChatRoom(user, chatRoom);
+        List<Long> readMessageIds = getReadMessageIdsFromChatRoom(chatRoom, user);
+
+        for (Long readMessageId : readMessageIds) {
+            System.out.println("readMessageId = " + readMessageId);
+        }
+
         if (readMessageIds.isEmpty()) {
+            System.out.println("읽은 메시지가 없음 !");
             return chatMessageRepository.countByChatRoom(chatRoom);
         }
 
@@ -135,14 +141,14 @@ public class ChatMessageService {
     }
 
     // 안 읽은 메시지 조회
+    // 제일 최신 안 읽은 메시지를 채팅방 목록에 표시 할 수 있음
     public List<ChatMessageResponse> getUnreadMessages(Long roomId, HttpServletRequest httpRequest) {
         ChatRoom chatRoom = chatRoomRepository.findById(roomId)
                 .orElseThrow(() -> new CustomException(ErrorCode.ROOM_NOT_FOUND));
 
         User user = getUserFromSession(httpRequest);
 
-        // 읽은 메시지 테이블에서 특정 채팅방에서 해당 유저가 읽은 메시지의 ID 리스트를 반환
-        List<Long> readMessageIds = chatMessageReadRepository.findMessageIdByUserAndChatRoom(user, chatRoom);
+        List<Long> readMessageIds = getReadMessageIdsFromChatRoom(chatRoom, user);
 
         List<ChatMessage> unreadMessages;
         if (readMessageIds.isEmpty()) {
@@ -153,6 +159,17 @@ public class ChatMessageService {
 
         return unreadMessages.stream()
                 .map(message -> ChatMessageResponse.fromEntity(message, false))
+                .collect(Collectors.toList());
+    }
+
+
+    // 로그인한 사용자가 특정 채팅방에서 읽은 메시지 ID 리스트 반환
+    private List<Long> getReadMessageIdsFromChatRoom(ChatRoom chatRoom, User user) {
+        // 특정 채팅방 전체 메시지 리스트
+        List<ChatMessage> chatRoomMessages = chatMessageRepository.findByChatRoom(chatRoom);
+
+        return chatMessageReadRepository.findByUserAndChatMessageIn(user, chatRoomMessages).stream()
+                .map(r -> r.getChatMessage().getId())
                 .collect(Collectors.toList());
     }
 
