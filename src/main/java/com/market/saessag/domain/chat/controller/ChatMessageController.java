@@ -32,8 +32,9 @@ public class ChatMessageController {
     @GetMapping("/{roomId}/search")
     public ApiResponse<List<ChatMessageResponse>> searchMessages(
             @PathVariable Long roomId,
-            @RequestParam String keyword) {
-        return ApiResponse.success(SuccessCode.DATA_FETCHED, chatMessageService.searchMessages(roomId, keyword));
+            @RequestParam String keyword,
+            HttpServletRequest request) {
+        return ApiResponse.success(SuccessCode.DATA_FETCHED, chatMessageService.searchMessages(roomId, keyword, request));
     }
 
     // 읽음 처리

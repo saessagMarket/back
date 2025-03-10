@@ -84,11 +84,20 @@ public class ChatMessageService {
     }
 
     // 메시지 검색
-    public List<ChatMessageResponse> searchMessages(Long roomId, String keyword){
+    public List<ChatMessageResponse> searchMessages(Long roomId, String keyword, HttpServletRequest httpRequest) {
+        User user = getUserFromSession(httpRequest);
         ChatRoom chatRoom = chatRoomRepository.findById(roomId)
                 .orElseThrow(() -> new CustomException(ErrorCode.ROOM_NOT_FOUND));
 
-        List<ChatMessage> messages = chatMessageRepository.findByChatRoomAndContentContainingOrderByTimeStampDesc(chatRoom, keyword);
+        // 유저가 해당 채팅방 떠난 시간
+        LocalDateTime leftAt = chatRoom.getBuyer().equals(user) ? chatRoom.getBuyerLeftAt() : chatRoom.getSellerLeftAt();
+
+        List<ChatMessage> messages;
+        if (leftAt == null) {
+            messages = chatMessageRepository.findByChatRoomAndContentContainingOrderByTimeStampDesc(chatRoom, keyword);
+        } else {
+            messages = chatMessageRepository.findByChatRoomAndContentContainingAndTimeStampAfterOrderByTimeStampDesc(chatRoom, keyword, leftAt);
+        }
 
         return messages.stream()
                 .map(ChatMessageResponse::fromEntityForSearch)

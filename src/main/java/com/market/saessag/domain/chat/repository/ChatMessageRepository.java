@@ -56,4 +56,6 @@ public interface ChatMessageRepository extends JpaRepository<ChatMessage, Long> 
 
     // 특정 채팅방 퇴장 이후 메시지 존재 여부 반환
     boolean existsByChatRoomAndTimeStampAfter(ChatRoom room, LocalDateTime leftAt);
+
+    List<ChatMessage> findByChatRoomAndContentContainingAndTimeStampAfterOrderByTimeStampDesc(ChatRoom chatRoom, String keyword, LocalDateTime leftAt);
 }
