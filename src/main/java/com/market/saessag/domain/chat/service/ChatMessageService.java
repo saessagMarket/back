@@ -137,33 +137,51 @@ public class ChatMessageService {
 
         List<Long> readMessageIds = getReadMessageIdsFromChatRoom(chatRoom, user);
 
-        for (Long readMessageId : readMessageIds) {
-            System.out.println("readMessageId = " + readMessageId);
-        }
+        // 유저가 해당 채팅방 떠난 시간
+        LocalDateTime leftAt = chatRoom.getBuyer().equals(user) ? chatRoom.getBuyerLeftAt() : chatRoom.getSellerLeftAt();
 
-        if (readMessageIds.isEmpty()) {
-            System.out.println("읽은 메시지가 없음 !");
-            return chatMessageRepository.countByChatRoom(chatRoom);
+        if (leftAt == null) {
+            if (readMessageIds.isEmpty()) {
+                return chatMessageRepository.countByChatRoom(chatRoom);
+            } else {
+                return chatMessageRepository.countByChatRoomAndIdNotIn(chatRoom, readMessageIds);
+            }
+        } else {
+            if (readMessageIds.isEmpty()) {
+                return chatMessageRepository.countByChatRoomAndTimeStampAfter(chatRoom, leftAt);
+            } else {
+                return chatMessageRepository.countByChatRoomAndIdNotInAndTimeStampAfter(chatRoom, readMessageIds, leftAt);
+            }
         }
-
-        return chatMessageRepository.countByChatRoomAndIdNotIn(chatRoom, readMessageIds);
     }
 
     // 안 읽은 메시지 조회
-    // 제일 최신 안 읽은 메시지를 채팅방 목록에 표시 할 수 있음
     public List<ChatMessageResponse> getUnreadMessages(Long roomId, HttpServletRequest httpRequest) {
         ChatRoom chatRoom = chatRoomRepository.findById(roomId)
                 .orElseThrow(() -> new CustomException(ErrorCode.ROOM_NOT_FOUND));
 
         User user = getUserFromSession(httpRequest);
 
+        // 읽은 메시지
         List<Long> readMessageIds = getReadMessageIdsFromChatRoom(chatRoom, user);
 
+        // 유저가 해당 채팅방 떠난 시간
+        LocalDateTime leftAt = chatRoom.getBuyer().equals(user) ? chatRoom.getBuyerLeftAt() : chatRoom.getSellerLeftAt();
+
         List<ChatMessage> unreadMessages;
-        if (readMessageIds.isEmpty()) {
-            unreadMessages = chatMessageRepository.findByChatRoom(chatRoom);
+
+        if (leftAt == null) {
+            if (readMessageIds.isEmpty()) {
+                unreadMessages = chatMessageRepository.findByChatRoom(chatRoom);
+            } else {
+                unreadMessages = chatMessageRepository.findByChatRoomAndIdNotIn(chatRoom, readMessageIds);
+            }
         } else {
-            unreadMessages = chatMessageRepository.findByChatRoomAndIdNotIn(chatRoom, readMessageIds);
+            if (readMessageIds.isEmpty()) {
+                unreadMessages = chatMessageRepository.findByChatRoomAndTimeStampAfter(chatRoom, leftAt);
+            } else {
+                unreadMessages = chatMessageRepository.findByChatRoomAndIdNotInAndTimeStampAfter(chatRoom, readMessageIds, leftAt);
+            }
         }
 
         return unreadMessages.stream()

@@ -58,4 +58,12 @@ public interface ChatMessageRepository extends JpaRepository<ChatMessage, Long> 
     boolean existsByChatRoomAndTimeStampAfter(ChatRoom room, LocalDateTime leftAt);
 
     List<ChatMessage> findByChatRoomAndContentContainingAndTimeStampAfterOrderByTimeStampDesc(ChatRoom chatRoom, String keyword, LocalDateTime leftAt);
+
+    List<ChatMessage> findByChatRoomAndIdNotInAndTimeStampAfter(ChatRoom chatRoom, List<Long> readMessageIds, LocalDateTime leftAt);
+
+    List<ChatMessage> findByChatRoomAndTimeStampAfter(ChatRoom chatRoom, LocalDateTime leftAt);
+
+    Long countByChatRoomAndIdNotInAndTimeStampAfter(ChatRoom chatRoom, List<Long> readMessageIds, LocalDateTime leftAt);
+
+    Long countByChatRoomAndTimeStampAfter(ChatRoom chatRoom, LocalDateTime timeStampAfter);
 }
