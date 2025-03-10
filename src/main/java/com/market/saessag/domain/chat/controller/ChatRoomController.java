@@ -2,13 +2,11 @@ package com.market.saessag.domain.chat.controller;
 
 import com.market.saessag.domain.chat.dto.ChatRoomRequest;
 import com.market.saessag.domain.chat.dto.ChatRoomResponse;
-import com.market.saessag.domain.chat.entity.ChatRoom;
 import com.market.saessag.domain.chat.service.ChatRoomService;
 import com.market.saessag.global.response.ApiResponse;
 import com.market.saessag.global.response.SuccessCode;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -27,7 +25,7 @@ public class ChatRoomController {
         return ApiResponse.success(SuccessCode.ROOM_CREATED, chatRoom);
     }
 
-    // 특정 유저가 속해있는 채팅방 리스트 반환
+    // 특정 유저가 현재 속해있는 채팅방 리스트 반환
     @GetMapping()
     public ApiResponse<List<ChatRoomResponse>> getChatRoom(HttpServletRequest request) {
         List<ChatRoomResponse> chatRooms = chatRoomService.getUserChatRooms(request);

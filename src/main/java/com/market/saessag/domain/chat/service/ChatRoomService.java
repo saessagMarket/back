@@ -20,6 +20,7 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -63,12 +64,23 @@ public class ChatRoomService {
     // 유저의 모든 채팅방 반환
     public List<ChatRoomResponse> getUserChatRooms(HttpServletRequest request) {
         User user = getUserFromSession(request);
-        List<ChatRoom> chatRooms = chatRoomRepository.findByBuyerOrSeller(user);
 
-        return chatRooms.stream()
-                .map(this::chatRoomResponseEntity)
+        // 유저가 속한 모든 채팅방 반환
+        List<ChatRoom> chatRooms = chatRoomRepository.findByBuyerOrSeller(user, user);
+
+        // 퇴장 이후 메시지가 있는 채팅방 필터
+        List<ChatRoom> activeChatRooms = chatRooms.stream()
+                .filter(room -> {
+                    // 유저가 해당 채팅방 떠난 시간
+                    LocalDateTime leftAt = room.getBuyer().equals(user) ? room.getBuyerLeftAt() : room.getSellerLeftAt();
+                    return leftAt == null || chatMessageRepository.existsByChatRoomAndTimeStampAfter(room, leftAt);
+                })
                 .collect(Collectors.toList());
+
+        return activeChatRooms.stream().map(this::chatRoomResponseEntity).collect(Collectors.toList());
     }
+
+
 
     // ChatRoomResponse DTO 변환
     private ChatRoomResponse chatRoomResponseEntity(ChatRoom chatRoom) {

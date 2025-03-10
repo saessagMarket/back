@@ -53,4 +53,7 @@ public interface ChatMessageRepository extends JpaRepository<ChatMessage, Long> 
             @Param("senderId") Long senderId,
             @Param("receiverId") Long receiverId
     );
+
+    // 특정 채팅방 퇴장 이후 메시지 존재 여부 반환
+    boolean existsByChatRoomAndTimeStampAfter(ChatRoom room, LocalDateTime leftAt);
 }
