@@ -22,6 +22,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -53,33 +54,54 @@ public class ChatMessageService {
         return ChatMessageResponse.fromEntity(savedMessage, false);
     }
 
+    // 특정 채팅방 메시지 조회
     public List<ChatMessageResponse> getMessages(Long roomId, HttpServletRequest httpRequest, int page, int size) {
         ChatRoom chatRoom = chatRoomRepository.findById(roomId)
                 .orElseThrow(() -> new CustomException(ErrorCode.ROOM_NOT_FOUND));
 
-        Long userId = getUserFromSession(httpRequest).getId();
+        User user = getUserFromSession(httpRequest);
 
-        Long receiverId = chatRoom.getBuyer().getId().equals(userId) ? chatRoom.getSeller().getId() : chatRoom.getBuyer().getId();
-
+        Page<ChatMessage> messages;
         PageRequest pageRequest = PageRequest.of(page, size);
-        Page<ChatMessage> messages = chatMessageRepository.findByChatRoomOrderByTimeStampDesc(chatRoom, pageRequest);
 
+        if (chatRoom.getBuyer().equals(user) || chatRoom.getSeller().equals(user)) { // 해당 채팅방에 속해 있는 유저인지 확인
+            LocalDateTime leftAt = chatRoom.getBuyer().equals(user) ? chatRoom.getBuyerLeftAt() : chatRoom.getSellerLeftAt();
 
-        // 상대방이 안 읽은 메시지
-        List<ChatMessage> unreadMessages = chatMessageRepository.findUnreadMessagesSentByUser(roomId, userId, receiverId);
-        Set<Long> unreadMessageIds = unreadMessages.stream().map(ChatMessage::getId).collect(Collectors.toSet());
+            if (leftAt == null) { // 퇴장한 적 없는 경우
+                messages = chatMessageRepository.findByChatRoomOrderByTimeStampDesc(chatRoom, pageRequest);
+            } else {
+                messages = chatMessageRepository.findByChatRoomAndTimeStampAfterOrderByTimeStampDesc(chatRoom, leftAt, pageRequest);
+            }
 
+        } else {
+            throw new CustomException(ErrorCode.ROOM_HAS_NOT_USER);
+        }
+
+        // 상대방이 읽은 메시지
+        User receiver = chatRoom.getBuyer().equals(user) ? chatRoom.getSeller() : chatRoom.getBuyer();
+        Set<Long> readMessageIds = new HashSet<>(getReadMessageIdsFromChatRoom(chatRoom, receiver));
+
+        // 채팅방 내에 표시할 읽음 여부 추가하여 반환
         return messages.stream()
-                .map(message -> ChatMessageResponse.fromEntity(message, !unreadMessageIds.contains(message.getId())))
+                .map(message -> ChatMessageResponse.fromEntity(message, readMessageIds.contains(message.getId())))
                 .collect(Collectors.toList());
     }
 
     // 메시지 검색
-    public List<ChatMessageResponse> searchMessages(Long roomId, String keyword){
+    public List<ChatMessageResponse> searchMessages(Long roomId, String keyword, HttpServletRequest httpRequest) {
+        User user = getUserFromSession(httpRequest);
         ChatRoom chatRoom = chatRoomRepository.findById(roomId)
                 .orElseThrow(() -> new CustomException(ErrorCode.ROOM_NOT_FOUND));
 
-        List<ChatMessage> messages = chatMessageRepository.findByChatRoomAndContentContainingOrderByTimeStampDesc(chatRoom, keyword);
+        // 유저가 해당 채팅방 떠난 시간
+        LocalDateTime leftAt = chatRoom.getBuyer().equals(user) ? chatRoom.getBuyerLeftAt() : chatRoom.getSellerLeftAt();
+
+        List<ChatMessage> messages;
+        if (leftAt == null) {
+            messages = chatMessageRepository.findByChatRoomAndContentContainingOrderByTimeStampDesc(chatRoom, keyword);
+        } else {
+            messages = chatMessageRepository.findByChatRoomAndContentContainingAndTimeStampAfterOrderByTimeStampDesc(chatRoom, keyword, leftAt);
+        }
 
         return messages.stream()
                 .map(ChatMessageResponse::fromEntityForSearch)
@@ -117,12 +139,24 @@ public class ChatMessageService {
 
         User user = getUserFromSession(httpRequest);
 
-        List<Long> readMessageIds = chatMessageReadRepository.findMessageIdByUserAndChatRoom(user, chatRoom);
-        if (readMessageIds.isEmpty()) {
-            return chatMessageRepository.countByChatRoom(chatRoom);
-        }
+        List<Long> readMessageIds = getReadMessageIdsFromChatRoom(chatRoom, user);
 
-        return chatMessageRepository.countByChatRoomAndIdNotIn(chatRoom, readMessageIds);
+        // 유저가 해당 채팅방 떠난 시간
+        LocalDateTime leftAt = chatRoom.getBuyer().equals(user) ? chatRoom.getBuyerLeftAt() : chatRoom.getSellerLeftAt();
+
+        if (leftAt == null) {
+            if (readMessageIds.isEmpty()) {
+                return chatMessageRepository.countByChatRoom(chatRoom); // 삭제 ?
+            } else {
+                return chatMessageRepository.countByChatRoomAndIdNotIn(chatRoom, readMessageIds);
+            }
+        } else {
+            if (readMessageIds.isEmpty()) {
+                return chatMessageRepository.countByChatRoomAndTimeStampAfter(chatRoom, leftAt);
+            } else {
+                return chatMessageRepository.countByChatRoomAndIdNotInAndTimeStampAfter(chatRoom, readMessageIds, leftAt);
+            }
+        }
     }
 
     // 안 읽은 메시지 조회
@@ -132,18 +166,41 @@ public class ChatMessageService {
 
         User user = getUserFromSession(httpRequest);
 
-        // 읽은 메시지 테이블에서 특정 채팅방에서 해당 유저가 읽은 메시지의 ID 리스트를 반환
-        List<Long> readMessageIds = chatMessageReadRepository.findMessageIdByUserAndChatRoom(user, chatRoom);
+        // 읽은 메시지
+        List<Long> readMessageIds = getReadMessageIdsFromChatRoom(chatRoom, user);
+
+        // 유저가 해당 채팅방 떠난 시간
+        LocalDateTime leftAt = chatRoom.getBuyer().equals(user) ? chatRoom.getBuyerLeftAt() : chatRoom.getSellerLeftAt();
 
         List<ChatMessage> unreadMessages;
-        if (readMessageIds.isEmpty()) {
-            unreadMessages = chatMessageRepository.findByChatRoom(chatRoom);
+
+        if (leftAt == null) {
+            if (readMessageIds.isEmpty()) {
+                unreadMessages = chatMessageRepository.findByChatRoom(chatRoom);
+            } else {
+                unreadMessages = chatMessageRepository.findByChatRoomAndIdNotIn(chatRoom, readMessageIds);
+            }
         } else {
-            unreadMessages = chatMessageRepository.findByChatRoomAndIdNotIn(chatRoom, readMessageIds);
+            if (readMessageIds.isEmpty()) {
+                unreadMessages = chatMessageRepository.findByChatRoomAndTimeStampAfter(chatRoom, leftAt);
+            } else {
+                unreadMessages = chatMessageRepository.findByChatRoomAndIdNotInAndTimeStampAfter(chatRoom, readMessageIds, leftAt);
+            }
         }
 
         return unreadMessages.stream()
                 .map(message -> ChatMessageResponse.fromEntity(message, false))
+                .collect(Collectors.toList());
+    }
+
+
+    // 사용자가 특정 채팅방에서 읽은 메시지 ID 리스트 반환
+    private List<Long> getReadMessageIdsFromChatRoom(ChatRoom chatRoom, User user) {
+        // 특정 채팅방 전체 메시지 리스트
+        List<ChatMessage> chatRoomMessages = chatMessageRepository.findByChatRoom(chatRoom);
+
+        return chatMessageReadRepository.findByUserAndChatMessageIn(user, chatRoomMessages).stream()
+                .map(r -> r.getChatMessage().getId())
                 .collect(Collectors.toList());
     }
 
