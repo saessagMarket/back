@@ -12,7 +12,6 @@ import java.time.LocalDateTime;
 @Getter
 @Builder
 public class ChatMessageRequest {
-    private Long senderId;
     private String content;
     private LocalDateTime timeStamp;
 }

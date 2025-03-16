@@ -19,6 +19,7 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -35,11 +36,12 @@ public class ChatMessageService {
     private final UserRepository userRepository;
     private final ChatMessageReadRepository chatMessageReadRepository;
 
-    public ChatMessageResponse saveMessage(Long roomId, ChatMessageRequest message) {
+    public ChatMessageResponse saveMessage(Long roomId, ChatMessageRequest message, SimpMessageHeaderAccessor headerAccessor) {
         ChatRoom chatRoom = chatRoomRepository.findById(roomId)
                 .orElseThrow(() -> new CustomException(ErrorCode.ROOM_NOT_FOUND));
 
-        User sender = userRepository.findById(message.getSenderId()) //세션으로 변경
+        SignInResponse user = (SignInResponse) headerAccessor.getSessionAttributes().get("userProfile");
+        User sender = userRepository.findById(user.getId())
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
         ChatMessage newMessage = ChatMessage.builder()
