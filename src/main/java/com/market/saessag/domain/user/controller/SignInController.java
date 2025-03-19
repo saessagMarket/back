@@ -5,7 +5,7 @@ import com.market.saessag.domain.user.dto.SignInResponse;
 import com.market.saessag.domain.user.service.SignInService;
 import com.market.saessag.global.response.ApiResponse;
 import com.market.saessag.global.response.SuccessCode;
-import jakarta.servlet.http.HttpServletRequest;
+import com.market.saessag.global.util.SessionUtils;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -17,6 +17,8 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Collections;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
 @RestController
 @RequiredArgsConstructor
@@ -27,8 +29,7 @@ public class SignInController {
 
     @PostMapping("/sign-in")
     public ApiResponse<SignInResponse> signIn(
-            @Validated @RequestBody SignInRequest signInRequest,
-            HttpServletRequest request) {
+            @Validated @RequestBody SignInRequest signInRequest) {
 
         // 로그인 서비스 호출
         SignInResponse signInResponse = signInService.signIn(signInRequest);
@@ -44,15 +45,15 @@ public class SignInController {
         SecurityContextHolder.setContext(securityContext);
 
         // 세션 설정
-        HttpSession session = request.getSession(true);
+        ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+        HttpSession session = attributes.getRequest().getSession(true);
         session.setAttribute(
                 HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY,
                 securityContext
         );
 
         // 기존 세션 데이터 설정
-        session.setAttribute("userProfile", signInResponse);
-        session.setAttribute("email", signInResponse.getEmail());
+        SessionUtils.setUserSession(signInResponse);
 
         return ApiResponse.success(SuccessCode.SIGNIN_SUCCESS, signInResponse);
     }

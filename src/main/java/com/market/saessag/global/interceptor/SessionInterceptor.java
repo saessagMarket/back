@@ -1,6 +1,8 @@
 package com.market.saessag.global.interceptor;
 
 import com.market.saessag.global.config.PathConst;
+import com.market.saessag.global.exception.CustomException;
+import com.market.saessag.global.util.SessionUtils;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.stereotype.Component;
@@ -8,7 +10,6 @@ import org.springframework.web.servlet.HandlerInterceptor;
 
 @Component
 public class SessionInterceptor implements HandlerInterceptor {
-    @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
         String requestUrl = request.getRequestURI();
 
@@ -18,6 +19,15 @@ public class SessionInterceptor implements HandlerInterceptor {
                 return true;
             }
         }
+
+        // 세션 정보 조회
+        try {
+            SessionUtils.getUserSession();
+        } catch (CustomException e) {
+            response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Unauthorized");
+            return false;
+        }
+
         return true;
     }
 }

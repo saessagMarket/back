@@ -20,4 +20,11 @@ public class SessionUtils { // 세션 정보를 쉽게 조회할 수 있는 유�
 
         return userSession;
     }
+
+    public static void setUserSession(SignInResponse signInResponse) {
+        ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+        HttpSession session = attributes.getRequest().getSession(true);
+        session.setAttribute("userProfile", signInResponse);
+        session.setAttribute("email", signInResponse.getEmail());
+    }
 }
