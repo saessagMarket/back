@@ -7,6 +7,7 @@ import org.springframework.http.HttpStatus;
 @Getter
 @AllArgsConstructor
 public enum ErrorCode {
+    FAIL(HttpStatus.BAD_REQUEST,"요청에 실패했습니다."),
     DUPLICATE_EMAIL(HttpStatus.BAD_REQUEST, "이미 가입된 이메일입니다"),
     VERIFICATION_EXPIRED(HttpStatus.BAD_REQUEST, "인증 시간이 만료되었습니다"),
     INVALID_VERIFICATION_CODE(HttpStatus.BAD_REQUEST, "잘못된 인증 코드입니다"),
@@ -27,7 +28,8 @@ public enum ErrorCode {
     SIGNIN_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "로그인 처리 중 오류가 발생했습니다."),
     TEMP_PASSWORD_SEND_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "임시 비밀번호 발송에 실패했습니다."),
     PASSWORD_CHANGE_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "비밀번호 변경에 실패했습니다."),
-    ROOM_NOT_FOUND(HttpStatus.NOT_FOUND,"존재하지 않는 방입니다.");
+    ROOM_NOT_FOUND(HttpStatus.NOT_FOUND,"존재하지 않는 방입니다."),
+    ROOM_HAS_NOT_USER(HttpStatus.NOT_FOUND,"해당 방에 존재하지 않는 유저입니다.");
 
     private final HttpStatus httpStatus;
     private final String message;

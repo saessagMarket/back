@@ -32,15 +32,16 @@ public class ChatMessageController {
     @GetMapping("/{roomId}/search")
     public ApiResponse<List<ChatMessageResponse>> searchMessages(
             @PathVariable Long roomId,
-            @RequestParam String keyword) {
-        return ApiResponse.success(SuccessCode.DATA_FETCHED, chatMessageService.searchMessages(roomId, keyword));
+            @RequestParam String keyword,
+            HttpServletRequest request) {
+        return ApiResponse.success(SuccessCode.DATA_FETCHED, chatMessageService.searchMessages(roomId, keyword, request));
     }
 
     // 읽음 처리
     @PostMapping("/{roomId}/mark-read")
     public ApiResponse<Void> markMessageAsRead(@PathVariable Long roomId, HttpServletRequest request) { //user 세션으로 바꿀 것
         chatMessageService.markMessagesAsRead(roomId, request);
-        return ApiResponse.success(SuccessCode.OK);
+        return ApiResponse.success();
     }
 
     // 안 읽은 메시지 목록 조회

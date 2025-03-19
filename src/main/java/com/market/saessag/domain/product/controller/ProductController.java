@@ -42,7 +42,7 @@ public class ProductController {
         Page<ProductResponse> product = productService.searchProducts(page, size, title, nickname, sort);
 
         // success() 메서드를 사용하여 일관된 응답 형식 유지
-        return ApiResponse.success(SuccessCode.OK, product);
+        return ApiResponse.success(product);
     }
 
     //상세 조회
@@ -52,8 +52,7 @@ public class ProductController {
         if (user != null) {
             productService.incrementView(id, user.getId());
         }
-        ProductResponse productDetail = productService.getProductDetail(id);
-        return ApiResponse.success(SuccessCode.OK, productDetail);
+        return ApiResponse.success(productService.getProductDetail(id));
     }
 
     //상품 생성
@@ -70,8 +69,7 @@ public class ProductController {
             @PathVariable Long id,
             @RequestBody ProductRequest productRequest,
             HttpServletRequest request) {
-        ProductResponse updatedProduct = productService.updateProduct(id, productRequest, request);
-        return ApiResponse.success(SuccessCode.OK, updatedProduct);
+        return ApiResponse.success(productService.updateProduct(id, productRequest, request));
     }
 
     //상품 삭제
@@ -109,15 +107,13 @@ public class ProductController {
     // @PreAuthorize("isAuthenticated()")  인증된 사용자만 접근 가능한 시큐리티의 메서드 방식 --> 나중에 리팩토링
     @PostMapping("/bump/{id}")
     public ApiResponse<ProductResponse> bumpProduct(@PathVariable Long id, HttpServletRequest httpRequest) {
-        ProductResponse bumpedProduct = productService.bumpProduct(id, httpRequest);
-        return ApiResponse.success(SuccessCode.OK, bumpedProduct);
+        return ApiResponse.success(productService.bumpProduct(id, httpRequest));
     }
 
 
     // 상품 상태 값 변경(본인 소유의 상품의 상태 값만 변경 가능)
     @PostMapping("/changeStatus")
     public ApiResponse<ProductChangeStatusResponse> changeStatus(@RequestBody ProductChangeStatusRequest req, HttpServletRequest request) {
-        ProductChangeStatusResponse response = productService.changeStatus(req, request);
-        return ApiResponse.success(SuccessCode.OK, response);
+        return ApiResponse.success(productService.changeStatus(req, request));
     }
 }

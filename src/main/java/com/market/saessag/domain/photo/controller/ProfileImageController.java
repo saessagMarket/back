@@ -15,8 +15,8 @@ import java.io.IOException;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/api/profile")
 @RequiredArgsConstructor
+@RequestMapping("/api/profile")
 public class ProfileImageController {
     private final AuthService authService;
     private final S3Service s3Service;
@@ -40,8 +40,7 @@ public class ProfileImageController {
     public ApiResponse<Map<String, String>> getProfileImageUrl(HttpServletRequest request) {
         try {
             String email = authService.getAuthenticatedEmail(request);
-            Map<String, String> urls = s3Service.getProfileImageUrl(email);
-            return ApiResponse.success(SuccessCode.OK, urls);
+            return ApiResponse.success(s3Service.getProfileImageUrl(email));
         } catch (HttpSessionRequiredException e) {
             return ApiResponse.error(ErrorCode.UNAUTHORIZED);
         }
