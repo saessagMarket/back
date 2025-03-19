@@ -4,12 +4,10 @@ import com.market.saessag.domain.auth.AuthService;
 import com.market.saessag.domain.photo.service.S3Service;
 import com.market.saessag.global.exception.ErrorCode;
 import com.market.saessag.global.response.ApiResponse;
-import com.market.saessag.global.response.SuccessCode;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.HttpSessionRequiredException;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Map;
 
@@ -21,12 +19,14 @@ public class ProfileImageController {
     private final S3Service s3Service;
 
     // 프로필 사진 업로드
+    /** 해당 부분은 SessionUtils 추가 후 주석 제거할 예정.
     @PatchMapping("/upload-image") // 사용자 관점에서는 프로필 사진 업로드와 수정이 동일한 방식으로 진행됨. 따라서 하나의 Patch 메서드에서 동작함.
-    public ApiResponse<String> uploadProfileImage(@RequestParam("file") MultipartFile file, HttpServletRequest request) throws HttpSessionRequiredException {
-        String email = authService.getAuthenticatedEmail(request);
+    public ApiResponse<String> uploadProfileImage(@RequestParam("file") MultipartFile file) {
+        String email = SessionUtils.getUserSession();
         String fileUrl = s3Service.uploadProfileImage(file, email);
         return ApiResponse.success(SuccessCode.UPLOAD_SUCCESS, fileUrl);
     }
+    */
 
     // 프로필 사진 조회(현재 본인 프로필 사진만 확인 가능)
     @GetMapping
