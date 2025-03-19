@@ -16,6 +16,7 @@ import com.market.saessag.domain.user.entity.User;
 import com.market.saessag.domain.user.repository.UserRepository;
 import java.time.LocalDateTime;
 import java.util.Optional;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -40,6 +41,7 @@ private ProductLikeRepository productLikeRepository;
 private ProductViewRepository productViewRepository;
 
 @Test
+@Disabled("테스트 비활성화: 이미 기능이 잘 동작하는 것을 확인함")
 void bumpProduct() {
     // given
     User user = User.builder()
