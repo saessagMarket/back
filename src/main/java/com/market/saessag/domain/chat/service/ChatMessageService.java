@@ -112,11 +112,17 @@ public class ChatMessageService {
 
     // 읽음 처리
     @Transactional
-    public void markMessagesAsRead(Long roomId, HttpServletRequest httpRequest) {
+    public void markMessagesAsRead(Long roomId, SignInResponse userSession) {
         ChatRoom chatRoom = chatRoomRepository.findById(roomId)
                 .orElseThrow(() -> new CustomException(ErrorCode.ROOM_NOT_FOUND));
 
-        User user = getUserFromSession(httpRequest);
+
+        if (userSession == null) {
+            throw new CustomException(ErrorCode.UNAUTHORIZED);
+        }
+
+        User user = userRepository.findById(userSession.getId())
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
         List<ChatMessage> unreadMessages = chatMessageRepository.findByChatRoom(chatRoom);
 

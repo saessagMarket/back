@@ -7,6 +7,7 @@ import com.market.saessag.domain.chat.dto.ChatMessageResponse;
 import com.market.saessag.domain.chat.service.ChatFileService;
 import com.market.saessag.domain.chat.service.ChatMessageService;
 import com.market.saessag.domain.chat.service.ChatSubscriptionService;
+import com.market.saessag.domain.user.dto.SignInResponse;
 import com.market.saessag.global.response.ApiResponse;
 import com.market.saessag.global.response.SuccessCode;
 import lombok.RequiredArgsConstructor;
@@ -31,7 +32,9 @@ public class ChatMessageWebSocketController {
 
         ChatMessageResponse savedMessage = chatMessageService.saveMessage(roomId, message, headerAccessor);
 
-        // 현재 임시로 메시지 보낸 후 메시지 읽음 API 사용하여 자신의 메시지 읽음 처리하도록 하는 중
+        //메시지 읽음 처리
+        SignInResponse user = (SignInResponse) headerAccessor.getSessionAttributes().get("userProfile");
+        chatMessageService.markMessagesAsRead(roomId, user);
 
         //오프라인 구독자들에게 메시지 전송
         chatSubscriptionService.sendToOffSubscriber(savedMessage, roomId);

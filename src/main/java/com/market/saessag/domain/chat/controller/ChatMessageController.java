@@ -2,9 +2,11 @@ package com.market.saessag.domain.chat.controller;
 
 import com.market.saessag.domain.chat.dto.ChatMessageResponse;
 import com.market.saessag.domain.chat.service.ChatMessageService;
+import com.market.saessag.domain.user.dto.SignInResponse;
 import com.market.saessag.global.response.ApiResponse;
 import com.market.saessag.global.response.SuccessCode;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
@@ -39,8 +41,12 @@ public class ChatMessageController {
 
     // 읽음 처리
     @PostMapping("/{roomId}/mark-read")
-    public ApiResponse<Void> markMessageAsRead(@PathVariable Long roomId, HttpServletRequest request) { //user 세션으로 바꿀 것
-        chatMessageService.markMessagesAsRead(roomId, request);
+    public ApiResponse<Void> markMessageAsRead(@PathVariable Long roomId, HttpServletRequest request) {
+        // 변경된 세션 처리 통합한 후 수정하겠습니다!
+        HttpSession session = request.getSession();
+        SignInResponse userSession = (SignInResponse) session.getAttribute("userProfile");
+
+        chatMessageService.markMessagesAsRead(roomId, userSession);
         return ApiResponse.success();
     }
 
