@@ -42,7 +42,6 @@ class ProductServiceTest {
   void bumpProduct() {
     // given
     User user = User.builder()
-        .id(1L)
         .email("test@email.com")
         .password("password")
         .nickname("nickname")
@@ -50,7 +49,6 @@ class ProductServiceTest {
         .build();
 
     Product product = Product.builder()
-            .id(1L)
             .user(user)
             .title("test title")
             .price(1000L)
