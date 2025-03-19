@@ -27,4 +27,9 @@ public class SessionUtils { // 세션 정보를 쉽게 조회할 수 있는 유�
         session.setAttribute("userProfile", signInResponse);
         session.setAttribute("email", signInResponse.getEmail());
     }
+
+    public static String getUserEmail() {
+        SignInResponse userSession = getUserSession();
+        return userSession.getEmail();
+    }
 }

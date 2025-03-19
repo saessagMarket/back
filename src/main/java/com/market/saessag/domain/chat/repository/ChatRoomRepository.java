@@ -12,6 +12,6 @@ public interface ChatRoomRepository extends JpaRepository<ChatRoom, Long> {
     // 특정 상품, 구매자, 판매자에 매칭되는 채팅방 반환
     Optional<ChatRoom> findByProductAndBuyerAndSeller(Product product, User buyer, User seller);
 
-    // 특정 유저의 모든 채팅방 반환
+    // 특정 유저가 속한 모든 채팅방 반환
     List<ChatRoom> findByBuyerOrSeller(User buyer, User seller);
 }

@@ -2,7 +2,7 @@ package com.market.saessag.domain.product.entity;
 
 import com.market.saessag.domain.user.entity.User;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
+import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -13,9 +13,7 @@ import java.time.LocalDateTime;
 
 @Entity
 @Getter
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(uniqueConstraints = {@UniqueConstraint(columnNames = {"product_id", "user_id"})})
 public class ProductView {
     @Id
@@ -38,4 +36,9 @@ public class ProductView {
         this.viewTime = LocalDateTime.now();
     }
 
+    @Builder
+    public ProductView(Product product, User user) {
+        this.product = product;
+        this.user = user;
+    }
 }
