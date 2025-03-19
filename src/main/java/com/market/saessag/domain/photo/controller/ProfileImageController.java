@@ -2,6 +2,7 @@ package com.market.saessag.domain.photo.controller;
 
 import com.market.saessag.domain.auth.AuthService;
 import com.market.saessag.domain.photo.service.S3Service;
+import com.market.saessag.global.exception.ErrorCode;
 import com.market.saessag.global.response.ApiResponse;
 import com.market.saessag.global.response.SuccessCode;
 import jakarta.servlet.http.HttpServletRequest;
@@ -13,8 +14,8 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/api/profile")
 @RequiredArgsConstructor
+@RequestMapping("/api/profile")
 public class ProfileImageController {
     private final AuthService authService;
     private final S3Service s3Service;
@@ -29,9 +30,12 @@ public class ProfileImageController {
 
     // 프로필 사진 조회(현재 본인 프로필 사진만 확인 가능)
     @GetMapping
-    public ApiResponse<Map<String, String>> getProfileImageUrl(HttpServletRequest request) throws HttpSessionRequiredException {
-        String email = authService.getAuthenticatedEmail(request);
-        Map<String, String> urls = s3Service.getProfileImageUrl(email);
-        return ApiResponse.success(SuccessCode.OK, urls);
+    public ApiResponse<Map<String, String>> getProfileImageUrl(HttpServletRequest request){
+        try {
+            String email = authService.getAuthenticatedEmail(request);
+            return ApiResponse.success(s3Service.getProfileImageUrl(email));
+        } catch (HttpSessionRequiredException e) {
+            return ApiResponse.error(ErrorCode.UNAUTHORIZED);
+        }
     }
 }

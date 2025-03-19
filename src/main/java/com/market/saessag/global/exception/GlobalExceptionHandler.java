@@ -20,9 +20,8 @@ public class GlobalExceptionHandler {
 
     // 2. IllegalArgumentException 처리
     @ExceptionHandler(IllegalArgumentException.class)
-    public ResponseEntity<ApiResponse<Void>> handleIllegalArgumentException(IllegalArgumentException e) {
-        ApiResponse<Void> response = ApiResponse.error(ErrorCode.INVALID_ARGUMENT);
-        return ResponseEntity.status(ErrorCode.INVALID_ARGUMENT.getHttpStatus()).body(response);
+    public ApiResponse<Void> handleIllegalArgumentException(IllegalArgumentException e) {
+        return ApiResponse.error(ErrorCode.INVALID_ARGUMENT);
     }
 
     // 3. 공통된 예외 처리
@@ -33,8 +32,7 @@ public class GlobalExceptionHandler {
 
     // 4. 기타 서버 예외 처리
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<ApiResponse<Void>> handleException(Exception e) {
-        ApiResponse<Void> response = ApiResponse.error(ErrorCode.INTERNAL_SERVER_ERROR);
-        return ResponseEntity.status(ErrorCode.INTERNAL_SERVER_ERROR.getHttpStatus()).body(response);
+    public ApiResponse<Void> handleException(Exception e) {
+        return ApiResponse.error(ErrorCode.INTERNAL_SERVER_ERROR);
     }
 }
