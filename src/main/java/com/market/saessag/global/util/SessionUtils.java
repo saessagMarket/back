@@ -7,7 +7,7 @@ import jakarta.servlet.http.HttpSession;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
-public class SessionUtils {
+public class SessionUtils { // 세션 정보를 쉽게 조회할 수 있는 유틸리티 메서드
 
     public static SignInResponse getUserSession() {
         ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
