@@ -7,6 +7,7 @@ import com.market.saessag.global.response.ApiResponse;
 import com.market.saessag.global.response.SuccessCode;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.util.Pair;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -20,9 +21,9 @@ public class ChatRoomController {
     // 방 생성
     @PostMapping()
     public ApiResponse<ChatRoomResponse> createChatRoom(@RequestBody ChatRoomRequest request) {
-        ChatRoomResponse chatRoom = chatRoomService.createOrGetChatRoom(request.getProductId(), request.getBuyerId(), request.getSellerId());
+        Pair<SuccessCode, ChatRoomResponse> SuccessCodeAndChatRoom = chatRoomService.createOrGetChatRoom(request.getProductId(), request.getBuyerId(), request.getSellerId());
 
-        return ApiResponse.success(SuccessCode.ROOM_CREATED, chatRoom);
+        return ApiResponse.success(SuccessCodeAndChatRoom.getFirst(), SuccessCodeAndChatRoom.getSecond());
     }
 
     // 특정 유저가 현재 속해있는 채팅방 리스트 반환
