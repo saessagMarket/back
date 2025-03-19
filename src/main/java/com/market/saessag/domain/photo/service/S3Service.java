@@ -28,6 +28,7 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+// AWS S3와의 상호작용을 처리하는 서비스
 @Service
 public class S3Service {
 
