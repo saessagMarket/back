@@ -4,8 +4,6 @@ import com.market.saessag.domain.auth.AuthService;
 import com.market.saessag.domain.photo.service.S3Service;
 import com.market.saessag.global.exception.ErrorCode;
 import com.market.saessag.global.response.ApiResponse;
-import com.market.saessag.global.response.SuccessCode;
-import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.HttpSessionRequiredException;
 import org.springframework.web.bind.annotation.*;
@@ -24,9 +22,9 @@ public class PhotoController {
     private final S3Service s3Service;
 
     @PostMapping("/upload")
-    public ApiResponse<List<String>> uploadPhotos(@RequestParam MultipartFile[] files, HttpServletRequest request) {
+    public ApiResponse<List<String>> uploadPhotos(@RequestParam MultipartFile[] files) {
         try {
-            authService.getAuthenticatedEmail(request); // 로그인 한 사용자만 사진 업로드 가능
+            authService.getAuthenticatedEmail(); // 로그인 한 사용자만 사진 업로드 가능
 
             List<String> fileUrls = new ArrayList<>();
             for (MultipartFile file : files) {

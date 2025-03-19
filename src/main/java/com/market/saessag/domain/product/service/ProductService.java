@@ -16,9 +16,8 @@ import com.market.saessag.domain.user.repository.UserRepository;
 import com.market.saessag.domain.user.dto.UserProfileResponse;
 import com.market.saessag.global.exception.CustomException;
 import com.market.saessag.global.exception.ErrorCode;
+import com.market.saessag.global.util.SessionUtils;
 import com.market.saessag.util.TimeUtils;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpSession;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -42,15 +41,15 @@ public class ProductService {
     }
 
     // 상품 생성
-    public ProductResponse createProduct(ProductRequest request, HttpServletRequest httpRequest) {
-        User user = getUserFromSession(httpRequest);
+    public ProductResponse createProduct(ProductRequest request) {
+        User user = getUserFromSession();
         Product product = Product.createProduct(user, request);
         return convertToDTO(productRepository.save(product));
     }
 
     // 상품 수정
-    public ProductResponse updateProduct(Long productId, ProductRequest request, HttpServletRequest httpRequest) {
-        User user = getUserFromSession(httpRequest);
+    public ProductResponse updateProduct(Long productId, ProductRequest request) {
+        User user = getUserFromSession();
         Product product = getProductAndValidateOwner(productId, user.getId());
 
         product.updateProduct(request);
@@ -58,19 +57,14 @@ public class ProductService {
     }
 
     // 상품 삭제
-    public boolean deleteProduct(Long productId, HttpServletRequest request) {
-        HttpSession session = request.getSession();
-        SignInResponse userSession = (SignInResponse) session.getAttribute("userProfile");
-
-        if (userSession == null) {
-            throw new CustomException(ErrorCode.UNAUTHORIZED);
-        }
+    public boolean deleteProduct(Long productId) {
+        User user = getUserFromSession();
 
         Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new IllegalArgumentException("없는 상품 번호 입니다."));
 
         // 글쓴이와 현재 로그인한 사용자가 같은지 확인
-        if (!product.getUser().getId().equals(userSession.getId())) {
+        if (!product.getUser().getId().equals(user.getId())) {
             throw new CustomException(ErrorCode.FORBIDDEN);
         }
 
@@ -136,13 +130,8 @@ public class ProductService {
     }
 
     // 세션에서 사용자 정보를 가져와서 검증
-    private User getUserFromSession(HttpServletRequest request) {
-        HttpSession session = request.getSession();
-        SignInResponse userSession = (SignInResponse) session.getAttribute("userProfile");
-
-        if (userSession == null) {
-            throw new CustomException(ErrorCode.UNAUTHORIZED);
-        }
+    private User getUserFromSession() {
+        SignInResponse userSession = SessionUtils.getUserSession();
 
         return userRepository.findById(userSession.getId())
                 .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
@@ -167,8 +156,8 @@ public class ProductService {
     }
 
     // 상품 끌어올리기
-    public ProductResponse bumpProduct(Long productId, HttpServletRequest httpRequest) {
-        User user = getUserFromSession(httpRequest);
+    public ProductResponse bumpProduct(Long productId) {
+        User user = getUserFromSession();
         Product product = getProductAndValidateOwner(productId, user.getId());
 
         product.bump();  // updatedAt만 갱신
@@ -220,8 +209,8 @@ public class ProductService {
     }
 
     // 상품 상태 값 변경
-    public ProductChangeStatusResponse changeStatus(ProductChangeStatusRequest request, HttpServletRequest httpRequest) {
-        User user = getUserFromSession(httpRequest);
+    public ProductChangeStatusResponse changeStatus(ProductChangeStatusRequest request) {
+        User user = getUserFromSession();
         Product product = getProductAndValidateOwner(request.getId(), user.getId());
 
         try {
