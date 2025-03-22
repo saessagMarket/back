@@ -1,5 +1,6 @@
 package com.market.saessag.domain.chat.controller;
 
+import com.market.saessag.domain.chat.dto.ChatRoomCreateResponse;
 import com.market.saessag.domain.chat.dto.ChatRoomRequest;
 import com.market.saessag.domain.chat.dto.ChatRoomResponse;
 import com.market.saessag.domain.chat.service.ChatRoomService;
@@ -20,10 +21,10 @@ public class ChatRoomController {
 
     // 방 생성
     @PostMapping()
-    public ApiResponse<ChatRoomResponse> createChatRoom(@RequestBody ChatRoomRequest request) {
-        Pair<SuccessCode, ChatRoomResponse> SuccessCodeAndChatRoom = chatRoomService.createOrGetChatRoom(request.getProductId(), request.getBuyerId(), request.getSellerId());
+    public ApiResponse<ChatRoomCreateResponse> createChatRoom(@RequestBody ChatRoomRequest request) {
+        ChatRoomCreateResponse chatRoom = chatRoomService.createOrGetChatRoom(request.getProductId(), request.getBuyerId(), request.getSellerId());
 
-        return ApiResponse.success(SuccessCodeAndChatRoom.getFirst(), SuccessCodeAndChatRoom.getSecond());
+        return ApiResponse.success(chatRoom);
     }
 
     // 특정 유저가 현재 속해있는 채팅방 리스트 반환

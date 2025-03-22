@@ -1,5 +1,6 @@
 package com.market.saessag.domain.chat.service;
 
+import com.market.saessag.domain.chat.dto.ChatRoomCreateResponse;
 import com.market.saessag.domain.chat.dto.ChatRoomResponse;
 import com.market.saessag.domain.chat.entity.ChatMessage;
 import com.market.saessag.domain.chat.entity.ChatRoom;
@@ -37,7 +38,7 @@ public class ChatRoomService {
     private final ChatSubscriptionRepository chatSubscriptionRepository;
 
     //방 생성 (방 존재 시 채팅방 반환)
-    public Pair<SuccessCode,ChatRoomResponse> createOrGetChatRoom(Long productId, Long buyerId, Long sellerId) {
+    public ChatRoomCreateResponse createOrGetChatRoom(Long productId, Long buyerId, Long sellerId) {
         Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new CustomException(ErrorCode.PRODUCT_NOT_FOUND));
 
@@ -63,12 +64,18 @@ public class ChatRoomService {
             subscribeUserToChatRoom(buyer, newRoom);
             subscribeUserToChatRoom(seller, newRoom);
 
-            return Pair.of(SuccessCode.ROOM_CREATED, chatRoomResponseEntity(newRoom));
+            return ChatRoomCreateResponse.builder()
+                    .successCode(SuccessCode.ROOM_CREATED)
+                    .chatRoomResponse(chatRoomResponseEntity(newRoom))
+                    .build();
         }
 
         // 기존 채팅방 불러오는 경우
 
-        return Pair.of(SuccessCode.DATA_FETCHED, chatRoomResponseEntity(chatRoom.orElse(null)));
+        return ChatRoomCreateResponse.builder()
+                .successCode(SuccessCode.ROOM_FETCHED)
+                .chatRoomResponse(chatRoomResponseEntity(chatRoom.get()))
+                .build();
     }
 
     // 유저의 모든 채팅방 반환
