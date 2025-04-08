@@ -31,12 +31,7 @@ public class ProfileImageController {
     // 프로필 사진 조회(현재 본인 프로필 사진만 확인 가능)
     @GetMapping
     public ApiResponse<Map<String, String>> getProfileImageUrl() {
-
-        try {
-            String email = authService.getAuthenticatedEmail();
-            return ApiResponse.success(s3Service.getProfileImageUrl(email));
-        } catch (CustomException e) {
-            return ApiResponse.error(ErrorCode.UNAUTHORIZED);
-        }
+        String email = authService.getLoggedInUserEmail();
+        return ApiResponse.success(s3Service.getProfileImageUrl(email));
     }
 }
