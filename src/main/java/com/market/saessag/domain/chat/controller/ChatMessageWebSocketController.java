@@ -7,13 +7,12 @@ import com.market.saessag.domain.chat.dto.ChatMessageResponse;
 import com.market.saessag.domain.chat.service.ChatFileService;
 import com.market.saessag.domain.chat.service.ChatMessageService;
 import com.market.saessag.domain.chat.service.ChatSubscriptionService;
+import com.market.saessag.domain.user.dto.SignInResponse;
 import com.market.saessag.global.response.ApiResponse;
 import com.market.saessag.global.response.SuccessCode;
 import lombok.RequiredArgsConstructor;
-import org.springframework.messaging.handler.annotation.DestinationVariable;
-import org.springframework.messaging.handler.annotation.MessageMapping;
-import org.springframework.messaging.handler.annotation.Payload;
-import org.springframework.messaging.handler.annotation.SendTo;
+import org.springframework.messaging.handler.annotation.*;
+import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 import org.springframework.stereotype.Controller;
 
 import java.util.List;
@@ -28,11 +27,14 @@ public class ChatMessageWebSocketController {
     // 메시지 전송
     @MessageMapping("/chat/{roomId}/sendMessage")
     @SendTo("/topic/chat/{roomId}")
-    public ApiResponse<ChatMessageResponse> sendMessage(@DestinationVariable Long roomId, @Payload ChatMessageRequest message) {
-        ChatMessageResponse savedMessage = chatMessageService.saveMessage(roomId, message);
+    public ApiResponse<ChatMessageResponse> sendMessage(@DestinationVariable Long roomId, @Payload ChatMessageRequest message,
+                                                        SimpMessageHeaderAccessor headerAccessor) {
 
-        // 추후에 세션 정보로 읽음 처리 꼭 할 것
-        // 현재 임시로 메시지 보낸 후 메시지 읽음 API 사용하여 자신의 메시지 읽음 처리하도록 하는 중
+        ChatMessageResponse savedMessage = chatMessageService.saveMessage(roomId, message, headerAccessor);
+
+        //메시지 읽음 처리
+        SignInResponse user = (SignInResponse) headerAccessor.getSessionAttributes().get("userProfile");
+        chatMessageService.markMessagesAsRead(roomId, user);
 
         //오프라인 구독자들에게 메시지 전송
         chatSubscriptionService.sendToOffSubscriber(savedMessage, roomId);

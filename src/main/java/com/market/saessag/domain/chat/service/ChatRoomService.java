@@ -1,5 +1,6 @@
 package com.market.saessag.domain.chat.service;
 
+import com.market.saessag.domain.chat.dto.ChatRoomCreateResponse;
 import com.market.saessag.domain.chat.dto.ChatRoomResponse;
 import com.market.saessag.domain.chat.entity.ChatMessage;
 import com.market.saessag.domain.chat.entity.ChatRoom;
@@ -14,14 +15,17 @@ import com.market.saessag.domain.user.entity.User;
 import com.market.saessag.domain.user.repository.UserRepository;
 import com.market.saessag.global.exception.CustomException;
 import com.market.saessag.global.exception.ErrorCode;
+import com.market.saessag.global.response.SuccessCode;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -34,7 +38,7 @@ public class ChatRoomService {
     private final ChatSubscriptionRepository chatSubscriptionRepository;
 
     //방 생성 (방 존재 시 채팅방 반환)
-    public ChatRoomResponse createOrGetChatRoom(Long productId, Long buyerId, Long sellerId) {
+    public ChatRoomCreateResponse createOrGetChatRoom(Long productId, Long buyerId, Long sellerId) {
         Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new CustomException(ErrorCode.PRODUCT_NOT_FOUND));
 
@@ -44,21 +48,34 @@ public class ChatRoomService {
         User seller = userRepository.findById(sellerId)
                 .orElseThrow(() -> new IllegalArgumentException("판매자를 찾을 수 없습니다."));
 
-        ChatRoom chatRoom = chatRoomRepository.findByProductAndBuyerAndSeller(product, buyer, seller)
-                .orElseGet(() -> {
-                    ChatRoom newRoom = ChatRoom.builder()
-                            .product(product)
-                            .buyer(buyer)
-                            .seller(seller)
-                            .build();
+        Optional<ChatRoom> chatRoom = chatRoomRepository.findByProductAndBuyerAndSeller(product, buyer, seller);
 
-                    return chatRoomRepository.save(newRoom);
-                });
+        // 새로운 채팅방 생성하는 경우
+        if (chatRoom.isEmpty()) {
+            ChatRoom newRoom = ChatRoom.builder()
+                    .product(product)
+                    .buyer(buyer)
+                    .seller(seller)
+                    .build();
 
-        subscribeUserToChatRoom(buyer, chatRoom);
-        subscribeUserToChatRoom(seller, chatRoom);
+            chatRoomRepository.save(newRoom);
 
-        return chatRoomResponseEntity(chatRoom);
+            // 구독 목록에 추가
+            subscribeUserToChatRoom(buyer, newRoom);
+            subscribeUserToChatRoom(seller, newRoom);
+
+            return ChatRoomCreateResponse.builder()
+                    .successCode(SuccessCode.ROOM_CREATED)
+                    .chatRoomResponse(chatRoomResponseEntity(newRoom))
+                    .build();
+        }
+
+        // 기존 채팅방 불러오는 경우
+
+        return ChatRoomCreateResponse.builder()
+                .successCode(SuccessCode.ROOM_FETCHED)
+                .chatRoomResponse(chatRoomResponseEntity(chatRoom.get()))
+                .build();
     }
 
     // 유저의 모든 채팅방 반환
