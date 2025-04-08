@@ -21,7 +21,7 @@ public class PhotoController {
 
     @PostMapping("/upload")
     public ApiResponse<List<String>> uploadPhotos(@RequestParam MultipartFile[] files) {
-        authService.getAuthenticatedEmail(); // 로그인 한 사용자만 사진 업로드 가능
+        authService.getLoggedInUserEmail(); // 로그인 한 사용자만 사진 업로드 가능
         List<String> fileUrls = photoUploadService.uploadPhotos(files); // 예외는 서비스에서 처리
         return ApiResponse.success(fileUrls);
     }
