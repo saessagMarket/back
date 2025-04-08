@@ -6,12 +6,10 @@ import com.market.saessag.domain.product.dto.ProductRequest;
 import com.market.saessag.domain.product.dto.ProductResponse;
 import com.market.saessag.domain.product.service.ProductService;
 import com.market.saessag.domain.user.dto.SignInResponse;
-import com.market.saessag.global.exception.CustomException;
 import com.market.saessag.global.exception.ErrorCode;
 import com.market.saessag.global.response.ApiResponse;
 import com.market.saessag.global.response.SuccessCode;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpSession;
+import com.market.saessag.global.util.SessionUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
@@ -57,9 +55,8 @@ public class ProductController {
 
     //상품 생성
     @PostMapping
-    public ApiResponse<ProductResponse> createProduct(@RequestBody ProductRequest productRequest,
-                                                      HttpServletRequest request) {
-        ProductResponse createdProduct = productService.createProduct(productRequest, request);
+    public ApiResponse<ProductResponse> createProduct(@RequestBody ProductRequest productRequest) {
+        ProductResponse createdProduct = productService.createProduct(productRequest);
         return ApiResponse.success(SuccessCode.PRODUCT_CREATED, createdProduct);
     }
 
@@ -67,17 +64,15 @@ public class ProductController {
     @PutMapping("/{id}")
     public ApiResponse<ProductResponse> updateProduct(
             @PathVariable Long id,
-            @RequestBody ProductRequest productRequest,
-            HttpServletRequest request) {
-        return ApiResponse.success(productService.updateProduct(id, productRequest, request));
+            @RequestBody ProductRequest productRequest) {
+        return ApiResponse.success(productService.updateProduct(id, productRequest));
     }
 
     //상품 삭제
     @DeleteMapping("/{id}")
     public ApiResponse<Void> deleteProduct(
-            @PathVariable Long id,
-            HttpServletRequest request) {
-        boolean isDeleted = productService.deleteProduct(id, request);
+            @PathVariable Long id) {
+        boolean isDeleted = productService.deleteProduct(id);
         if (!isDeleted) {
             return ApiResponse.error(ErrorCode.PRODUCT_NOT_FOUND);
         }
@@ -86,15 +81,9 @@ public class ProductController {
 
     // 상품 좋아요
     @PostMapping("/{id}/like")
-    public ApiResponse<Void> likeProduct(@PathVariable Long id, HttpServletRequest request) {
+    public ApiResponse<Void> likeProduct(@PathVariable Long id) {
 
-        HttpSession session = request.getSession();
-        SignInResponse userSession = (SignInResponse) session.getAttribute("userProfile");
-
-        if (userSession == null) {
-            throw new CustomException(ErrorCode.UNAUTHORIZED);
-        }
-
+        SignInResponse userSession = SessionUtils.getUserSession(); // SessionUtils 클래스를 사용하여 세션 정보 가져옴
         boolean isLiked = productService.likeProduct(id, userSession.getId());
 
         return ApiResponse.success(
@@ -106,14 +95,14 @@ public class ProductController {
     // 상품 끌어올리기
     // @PreAuthorize("isAuthenticated()")  인증된 사용자만 접근 가능한 시큐리티의 메서드 방식 --> 나중에 리팩토링
     @PostMapping("/bump/{id}")
-    public ApiResponse<ProductResponse> bumpProduct(@PathVariable Long id, HttpServletRequest httpRequest) {
-        return ApiResponse.success(productService.bumpProduct(id, httpRequest));
+    public ApiResponse<ProductResponse> bumpProduct(@PathVariable Long id) {
+        return ApiResponse.success(productService.bumpProduct(id));
     }
 
 
     // 상품 상태 값 변경(본인 소유의 상품의 상태 값만 변경 가능)
     @PostMapping("/changeStatus")
-    public ApiResponse<ProductChangeStatusResponse> changeStatus(@RequestBody ProductChangeStatusRequest req, HttpServletRequest request) {
-        return ApiResponse.success(productService.changeStatus(req, request));
+    public ApiResponse<ProductChangeStatusResponse> changeStatus(@RequestBody ProductChangeStatusRequest req) {
+        return ApiResponse.success(productService.changeStatus(req));
     }
 }

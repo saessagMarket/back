@@ -112,13 +112,22 @@ public class S3Service {
     }
 
     public String uploadProfileImage(MultipartFile file, String email) {
+        // 사용자 조회
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
-        String fileUrl = uploadFile(file);
-        user.setProfileUrl(fileUrl);
-        userRepository.save(user);
-        return fileUrl;
+        try {
+            // 파일 업로드 로직
+            String fileUrl = uploadFile(file); // S3 업로드 메서드 호출
+
+            // 사용자 프로필 URL 업데이트 및 저장
+            user.setProfileUrl(fileUrl);
+            userRepository.save(user);
+
+            return fileUrl;
+        } catch (Exception e) {
+            throw new CustomException(ErrorCode.UNAUTHORIZED);
+        }
     }
 
     public Map<String, String> getProfileImageUrl(String email) {
